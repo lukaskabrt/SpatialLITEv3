@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SOLUTION_PATH: src/SpatialLITE.sln
 
     steps:
     - uses: actions/checkout@v3
@@ -22,13 +24,13 @@ jobs:
       run: dotnet tool install -g dotnet-format
 
     - name: Check code format
-      run: dotnet format src/SpatialLITE.sln --no-restore --verify-no-changes
+      run: dotnet format ${{ env.SOLUTION_PATH }} --no-restore --verify-no-changes
         
     - name: Restore dependencies
-      run: dotnet restore src/SpatialLITE.sln
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
       
     - name: Build
-      run: dotnet build src/SpatialLITE.sln --no-restore
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore
       
     - name: Test
-      run: dotnet test src/SpatialLITE.sln --no-build --verbosity normal
+      run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --verbosity normal
