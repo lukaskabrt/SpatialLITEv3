@@ -22,13 +22,13 @@ jobs:
       run: dotnet tool install -g dotnet-format
 
     - name: Check code format
-      run: dotnet format --no-restore --verify-no-changes
+      run: dotnet format src/SpatialLITE.sln --no-restore --verify-no-changes
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore src/SpatialLITE.sln
       
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build src/SpatialLITE.sln --no-restore
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test src/SpatialLITE.sln --no-build --verbosity normal
