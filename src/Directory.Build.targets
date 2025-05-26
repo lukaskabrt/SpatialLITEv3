@@ -1,0 +1,24 @@
+﻿<Project>
+  <!-- Load parent Directory.Build.targets if it exists to support customization outside of source directory. -->
+  <Import
+    Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))"
+    Condition="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../')) != ''" />
+
+  <!--
+    Workaround for https://github.com/dotnet/roslyn/issues/41640
+    IDE0005 Remove unnecessary using directives requires GenerateDocumentationFile=true which we generally don't want to have enabled.
+    To work around this, we transiently enable xml documentation generation for projects where it is disabled
+    and ignore all relevant warnings as well as the resulting xml files.
+  -->
+  <Target Name="__EnableEphemeralDocumentationOutput" BeforeTargets="CoreCompile">
+    <ItemGroup Condition="'$(GenerateDocumentationFile)' != 'true'">
+      <DocFileItem Include="$(IntermediateOutputPath)DummyDocumentationFileToIgnore.xml" />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(GenerateDocumentationFile)' != 'true'">
+      <CopyDocumentationFileToOutputDirectory>false</CopyDocumentationFileToOutputDirectory>
+
+      <!-- Disable xmldoc warning CS1591 Missing XML comment for publicly visible type or member 'Type_or_Member' -->
+      <NoWarn>$(NoWarn);CS1591</NoWarn>
+    </PropertyGroup>
+  </Target>
+</Project>

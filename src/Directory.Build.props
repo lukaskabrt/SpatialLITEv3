@@ -1,0 +1,17 @@
+<Project>
+  <!-- Load parent Directory.Build.props if it exists to support customization outside of source directory. -->
+  <Import
+    Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+    Condition="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')) != ''" />
+
+  <PropertyGroup>
+    <!-- Run build-time code style checks, except in build pipelines where a dedicated validation step exists, if appropriate. -->
+    <EnforceCodeStyleInBuild Condition="'$(TF_Build)'!='True'">true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
