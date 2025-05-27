@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

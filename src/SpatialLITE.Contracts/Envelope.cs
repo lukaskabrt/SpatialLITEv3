@@ -45,7 +45,12 @@ public readonly record struct Envelope
             return;
         }
 
-        var first = coordinates.First();
+        var first = coordinates.FirstOrDefault(c => c != Coordinate.Empty);
+        if (first == Coordinate.Empty)
+        {
+            return;
+        }
+
         double minX = first.X, maxX = first.X, minY = first.Y, maxY = first.Y;
 
         foreach (var coordinate in coordinates)
