@@ -2,5 +2,5 @@
 
 public class MultiPointTests
 {
-    //The current implementation of MultiPoint just calls parent constructors, so nothing worth testing
+    //The current implementation of MultiPoint just calls parent's constructors, so nothing worth testing
 }
