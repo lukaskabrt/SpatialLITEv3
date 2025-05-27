@@ -41,6 +41,16 @@ public class EnvelopeTests
     }
 
     [Fact]
+    public void Constructor_IEnumerableCoordinate_SetsMinMaxValuesAndIgnoresEmptyCoordinates()
+    {
+        var coordinates = new Coordinate[] { Coordinate.Empty, new(1, 10), new(-1, -10) };
+
+        var target = new Envelope(coordinates);
+
+        AssertBoundaries(target, -1, 1, -10, 10);
+    }
+
+    [Fact]
     public void Extend_Coordinate_SetsMinMaxValuesOnEmptyEnvelope()
     {
         var target = new Envelope();
