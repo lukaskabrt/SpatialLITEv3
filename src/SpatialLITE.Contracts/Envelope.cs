@@ -10,10 +10,10 @@ public readonly record struct Envelope
     /// </summary>
     public static readonly Envelope Empty = new();
 
-    public readonly double MinX { get; init; } = double.NaN;
-    public readonly double MaxX { get; init; } = double.NaN;
-    public readonly double MinY { get; init; } = double.NaN;
-    public readonly double MaxY { get; init; } = double.NaN;
+    public readonly double MinX { get; private init; } = double.NaN;
+    public readonly double MaxX { get; private init; } = double.NaN;
+    public readonly double MinY { get; private init; } = double.NaN;
+    public readonly double MaxY { get; private init; } = double.NaN;
 
     /// <summary>
     /// Initializes a new instance of the <c>Envelope</c> class that is empty and has all its values initialized to <c>double.NaN</c>.
