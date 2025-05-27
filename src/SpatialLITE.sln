@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpatialLITE.Benchmarks", "SpatialLITE.Benchmarks\SpatialLITE.Benchmarks.csproj", "{86F73778-52B9-471A-B558-3C9008B39A46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{7225CFB1-A0E1-4CF3-BE7B-A1F8A460B4A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7225CFB1-A0E1-4CF3-BE7B-A1F8A460B4A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7225CFB1-A0E1-4CF3-BE7B-A1F8A460B4A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86F73778-52B9-471A-B558-3C9008B39A46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86F73778-52B9-471A-B558-3C9008B39A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86F73778-52B9-471A-B558-3C9008B39A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86F73778-52B9-471A-B558-3C9008B39A46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
