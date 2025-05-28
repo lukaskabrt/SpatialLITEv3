@@ -62,7 +62,7 @@ internal static class WktTokenizer
     /// </summary>
     /// <param name="ch">Character to get type.</param>
     /// <returns>the type of token for ch.</returns>
-    /// <remarks>In WKT can characters be divided into token types without context - every character is member of thne one token type only.</remarks>
+    /// <remarks>In WKT can characters be divided into token types without context - every character is member of the one token type only.</remarks>
     private static TokenType GetTokenType(char ch)
     {
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
@@ -90,6 +90,6 @@ internal static class WktTokenizer
             return TokenType.NUMBER;
         }
 
-        throw new Exception();
+        throw new WktParseException($"Invalid character encountered: '{ch}'. Unable to determine token type.");
     }
 }
