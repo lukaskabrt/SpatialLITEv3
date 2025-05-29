@@ -25,7 +25,7 @@ public class WktReaderTests
     [Fact]
     public void Constructor_Path_ThrowsFileNotFoundExceptionIfFileDoesNotExists()
     {
-        Assert.Throws<FileNotFoundException>(() => new WktReader("non-existing-file.wkb"));
+        Assert.Throws<FileNotFoundException>(() => new WktReader("non-existing-file.wkt"));
     }
 
     public static IEnumerable<object[]> Read_ReadsAllGeometryTypesTestData

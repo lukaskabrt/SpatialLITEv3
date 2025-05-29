@@ -27,20 +27,20 @@ public class WktWriterTests
         Assert.Throws<ArgumentNullException>(() => new WktWriter(new MemoryStream(), null!));
     }
 
-    //[Fact]
-    //public void Constructor_PathSettings_CreatesOutputFile()
-    //{
-    //    string filename = PathHelper.GetTempFilePath("wktwriter-constructor-creates-output-test.wkt");
-    //    File.Delete(filename);
+    [Fact]
+    public void Constructor_PathSettings_CreatesOutputFile()
+    {
+        var filename = Path.GetTempFileName();
+        File.Delete(filename);
 
-    //    var settings = new WktWriterSettings();
-    //    using (var target = new WktWriter(filename, settings))
-    //    {
-    //        ;
-    //    }
+        var settings = new WktWriterSettings();
+        using (var target = new WktWriter(filename, settings))
+        {
+            ;
+        }
 
-    //    Assert.True(File.Exists(filename));
-    //}
+        Assert.True(File.Exists(filename));
+    }
 
     [Fact]
     public void Constructor_PathSettings_ThrowsArgumentNullExceptionIfStreamIsNull()
@@ -49,13 +49,13 @@ public class WktWriterTests
         Assert.Throws<ArgumentNullException>(() => new WktWriter(path!, new WktWriterSettings()));
     }
 
-    //[Fact]
-    //public void Constructor_PathSettings_ThrowsArgumentNullExceptionIfSettingsIsNull()
-    //{
-    //    string path = PathHelper.GetTempFilePath("WktWriter-constructor-test.bin");
+    [Fact]
+    public void Constructor_PathSettings_ThrowsArgumentNullExceptionIfSettingsIsNull()
+    {
+        var path = Path.GetTempFileName();
 
-    //    Assert.Throws<ArgumentNullException>(() => new WktWriter(path, null));
-    //}
+        Assert.Throws<ArgumentNullException>(() => new WktWriter(path, null!));
+    }
 
     public static IEnumerable<object[]> WriteToStringTestData
     {
@@ -78,18 +78,6 @@ public class WktWriterTests
     {
         TestWriteGeometry(toWrite, expectedWkt);
     }
-
-    //[Fact]
-    //public void Dispose_ClosesOutputStreamIfWritingToFiles()
-    //{
-    //    string filename = PathHelper.GetTempFilePath("wktwriter-closes-output-filestream-test.wkt");
-
-    //    var settings = new WktWriterSettings();
-    //    var target = new WktWriter(filename, settings);
-    //    target.Dispose();
-    //    var testStream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-    //    testStream.Dispose();
-    //}
 
     [Fact]
     public void Dispose_ClosesOutputStreamIfWritingToStream()
@@ -254,7 +242,7 @@ public class WktWriterTests
         TestWriteGeometry(collection, wkt);
     }
 
-    private void TestWriteGeometry(IGeometry geometry, string expectedWkt)
+    private static void TestWriteGeometry(IGeometry geometry, string expectedWkt)
     {
         var stream = new MemoryStream();
         using (var writer = new WktWriter(stream, new WktWriterSettings()))
