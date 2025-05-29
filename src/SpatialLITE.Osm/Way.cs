@@ -4,7 +4,7 @@
 /// Represents information about way.
 /// </summary>
 /// <remarks>
-/// Nodes are represented with their id's only.
+/// Nodes are represented with their IDs only.
 /// </remarks>
 public class Way : IOsmEntity
 {
