@@ -66,7 +66,7 @@ public class WktReader : IDisposable
         {
             if (parsed is not T result)
             {
-                throw new WktParseException("Input doesn't contain valid WKB representation of the specified geometry type.");
+                throw new WktParseException("Input doesn't contain valid WKT representation of the specified geometry type.");
             }
 
             return result;
@@ -99,7 +99,7 @@ public class WktReader : IDisposable
         {
             if (parsed is not T result)
             {
-                throw new WktParseException("Input doesn't contain valid WKB representation of the specified geometry type.");
+                throw new WktParseException("Input doesn't contain valid WKT representation of the specified geometry type.");
             }
 
             return result;
@@ -130,31 +130,31 @@ public class WktReader : IDisposable
 
         if (t.Type == TokenType.STRING)
         {
-            if (t.Value.ToUpperInvariant() == "POINT")
+            if (t.Value.Equals("POINT", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParsePointTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "LINESTRING")
+            else if (t.Value.Equals("LINESTRING", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParseLineStringTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "POLYGON")
+            else if (t.Value.Equals("POLYGON", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParsePolygonTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "MULTIPOINT")
+            else if (t.Value.Equals("MULTIPOINT", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParseMultiPointTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "MULTILINESTRING")
+            else if (t.Value.Equals("MULTILINESTRING", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParseMultiLineStringTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "MULTIPOLYGON")
+            else if (t.Value.Equals("MULTIPOLYGON", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParseMultiPolygonTaggedText(tokens);
             }
-            else if (t.Value.ToUpperInvariant() == "GEOMETRYCOLLECTION")
+            else if (t.Value.Equals("GEOMETRYCOLLECTION", StringComparison.InvariantCultureIgnoreCase))
             {
                 return ParseGeometryCollectionTaggedText(tokens);
             }
@@ -278,11 +278,12 @@ public class WktReader : IDisposable
     /// <param name="is3D">bool value indicating whether coordinate being parsed had z-coordinate.</param>
     /// <param name="isMeasured">bool value indicating whether coordinate being parsed has m-value.</param>
     /// <returns>A list of coordinates specified by tokens.</returns>
-    private static IEnumerable<Coordinate> ParseCoordinates(WktTokensBuffer tokens, bool is3D, bool isMeasured)
+    private static List<Coordinate> ParseCoordinates(WktTokensBuffer tokens, bool is3D, bool isMeasured)
     {
-        var coordinates = new List<Coordinate>();
-
-        coordinates.Add(ParseCoordinate(tokens, is3D, isMeasured));
+        var coordinates = new List<Coordinate>
+        {
+            ParseCoordinate(tokens, is3D, isMeasured)
+        };
 
         var t = tokens.Peek(true);
         while (t.Type == TokenType.COMMA)
@@ -329,7 +330,7 @@ public class WktReader : IDisposable
     {
         var t = tokens.Peek(true);
 
-        if (t.Type == TokenType.STRING && t.Value.ToUpperInvariant() == "EMPTY")
+        if (t.Type == TokenType.STRING && t.Value.Equals("EMPTY", StringComparison.InvariantCultureIgnoreCase))
         {
             tokens.GetToken(true);
             return new LineString();
@@ -351,17 +352,17 @@ public class WktReader : IDisposable
     /// <returns>A list of linestrings specified by tokens.</returns>
     private static List<LineString> ParseLineStrings(WktTokensBuffer tokens, bool is3D, bool isMeasured)
     {
-        var linestrigns = new List<LineString> { ParseLineStringText(tokens, is3D, isMeasured) };
+        var linestrings = new List<LineString> { ParseLineStringText(tokens, is3D, isMeasured) };
 
         var t = tokens.Peek(true);
         while (t.Type == TokenType.COMMA)
         {
             tokens.GetToken(true);
-            linestrigns.Add(ParseLineStringText(tokens, is3D, isMeasured));
+            linestrings.Add(ParseLineStringText(tokens, is3D, isMeasured));
             t = tokens.Peek(true);
         }
 
-        return linestrigns;
+        return linestrings;
     }
 
     /// <summary>
@@ -425,7 +426,7 @@ public class WktReader : IDisposable
     /// <param name="is3D">bool value indicating whether polygon being parsed has z-coordinate.</param>
     /// <param name="isMeasured">bool value indicating whether polygon being parsed has m-value.</param>
     /// <returns>A list of polygons specified by tokens.</returns>
-    private static IEnumerable<Polygon> ParsePolygons(WktTokensBuffer tokens, bool is3D, bool isMeasured)
+    private static List<Polygon> ParsePolygons(WktTokensBuffer tokens, bool is3D, bool isMeasured)
     {
         var polygons = new List<Polygon> { ParsePolygonText(tokens, is3D, isMeasured) };
 
@@ -519,7 +520,7 @@ public class WktReader : IDisposable
     {
         var t = tokens.Peek(true);
 
-        if (t.Type == TokenType.STRING && t.Value.ToUpperInvariant() == "EMPTY")
+        if (t.Type == TokenType.STRING && t.Value.Equals("EMPTY", StringComparison.InvariantCultureIgnoreCase))
         {
             tokens.GetToken(true);
             return new MultiPoint();
@@ -533,7 +534,7 @@ public class WktReader : IDisposable
     }
 
     /// <summary>
-    /// Parses a multipolyugon tagged text.
+    /// Parses a multipolygon tagged text.
     /// </summary>
     /// <param name="tokens">The list of tokens.</param>
     /// <returns>A multipolygon specified by tokens.</returns>
@@ -579,7 +580,7 @@ public class WktReader : IDisposable
     }
 
     /// <summary>
-    /// Parses a multipolyugon tagged text.
+    /// Parses a GeometryCollection tagged text.
     /// </summary>
     /// <param name="tokens">The list of tokens.</param>
     /// <returns>A GeometryCollection specified by tokens.</returns>

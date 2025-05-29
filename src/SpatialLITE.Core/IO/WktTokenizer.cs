@@ -42,7 +42,7 @@ internal static class WktTokenizer
             ch = (char)reader.Read();
             var token = GetTokenType(ch);
 
-            // tokens COMMA, LEFT_PARENTHESIS and RIGHT_PARENTHESIS can not be grupped together
+            // tokens COMMA, LEFT_PARENTHESIS and RIGHT_PARENTHESIS can not be grouped together
             if ((token != lastToken) || token == TokenType.COMMA || token == TokenType.LEFT_PARENTHESIS || token == TokenType.RIGHT_PARENTHESIS)
             {
                 yield return new WktToken() { Type = lastToken, Value = stringBuffer.ToString() };

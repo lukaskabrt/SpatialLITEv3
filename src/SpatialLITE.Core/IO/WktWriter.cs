@@ -17,7 +17,7 @@ public class WktWriter : IDisposable
     /// Initializes a new instance of the WktWriter class that writes geometries to stream with specific settings.
     /// </summary>
     /// <param name="stream">The stream to write geometries to.</param>
-    /// <param name="settings">The settings defining behaviour of the writer.</param>
+    /// <param name="settings">The settings defining behavior of the writer.</param>
     public WktWriter(Stream stream, WktWriterSettings settings)
     {
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -122,7 +122,7 @@ public class WktWriter : IDisposable
     /// Converts the Coordinate to the format used in WKT and appends it to the output Stream.
     /// </summary>
     /// <param name="coordinate">The Coordinate to be converted.</param>
-    /// <param name="writer">The output Stream to Appent WKT representation to.</param>
+    /// <param name="writer">The output Stream to append WKT representation to.</param>
     private static void AppendCoordinate(Coordinate coordinate, TextWriter writer)
     {
         writer.Write(coordinate.X.ToString(CultureInfo.InvariantCulture));
@@ -135,7 +135,7 @@ public class WktWriter : IDisposable
     /// </summary>
     /// <param name="coordinates">The list of coordinates to be converted.</param>
     /// <param name="writer">The output stream.</param>
-    /// <param name="wrap">bool value indicating whether the list of coordinates should be enclosed in parathenes.</param>
+    /// <param name="wrap">bool value indicating whether the list of coordinates should be enclosed in parentheses.</param>
     private static void AppendCoordinates(IReadOnlyList<Coordinate> coordinates, TextWriter writer, bool wrap)
     {
         if (coordinates.Count == 0)
@@ -435,11 +435,7 @@ public class WktWriter : IDisposable
             if (disposing)
             {
                 _writer.Dispose();
-
-                if (_outputStream != null)
-                {
-                    _outputStream.Dispose();
-                }
+                _outputStream?.Dispose();
             }
 
             _disposed = true;
