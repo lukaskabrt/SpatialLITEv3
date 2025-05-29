@@ -24,7 +24,7 @@ public class Way : IOsmEntity
     public required TagsCollection Tags { get; set; }
 
     /// <summary>
-    /// Gets the list of id's of this way nodes.
+    /// Gets the IDs of the nodes comprising this way.
     /// </summary>
     public required IList<long> Nodes { get; set; }
 
