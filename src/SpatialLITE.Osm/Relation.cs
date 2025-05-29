@@ -6,7 +6,7 @@
 public class Relation : IOsmEntity
 {
     /// <summary>
-    /// Gets type of the object that is represented by this IOsmGeometryInfo.
+    /// Gets type of the object that is represented by this <see cref="IOsmEntity" />.
     /// </summary>
     public EntityType EntityType => EntityType.Relation;
 

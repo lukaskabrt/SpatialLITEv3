@@ -29,12 +29,28 @@ public class TagsCollectionTests
     }
 
     [Fact]
-    public void Add_AddsTag()
+    public void Add_KeyValuePair_AddsTag()
     {
-        var target = new TagsCollection
-        {
-            _tags[0]
-        };
+        var target = new TagsCollection();
+        target.Add(_tags[0]);
+
+        Assert.Contains(_tags[0], target);
+    }
+
+    [Fact]
+    public void Add_StringString_AddsTag()
+    {
+        var target = new TagsCollection();
+        target.Add(_tags[0].Key, _tags[0].Value);
+
+        Assert.Contains(_tags[0], target);
+    }
+
+    [Fact]
+    public void Indexer_Set_AddsTag()
+    {
+        var target = new TagsCollection();
+        target[_tags[0].Key] = _tags[0].Value;
 
         Assert.Contains(_tags[0], target);
     }
@@ -42,7 +58,7 @@ public class TagsCollectionTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Add_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
+    public void Add_StringString_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
     {
         var target = new TagsCollection();
         Assert.Throws<ArgumentException>(() => target.Add(key!, "value"));
@@ -51,9 +67,46 @@ public class TagsCollectionTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Add_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    public void Add_StringString_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
     {
         var target = new TagsCollection();
         Assert.Throws<ArgumentException>(() => target.Add("key", value!));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Add_KeyValuePair_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
+    {
+        var target = new TagsCollection();
+        Assert.Throws<ArgumentException>(() => target.Add(new KeyValuePair<string, string>(key!, "value")));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Add_KeyValuePair_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    {
+        var target = new TagsCollection();
+        Assert.Throws<ArgumentException>(() => target.Add(new KeyValuePair<string, string>("key", value!)));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Indexer_Set_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
+    {
+        var target = new TagsCollection();
+
+        Assert.Throws<ArgumentException>(() => target[key!] = "value");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Indexer_Set_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    {
+        var target = new TagsCollection();
+        Assert.Throws<ArgumentException>(() => target["key"] = value!);
     }
 }
