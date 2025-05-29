@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpatialLITE.Benchmarks", "SpatialLITE.Benchmarks\SpatialLITE.Benchmarks.csproj", "{86F73778-52B9-471A-B558-3C9008B39A46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpatialLITE.Osm", "SpatialLITE.Osm\SpatialLITE.Osm.csproj", "{E1C10DC3-F1D6-4205-90B7-B58177603ECF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{86F73778-52B9-471A-B558-3C9008B39A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86F73778-52B9-471A-B558-3C9008B39A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86F73778-52B9-471A-B558-3C9008B39A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1C10DC3-F1D6-4205-90B7-B58177603ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1C10DC3-F1D6-4205-90B7-B58177603ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1C10DC3-F1D6-4205-90B7-B58177603ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1C10DC3-F1D6-4205-90B7-B58177603ECF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
