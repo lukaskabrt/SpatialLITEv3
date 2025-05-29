@@ -40,9 +40,19 @@ public class WkbWriterTests
     public void Constructor_PathSettings_CreatesOutputFile()
     {
         var filename = Path.GetTempFileName();
-        var settings = new WkbWriterSettings();
-        using var target = new WkbWriter(filename, settings);
-        Assert.True(File.Exists(filename));
+        try
+        {
+            var settings = new WkbWriterSettings();
+            using var target = new WkbWriter(filename, settings);
+            Assert.True(File.Exists(filename));
+        }
+        finally
+        {
+            if (File.Exists(filename))
+            {
+                File.Delete(filename);
+            }
+        }
     }
 
     [Fact]
