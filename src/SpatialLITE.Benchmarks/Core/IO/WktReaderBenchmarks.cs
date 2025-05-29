@@ -14,7 +14,7 @@ public class WktReaderBenchmarks
     private readonly string _multiLineStringWkt = "multilinestring ((-10.1 15.5, 20.2 -25.5, 30.3 35.5),(-10.1 15.5, 20.2 -25.5, 30.3 35.5))";
     private readonly string _multiPolygonWkt = "multipolygon (((-10.1 15.5, 20.2 -25.5, 30.3 35.5)),((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
     private readonly string _geometryCollectionWkt = "geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
-    private readonly string _complexPolygonWkt = "polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5, 40.4 -45.5, 50.5 55.5, 60.6 -65.5, 70.7 75.5, 80.8 -85.5, 90.9 95.5, -10.1 15.5))";
+    private readonly string _polygonWithInnerRingWkt = "polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5, -10.1 15.5), (-5.0 5.0, 10.0 -10.0, 15.0 15.0, -5.0 5.0))";
 
     [Benchmark]
     public Point? ParsePoint()
@@ -59,9 +59,9 @@ public class WktReaderBenchmarks
     }
 
     [Benchmark]
-    public Polygon? ParseComplexPolygon()
+    public Polygon? ParsePolygonWithInnerRing()
     {
-        return WktReader.Parse<Polygon>(_complexPolygonWkt);
+        return WktReader.Parse<Polygon>(_polygonWithInnerRingWkt);
     }
 
     [Benchmark]

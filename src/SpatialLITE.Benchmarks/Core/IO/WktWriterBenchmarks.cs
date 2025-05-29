@@ -15,7 +15,7 @@ public class WktWriterBenchmarks
     private readonly MultiLineString _multiLineString;
     private readonly MultiPolygon _multiPolygon;
     private readonly GeometryCollection<Geometry> _geometryCollection;
-    private readonly Polygon _complexPolygon;
+    private readonly Polygon _polygonWithInnerRing;
 
     public WktWriterBenchmarks()
     {
@@ -24,12 +24,14 @@ public class WktWriterBenchmarks
             new(-10.1, 15.5), new(20.2, -25.5), new(30.3, 35.5)
         };
 
-        var complexCoordinates = new List<Coordinate>
+        var exteriorRing = new List<Coordinate>
         {
-            new(-10.1, 15.5), new(20.2, -25.5), new(30.3, 35.5),
-            new(40.4, -45.5), new(50.5, 55.5), new(60.6, -65.5),
-            new(70.7, 75.5), new(80.8, -85.5), new(90.9, 95.5),
-            new(-10.1, 15.5)
+            new(-10.1, 15.5), new(20.2, -25.5), new(30.3, 35.5), new(-10.1, 15.5)
+        };
+
+        var innerRing = new List<Coordinate>
+        {
+            new(-5.0, 5.0), new(10.0, -10.0), new(15.0, 15.0), new(-5.0, 5.0)
         };
 
         _point = new Point(coordinates[0]);
@@ -38,7 +40,9 @@ public class WktWriterBenchmarks
         _multiPoint = new MultiPoint([new Point(coordinates[0]), new Point(coordinates[1])]);
         _multiLineString = new MultiLineString([new LineString(coordinates), new LineString(coordinates)]);
         _multiPolygon = new MultiPolygon([new Polygon(coordinates), new Polygon(coordinates)]);
-        _complexPolygon = new Polygon(complexCoordinates);
+
+        _polygonWithInnerRing = new Polygon(exteriorRing);
+        _polygonWithInnerRing.InteriorRings.Add(innerRing);
 
         _geometryCollection = new GeometryCollection<Geometry>();
         _geometryCollection.Geometries.Add(_point);
@@ -89,8 +93,8 @@ public class WktWriterBenchmarks
     }
 
     [Benchmark]
-    public string WriteComplexPolygon()
+    public string WritePolygonWithInnerRing()
     {
-        return WktWriter.WriteToString(_complexPolygon);
+        return WktWriter.WriteToString(_polygonWithInnerRing);
     }
 }
