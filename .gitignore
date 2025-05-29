@@ -262,3 +262,6 @@ __pycache__/
 
 # VS Code settings
 *.vscode
+
+# BenchmarkDotNet artifacts
+BenchmarkDotNet.Artifacts/
