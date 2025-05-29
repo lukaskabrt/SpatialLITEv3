@@ -11,12 +11,12 @@ public record struct RelationMember
     public required EntityType MemberType { get; set; }
 
     /// <summary>
-    /// The role of the member in relation
-    /// </summary>
-    public required string Role { get; set; }
-
-    /// <summary>
     /// The ID of the member entity
     /// </summary>
     public required long Reference { get; set; }
+
+    /// <summary>
+    /// The role of the member in relation
+    /// </summary>
+    public string? Role { get; set; }
 }
