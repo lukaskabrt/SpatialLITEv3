@@ -28,7 +28,7 @@ public class WktTokensBufferTests
     }
 
     [Fact]
-    public void Count_GetsNumberOfItemsInBufffer()
+    public void Count_GetsNumberOfItemsInBuffer()
     {
         var target = new WktTokensBuffer();
         target.Add(_testData);
@@ -121,7 +121,7 @@ public class WktTokensBufferTests
     }
 
     [Fact]
-    public void Peek_IgnoreWhitespace_ReturnsEndOfDataTokenIfOnlyWhitespaceTokensAreAvailalbleAndIgnoreWhitespaceIsTrue()
+    public void Peek_IgnoreWhitespace_ReturnsEndOfDataTokenIfOnlyWhitespaceTokensAreAvailableAndIgnoreWhitespaceIsTrue()
     {
         var whitespaceToken = new WktToken() { Type = TokenType.WHITESPACE, Value = " " };
         var target = new WktTokensBuffer();

@@ -37,7 +37,7 @@ internal class WktTokensBuffer : IEnumerable<WktToken>
     }
 
     /// <summary>
-    /// Adds specific token to the end of tokens tokens
+    /// Adds specific token to the end of tokens
     /// </summary>
     /// <param name="item">The WktToken to add to the tokens</param>
     public void Add(WktToken item)
@@ -46,7 +46,7 @@ internal class WktTokensBuffer : IEnumerable<WktToken>
     }
 
     /// <summary>
-    /// Adds tokens from specific collection to the ent of tokens
+    /// Adds tokens from specific collection to the end of tokens
     /// </summary>
     /// <param name="items">The collection whose items to add to this collection</param>
     public void Add(IEnumerable<WktToken> items)
