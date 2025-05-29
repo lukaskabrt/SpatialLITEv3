@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Contracts\" />
+    <EmbeddedResource Include="Data\Core\IO\*" />
   </ItemGroup>
 
 </Project>
