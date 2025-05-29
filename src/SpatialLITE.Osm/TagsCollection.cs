@@ -50,7 +50,11 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
     public string this[string key]
     {
         get => _tags[key];
-        set => Add(key, value);
+        set
+        {
+            ValidateTag(key, value);
+            _tags[key] = value;
+        }
     }
 
     /// <summary>
@@ -91,6 +95,13 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
     /// <exception cref="ArgumentException">Thrown when the key or value is null or empty.</exception>
     public void Add(string key, string value)
     {
+        ValidateTag(key, value);
+
+        _tags.Add(key, value);
+    }
+
+    private static void ValidateTag(string key, string value)
+    {
         if (string.IsNullOrEmpty(key))
         {
             throw new ArgumentException("Key cannot be null or empty.", nameof(key));
@@ -100,8 +111,6 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
         {
             throw new ArgumentException("Value cannot be null or empty.", nameof(value));
         }
-
-        _tags.Add(key, value);
     }
 
     /// <summary>

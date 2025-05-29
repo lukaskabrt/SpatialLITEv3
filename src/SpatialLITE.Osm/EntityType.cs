@@ -1,7 +1,7 @@
 ﻿namespace SpatialLite.Osm;
 
 /// <summary>
-/// Defines possible type of object that IOsmGeometryInfo can represent.
+/// Defines possible type of object that <see cref="IOsmEntity" /> can represent.
 /// </summary>
 public enum EntityType
 {

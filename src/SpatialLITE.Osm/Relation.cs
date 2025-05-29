@@ -16,7 +16,7 @@ public class Relation : IOsmEntity
     public required long ID { get; set; }
 
     /// <summary>
-    /// Gets the collection of tags associated with the relation.
+    /// Gets the collection of tags associated with this relation.
     /// </summary>
     public required TagsCollection Tags { get; set; }
 
@@ -26,7 +26,7 @@ public class Relation : IOsmEntity
     public required IList<RelationMember> Members { get; set; }
 
     /// <summary>
-    /// Gets additional information about this RelationInfo.
+    /// Gets additional information about this relation.
     /// </summary>
     public EntityMetadata? Metadata { get; set; }
 }

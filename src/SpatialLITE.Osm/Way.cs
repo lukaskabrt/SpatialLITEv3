@@ -9,7 +9,7 @@
 public class Way : IOsmEntity
 {
     /// <summary>
-    /// Gets type of the object that is represented by this WayInfo.
+    /// Gets type of the object that is represented by this <see cref="IOsmEntity"/>.
     /// </summary>
     public EntityType EntityType => EntityType.Way;
 
@@ -19,7 +19,7 @@ public class Way : IOsmEntity
     public required long ID { get; set; }
 
     /// <summary>
-    /// Gets the collection of tags associated with this WayInfo.
+    /// Gets the collection of tags associated with this way.
     /// </summary>
     public required TagsCollection Tags { get; set; }
 
@@ -29,7 +29,7 @@ public class Way : IOsmEntity
     public required IList<long> Nodes { get; set; }
 
     /// <summary>
-    /// Gets additional information about this IOsmGeometryInfo.
+    /// Gets additional information about this way.
     /// </summary>
     public EntityMetadata? Metadata { get; set; }
 }

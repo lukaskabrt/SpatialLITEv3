@@ -55,6 +55,18 @@ public class TagsCollectionTests
         Assert.Contains(_tags[0], target);
     }
 
+    [Fact]
+    public void Indexer_Set_UpdatesTag()
+    {
+        var target = new TagsCollection();
+        target.Add("key", "value");
+
+        var expectedValue = "new value";
+        target["key"] = expectedValue;
+
+        Assert.Equal(expectedValue, target["key"]);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData(null)]
