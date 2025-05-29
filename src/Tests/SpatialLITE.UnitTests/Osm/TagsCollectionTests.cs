@@ -28,6 +28,22 @@ public class TagsCollectionTests
         Assert.Contains(_tags[1], target);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Constructor_IEnumerable_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
+    {
+        Assert.Throws<ArgumentException>(() => new TagsCollection([new(key!, "value")]));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Constructor_IEnumerable_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    {
+        Assert.Throws<ArgumentException>(() => new TagsCollection([new("key", value!)]));
+    }
+
     [Fact]
     public void Add_KeyValuePair_AddsTag()
     {

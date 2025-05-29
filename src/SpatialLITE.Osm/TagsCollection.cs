@@ -38,6 +38,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
 
         foreach (var tag in tags)
         {
+            ValidateTag(tag.Key, tag.Value);
             _tags.Add(tag.Key, tag.Value);
         }
     }

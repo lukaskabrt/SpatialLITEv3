@@ -18,5 +18,5 @@ public record struct RelationMember
     /// <summary>
     /// The ID of the member entity.
     /// </summary>
-    public required long Reference { get; set; }
+    public required long MemberId { get; set; }
 }
