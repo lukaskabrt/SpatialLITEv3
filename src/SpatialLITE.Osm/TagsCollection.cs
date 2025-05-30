@@ -38,6 +38,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
 
         foreach (var tag in tags)
         {
+            ValidateTag(tag.Key, tag.Value);
             _tags.Add(tag.Key, tag.Value);
         }
     }
@@ -50,7 +51,11 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
     public string this[string key]
     {
         get => _tags[key];
-        set => _tags[key] = value;
+        set
+        {
+            ValidateTag(key, value);
+            _tags[key] = value;
+        }
     }
 
     /// <summary>
@@ -90,6 +95,13 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
     /// <param name="value">The value of the tag to add.</param>
     /// <exception cref="ArgumentException">Thrown when the key or value is null or empty.</exception>
     public void Add(string key, string value)
+    {
+        ValidateTag(key, value);
+
+        _tags.Add(key, value);
+    }
+
+    private static void ValidateTag(string key, string value)
     {
         if (string.IsNullOrEmpty(key))
         {
@@ -139,7 +151,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
     /// Adds the specified tag to the collection.
     /// </summary>
     /// <param name="item">The tag to add.</param>
-    public void Add(KeyValuePair<string, string> item) => _tags.Add(item.Key, item.Value);
+    public void Add(KeyValuePair<string, string> item) => Add(item.Key, item.Value);
 
     /// <summary>
     /// Determines whether the collection contains a specific tag.
