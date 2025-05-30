@@ -7,11 +7,15 @@ namespace SpatialLITE.UnitTests.Core.IO;
 public class WktWriterTests
 {
     private static readonly List<Coordinate> CoordinatesXY = [
-            new(-10.1, 15.5), new(20.2, -25.5), new(30.3, 35.5)
+            new(-10.1, 15.5),
+        new(20.2, -25.5),
+        new(30.3, 35.5)
     ];
 
     private static readonly List<Coordinate> CoordinatesXY2 = [
-        new(-1.1, 1.5), new(2.2, -2.5), new(3.3, 3.5)
+        new(-1.1, 1.5),
+        new(2.2, -2.5),
+        new(3.3, 3.5)
     ];
 
     [Fact]

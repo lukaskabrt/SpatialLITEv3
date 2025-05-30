@@ -6,9 +6,9 @@ namespace SpatialLITE.UnitTests.Core.Geometries;
 public class LineStringTests
 {
     private readonly Coordinate[] _coordinatesXY = [
-        new Coordinate(12,10),
-        new Coordinate(22,20),
-        new Coordinate(32,30)
+        new Coordinate(12, 10),
+        new Coordinate(22, 20),
+        new Coordinate(32, 30)
     ];
 
     [Fact]
