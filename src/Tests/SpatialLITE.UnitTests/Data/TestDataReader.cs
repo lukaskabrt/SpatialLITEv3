@@ -16,10 +16,10 @@ public class TestDataReader
     public TestDataReader(string folderPath)
     {
         var assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
-        
+
         // Build path to the output directory where files are copied
         var assemblyLocation = assembly.Location;
-        var assemblyDirectory = Path.GetDirectoryName(assemblyLocation) 
+        var assemblyDirectory = Path.GetDirectoryName(assemblyLocation)
             ?? throw new InvalidOperationException("Could not determine assembly directory.");
         _dataFolderPath = Path.Combine(assemblyDirectory, "Data", folderPath);
     }
@@ -36,7 +36,7 @@ public class TestDataReader
         {
             throw new FileNotFoundException($"Test data file not found: {filePath}");
         }
-        
+
         return File.OpenRead(filePath);
     }
 
@@ -52,7 +52,7 @@ public class TestDataReader
         {
             throw new FileNotFoundException($"Test data file not found: {filePath}");
         }
-        
+
         return File.ReadAllBytes(filePath);
     }
 
