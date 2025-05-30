@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace SpatialLITE.UnitTests.Osm.IO.Xml;
 
-public class OsmXmlWriterTests
+public class OsmXmlWriterTests : OsmIOTests
 {
     //resolution for default granularity
     private const double Resolution = 1E-07;
@@ -409,6 +409,7 @@ public class OsmXmlWriterTests
             }
         }
     }
+    
     private void TestXmlOutput(MemoryStream xmlStream, IOsmEntity expected, bool readMetadata)
     {
         if (xmlStream.CanSeek)
@@ -432,12 +433,12 @@ public class OsmXmlWriterTests
                 CompareWays((Way)expected, (Way?)read);
                 break;
             case EntityType.Relation:
-                CompareRelation((Relation)expected, (Relation?)read);
+                CompareRelations((Relation)expected, (Relation?)read);
                 break;
         }
     }
 
-    private void CompareNodes(Node expected, Node? actual)
+    private new void CompareNodes(Node expected, Node? actual)
     {
         Assert.NotNull(actual);
 
@@ -445,70 +446,8 @@ public class OsmXmlWriterTests
         Assert.InRange(actual.Longitude, expected.Longitude - Resolution, expected.Longitude + Resolution);
         Assert.InRange(actual.Latitude, expected.Latitude - Resolution, expected.Latitude + Resolution);
 
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareWays(Way expected, Way? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Nodes.Count, actual.Nodes.Count);
-        for (var i = 0; i < expected.Nodes.Count; i++)
-        {
-            Assert.Equal(expected.Nodes[i], actual.Nodes[i]);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareRelation(Relation expected, Relation? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Members.Count, actual.Members.Count);
-        for (var i = 0; i < expected.Members.Count; i++)
-        {
-            Assert.Equal(expected.Members[i], actual.Members[i]);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareTags(TagsCollection expected, TagsCollection actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Count, actual.Count);
-        Assert.True(expected.All(actual.Contains));
-    }
-
-    private void CompareEntityDetails(EntityMetadata? expected, EntityMetadata? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Timestamp, actual.Timestamp);
-        Assert.Equal(expected.Uid, actual.Uid);
-        Assert.Equal(expected.User, actual.User);
-        Assert.Equal(expected.Visible, actual.Visible);
-        Assert.Equal(expected.Version, actual.Version);
-        Assert.Equal(expected.Changeset, actual.Changeset);
+        AssertTagsEqual(expected.Tags, actual.Tags);
+        AssertMetadataEquals(expected.Metadata, actual.Metadata);
     }
 
     private void CheckNode(XElement element)

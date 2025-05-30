@@ -5,7 +5,7 @@ using System.Xml;
 
 namespace SpatialLITE.UnitTests.Osm.IO.Xml;
 
-public class OsmXmlReaderTests
+public class OsmXmlReaderTests : OsmIOTests
 {
     private readonly EntityMetadata _metadata = new()
     {
@@ -62,14 +62,14 @@ public class OsmXmlReaderTests
     }
 
     [Fact]
-    public void Read_ThrowsExceptionIPieceOffMetadataIsMissingAndStrictModeIsTrue()
+    public void Read_ThrowsExceptionIfPieceOfMetadataIsMissingAndStrictModeIsTrue()
     {
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-missing-timestamp.osm"), new OsmXmlReaderSettings() { ReadMetadata = true, StrictMode = true });
         Assert.Throws<XmlException>(target.Read);
     }
 
     [Fact]
-    public void Read_DoesNotThrowExceptionIPieceOffMetadataIsMissingAndStrictModeIsFalse()
+    public void Read_DoesNotThrowExceptionIfPieceOfMetadataIsMissingAndStrictModeIsFalse()
     {
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-missing-timestamp.osm"), new OsmXmlReaderSettings() { ReadMetadata = true, StrictMode = false });
         target.Read();
@@ -107,7 +107,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        AssertNodeEquals(expected, readNode);
+        CompareNodes(expected, readNode);
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tag-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        AssertNodeEquals(expected, readNode);
+        CompareNodes(expected, readNode);
 
         // nothing more left to read in the file
         Assert.Null(target.Read());
@@ -138,7 +138,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        AssertNodeEquals(expected, readNode);
+        CompareNodes(expected, readNode);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readNode = target.Read() as Node;
 
-        AssertNodeEquals(expected, readNode);
+        CompareNodes(expected, readNode);
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-without-nodes.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        AssertWaysEquals(expected, readWay);
+        CompareWays(expected, readWay);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        AssertWaysEquals(expected, readWay);
+        CompareWays(expected, readWay);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        AssertWaysEquals(expected, readWay);
+        CompareWays(expected, readWay);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        AssertWaysEquals(expected, readWay);
+        CompareWays(expected, readWay);
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readWay = target.Read() as Way;
 
-        AssertWaysEquals(expected, readWay);
+        CompareWays(expected, readWay);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-without-members.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -273,7 +273,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -284,7 +284,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-relation.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -311,7 +311,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -327,7 +327,7 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
+        CompareRelations(expected, readRelation);
     }
 
     [Fact]
@@ -344,80 +344,6 @@ public class OsmXmlReaderTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqualCompareRelation(expected, readRelation);
-    }
-
-    private static void AssertNodeEquals(Node expected, Node? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Longitude, actual.Longitude);
-        Assert.Equal(expected.Latitude, actual.Latitude);
-
-        AssertTagsEqual(expected.Tags, actual.Tags);
-        AssertMetadataEquals(expected.Metadata, actual.Metadata);
-    }
-
-    private static void AssertWaysEquals(Way expected, Way? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Nodes.Count, actual.Nodes.Count);
-        for (var i = 0; i < expected.Nodes.Count; i++)
-        {
-            Assert.Equal(expected.Nodes[i], actual.Nodes[i]);
-        }
-
-        AssertTagsEqual(expected.Tags, actual.Tags);
-        AssertMetadataEquals(expected.Metadata, actual.Metadata);
-    }
-
-    private static void AssertRelationsEqualCompareRelation(Relation expected, Relation? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Members.Count, actual.Members.Count);
-        for (var i = 0; i < expected.Members.Count; i++)
-        {
-            Assert.Equal(expected.Members[i], actual.Members[i]);
-        }
-
-        AssertTagsEqual(expected.Tags, actual.Tags);
-        AssertMetadataEquals(expected.Metadata, actual.Metadata);
-    }
-
-    private static void AssertTagsEqual(TagsCollection? expected, TagsCollection? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Count, actual.Count);
-        Assert.True(expected.All(actual.Contains));
-    }
-
-    private static void AssertMetadataEquals(EntityMetadata? expected, EntityMetadata? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Timestamp, actual.Timestamp);
-        Assert.Equal(expected.Uid, actual.Uid);
-        Assert.Equal(expected.User, actual.User);
-        Assert.Equal(expected.Visible, actual.Visible);
-        Assert.Equal(expected.Version, actual.Version);
-        Assert.Equal(expected.Changeset, actual.Changeset);
+        CompareRelations(expected, readRelation);
     }
 }
