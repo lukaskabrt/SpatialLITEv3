@@ -107,7 +107,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        CompareNodes(expected, readNode);
+        AssertNodesEqual(expected, readNode);
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tag-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        CompareNodes(expected, readNode);
+        AssertNodesEqual(expected, readNode);
 
         // nothing more left to read in the file
         Assert.Null(target.Read());
@@ -138,7 +138,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
 
-        CompareNodes(expected, readNode);
+        AssertNodesEqual(expected, readNode);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readNode = target.Read() as Node;
 
-        CompareNodes(expected, readNode);
+        AssertNodesEqual(expected, readNode);
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-without-nodes.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        CompareWays(expected, readWay);
+        AssertWaysEqual(expected, readWay);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        CompareWays(expected, readWay);
+        AssertWaysEqual(expected, readWay);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        CompareWays(expected, readWay);
+        AssertWaysEqual(expected, readWay);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
 
-        CompareWays(expected, readWay);
+        AssertWaysEqual(expected, readWay);
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readWay = target.Read() as Way;
 
-        CompareWays(expected, readWay);
+        AssertWaysEqual(expected, readWay);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-without-members.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -273,7 +273,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -284,7 +284,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-relation.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -311,7 +311,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -327,7 +327,7 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 
     [Fact]
@@ -344,6 +344,6 @@ public class OsmXmlReaderTests : OsmIOTests
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readRelation = target.Read() as Relation;
 
-        CompareRelations(expected, readRelation);
+        AssertRelationsEqual(expected, readRelation);
     }
 }

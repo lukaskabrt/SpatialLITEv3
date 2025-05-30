@@ -12,7 +12,7 @@ public abstract class OsmIOTests
     /// </summary>
     /// <param name="expected">Expected Node</param>
     /// <param name="actual">Actual Node</param>
-    protected static void CompareNodes(Node expected, Node? actual)
+    protected static void AssertNodesEqual(Node expected, Node? actual)
     {
         Assert.NotNull(actual);
 
@@ -29,7 +29,7 @@ public abstract class OsmIOTests
     /// </summary>
     /// <param name="expected">Expected Way</param>
     /// <param name="actual">Actual Way</param>
-    protected static void CompareWays(Way expected, Way? actual)
+    protected static void AssertWaysEqual(Way expected, Way? actual)
     {
         Assert.NotNull(actual);
 
@@ -49,7 +49,7 @@ public abstract class OsmIOTests
     /// </summary>
     /// <param name="expected">Expected Relation</param>
     /// <param name="actual">Actual Relation</param>
-    protected static void CompareRelations(Relation expected, Relation? actual)
+    protected static void AssertRelationsEqual(Relation expected, Relation? actual)
     {
         Assert.NotNull(actual);
 

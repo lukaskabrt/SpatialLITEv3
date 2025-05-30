@@ -1,7 +1,6 @@
 ﻿using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
 using SpatialLITE.Osm.IO.Xml;
-using System.Xml.Linq;
 
 namespace SpatialLITE.UnitTests.Osm.IO.Xml;
 
@@ -427,83 +426,14 @@ public class OsmXmlWriterTests : OsmIOTests
         switch (expected.EntityType)
         {
             case EntityType.Node:
-                CompareNodes((Node)expected, (Node?)read);
+                AssertNodesEqual((Node)expected, (Node?)read);
                 break;
             case EntityType.Way:
-                CompareWays((Way)expected, (Way?)read);
+                AssertWaysEqual((Way)expected, (Way?)read);
                 break;
             case EntityType.Relation:
-                CompareRelations((Relation)expected, (Relation?)read);
+                AssertRelationsEqual((Relation)expected, (Relation?)read);
                 break;
-        }
-    }
-
-    private new void CompareNodes(Node expected, Node? actual)
-    {
-        Assert.NotNull(actual);
-
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.InRange(actual.Longitude, expected.Longitude - Resolution, expected.Longitude + Resolution);
-        Assert.InRange(actual.Latitude, expected.Latitude - Resolution, expected.Latitude + Resolution);
-
-        AssertTagsEqual(expected.Tags, actual.Tags);
-        AssertMetadataEquals(expected.Metadata, actual.Metadata);
-    }
-
-    private void CheckNode(XElement element)
-    {
-        Assert.Equal("15", element.Attribute("id")?.Value);
-        Assert.Equal("46.8", element.Attribute("lon")?.Value);
-        Assert.Equal("-15.6", element.Attribute("lat")?.Value);
-
-        var tagE = element.Elements("tag").Single();
-        Assert.Equal("source", tagE.Attribute("k")?.Value);
-        Assert.Equal("survey", tagE.Attribute("v")?.Value);
-    }
-
-    private void CheckWay(XElement element)
-    {
-        Assert.Equal("25", element.Attribute("id")?.Value);
-
-        var nodesElement = element.Elements("nd");
-        Assert.Equal(3, nodesElement.Count());
-        Assert.Equal("11", nodesElement.ToList()[0].Attribute("ref")?.Value);
-        Assert.Equal("12", nodesElement.ToList()[1].Attribute("ref")?.Value);
-        Assert.Equal("13", nodesElement.ToList()[2].Attribute("ref")?.Value);
-
-        var tagE = element.Elements("tag").Single();
-        Assert.Equal("source", tagE.Attribute("k")?.Value);
-        Assert.Equal("survey", tagE.Attribute("v")?.Value);
-    }
-
-    private void CheckRelation(XElement element)
-    {
-        Assert.Equal("25", element.Attribute("id")?.Value);
-
-        var tagE = element.Elements("tag").Single();
-        Assert.Equal("source", tagE.Attribute("k")?.Value);
-        Assert.Equal("survey", tagE.Attribute("v")?.Value);
-    }
-
-    private void CheckOsmDetails(EntityMetadata details, XElement element)
-    {
-        if (details == null)
-        {
-            Assert.Null(element.Attribute("version"));
-            Assert.Null(element.Attribute("changeset"));
-            Assert.Null(element.Attribute("uid"));
-            Assert.Null(element.Attribute("user"));
-            Assert.Null(element.Attribute("visible"));
-            Assert.Null(element.Attribute("timestamp"));
-        }
-        else
-        {
-            Assert.Equal("2", element.Attribute("version")?.Value);
-            Assert.Equal("123", element.Attribute("changeset")?.Value);
-            Assert.Equal("4587", element.Attribute("uid")?.Value);
-            Assert.Equal("username", element.Attribute("user")?.Value);
-            Assert.Equal("true", element.Attribute("visible")?.Value);
-            Assert.Equal("2011-01-20T14:00:04Z", element.Attribute("timestamp")?.Value);
         }
     }
 }
