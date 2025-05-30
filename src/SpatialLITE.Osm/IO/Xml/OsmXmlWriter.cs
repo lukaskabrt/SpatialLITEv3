@@ -276,6 +276,11 @@ public class OsmXmlWriter : IOsmWriter
     {
         if (!_disposed)
         {
+            if (_isInsideOsm)
+            {
+                EndDocument();
+            }
+
             _writer?.Dispose();
 
             if (disposing)

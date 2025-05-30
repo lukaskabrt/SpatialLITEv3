@@ -9,11 +9,15 @@ public class WktReaderTests
 {
 
     private readonly Coordinate[] _coordinatesXY = [
-        new(-10.1, 15.5), new(20.2, -25.5), new(30.3, 35.5)
+        new(-10.1, 15.5),
+        new(20.2, -25.5),
+        new(30.3, 35.5)
     ];
 
     private readonly Coordinate[] _coordinatesXY2 = [
-        new(-1.1, 1.5), new(2.2, -2.5), new( 3.3, 3.5)
+        new(-1.1, 1.5),
+        new(2.2, -2.5),
+        new(3.3, 3.5)
     ];
 
     [Fact]

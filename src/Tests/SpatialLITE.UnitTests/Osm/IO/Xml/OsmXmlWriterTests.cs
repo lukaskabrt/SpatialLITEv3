@@ -422,8 +422,25 @@ public class OsmXmlWriterTests
 
         stream.Seek(0, SeekOrigin.Begin);
         XDocument doc = XDocument.Load(stream);
-        
+
         Assert.Equal("0.6", doc.Root?.Attribute("version")?.Value);
+    }
+
+    [Fact]
+    public void Dispose_WritesOsmEndTag()
+    {
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        MemoryStream stream = new();
+
+        using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
+        {
+            target.Write(node);
+        }
+
+        stream.Seek(0, SeekOrigin.Begin);
+        string xml = new StreamReader(stream).ReadToEnd();
+
+        Assert.Contains("</osm>", xml);
     }
 
     private void TestXmlOutput(MemoryStream xmlStream, IOsmEntity expected, bool readMetadata)
