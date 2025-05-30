@@ -124,6 +124,7 @@ public class OsmXmlWriter : IOsmWriter
     private void StartDocument()
     {
         _writer.WriteStartElement("osm");
+        _writer.WriteAttributeString("version", "0.6");
         if (string.IsNullOrEmpty(Settings.ProgramName) == false)
         {
             _writer.WriteAttributeString("generator", Settings.ProgramName);
@@ -275,6 +276,11 @@ public class OsmXmlWriter : IOsmWriter
     {
         if (!_disposed)
         {
+            if (_isInsideOsm)
+            {
+                EndDocument();
+            }
+
             _writer?.Dispose();
 
             if (disposing)
