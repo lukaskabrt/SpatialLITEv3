@@ -102,7 +102,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsSimpleNode()
     {
-        var expected = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
@@ -113,7 +113,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsNodeWithUnknownElement()
     {
-        var expected = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tag-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
@@ -129,7 +129,7 @@ public class OsmXmlReaderTests
     {
         var expected = new Node
         {
-            ID = 2,
+            Id = 2,
             Latitude = 50.4,
             Longitude = 16.2,
             Tags = [new("name", "test"), new("name-2", "test-2")]
@@ -146,7 +146,7 @@ public class OsmXmlReaderTests
     {
         var expected = new Node
         {
-            ID = 3,
+            Id = 3,
             Latitude = 50.4,
             Longitude = 16.2,
             Tags = [],
@@ -178,7 +178,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsWayWithoutNodes()
     {
-        var expected = new Way { ID = 1, Tags = [], Nodes = [] };
+        var expected = new Way { Id = 1, Tags = [], Nodes = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-without-nodes.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
@@ -189,7 +189,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsSimpleWay()
     {
-        var expected = new Way { ID = 1, Tags = [], Nodes = [10, 11, 12] };
+        var expected = new Way { Id = 1, Tags = [], Nodes = [10, 11, 12] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
@@ -200,7 +200,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsWayWithTags()
     {
-        var expected = new Way { ID = 2, Tags = [new("name", "test"), new("name-2", "test-2")], Nodes = [10, 11, 12] };
+        var expected = new Way { Id = 2, Tags = [new("name", "test"), new("name-2", "test-2")], Nodes = [10, 11, 12] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
@@ -211,7 +211,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsWayWithUnknownElement()
     {
-        var expected = new Way { ID = 2, Tags = [new("name", "test"), new("name-2", "test-2")], Nodes = [10, 11, 12] };
+        var expected = new Way { Id = 2, Tags = [new("name", "test"), new("name-2", "test-2")], Nodes = [10, 11, 12] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readWay = target.Read() as Way;
@@ -222,7 +222,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsWayWithAllAttributes()
     {
-        var expected = new Way { ID = 1, Tags = [], Nodes = [10, 11, 12], Metadata = _metadata };
+        var expected = new Way { Id = 1, Tags = [], Nodes = [10, 11, 12], Metadata = _metadata };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-way-all-properties.osm"), new OsmXmlReaderSettings() { ReadMetadata = true });
         var readWay = target.Read() as Way;
@@ -257,7 +257,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsRelationWithoutMembers()
     {
-        var expected = new Relation { ID = 1, Tags = [], Members = [] };
+        var expected = new Relation { Id = 1, Tags = [], Members = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-without-members.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
@@ -268,7 +268,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsRelationWithNodeMember()
     {
-        var expected = new Relation { ID = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" }] };
+        var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
@@ -279,7 +279,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsRelationWithWayMember()
     {
-        var expected = new Relation { ID = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Way, Reference = 10, Role = "test" }] };
+        var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" }] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-way.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
@@ -290,7 +290,7 @@ public class OsmXmlReaderTests
     [Fact]
     public void Read_ReadsRelationWithRelationMember()
     {
-        var expected = new Relation { ID = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Relation, Reference = 10, Role = "test" }] };
+        var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" }] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-relation.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readRelation = target.Read() as Relation;
@@ -303,9 +303,9 @@ public class OsmXmlReaderTests
     {
         var expected = new Relation
         {
-            ID = 2,
+            Id = 2,
             Tags = [new("name", "test"), new("name-2", "test-2")],
-            Members = [new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" }]
+            Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }]
         };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
@@ -319,9 +319,9 @@ public class OsmXmlReaderTests
     {
         var expected = new Relation
         {
-            ID = 2,
+            Id = 2,
             Tags = [new("name", "test"), new("name-2", "test-2")],
-            Members = [new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" }]
+            Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }]
         };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-relation-with-tags-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
@@ -335,9 +335,9 @@ public class OsmXmlReaderTests
     {
         var expected = new Relation
         {
-            ID = 1,
+            Id = 1,
             Tags = [],
-            Members = [new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" }],
+            Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }],
             Metadata = _metadata
         };
 
@@ -351,7 +351,7 @@ public class OsmXmlReaderTests
     {
         Assert.NotNull(actual);
 
-        Assert.Equal(expected.ID, actual.ID);
+        Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.Longitude, actual.Longitude);
         Assert.Equal(expected.Latitude, actual.Latitude);
 
@@ -363,7 +363,7 @@ public class OsmXmlReaderTests
     {
         Assert.NotNull(actual);
 
-        Assert.Equal(expected.ID, actual.ID);
+        Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.Nodes.Count, actual.Nodes.Count);
         for (var i = 0; i < expected.Nodes.Count; i++)
         {
@@ -378,7 +378,7 @@ public class OsmXmlReaderTests
     {
         Assert.NotNull(actual);
 
-        Assert.Equal(expected.ID, actual.ID);
+        Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.Members.Count, actual.Members.Count);
         for (var i = 0; i < expected.Members.Count; i++)
         {

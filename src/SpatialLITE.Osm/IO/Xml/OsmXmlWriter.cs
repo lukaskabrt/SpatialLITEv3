@@ -18,7 +18,7 @@ public class OsmXmlWriter : IOsmWriter
     private bool _isInsideOsm = false;
     private bool _disposed = false;
 
-    // underlaying stream writer for writing to files
+    // underlying stream writer for writing to files
     private readonly StreamWriter? _streamWriter;
 
     /// <summary>
@@ -150,7 +150,7 @@ public class OsmXmlWriter : IOsmWriter
         _writer.WriteStartElement("node");
         _writer.WriteAttributeString("lon", node.Longitude.ToString(CultureInfo.InvariantCulture));
         _writer.WriteAttributeString("lat", node.Latitude.ToString(CultureInfo.InvariantCulture));
-        _writer.WriteAttributeString("id", node.ID.ToString(CultureInfo.InvariantCulture));
+        _writer.WriteAttributeString("id", node.Id.ToString(CultureInfo.InvariantCulture));
 
         if (Settings.WriteMetadata)
         {
@@ -169,7 +169,7 @@ public class OsmXmlWriter : IOsmWriter
     private void WriteWay(Way way)
     {
         _writer.WriteStartElement("way");
-        _writer.WriteAttributeString("id", way.ID.ToString(CultureInfo.InvariantCulture));
+        _writer.WriteAttributeString("id", way.Id.ToString(CultureInfo.InvariantCulture));
 
         if (Settings.WriteMetadata)
         {
@@ -195,7 +195,7 @@ public class OsmXmlWriter : IOsmWriter
     private void WriteRelation(Relation relation)
     {
         _writer.WriteStartElement("relation");
-        _writer.WriteAttributeString("id", relation.ID.ToString(CultureInfo.InvariantCulture));
+        _writer.WriteAttributeString("id", relation.Id.ToString(CultureInfo.InvariantCulture));
 
         if (Settings.WriteMetadata)
         {
@@ -207,7 +207,7 @@ public class OsmXmlWriter : IOsmWriter
         for (var i = 0; i < relation.Members.Count; i++)
         {
             _writer.WriteStartElement("member");
-            _writer.WriteAttributeString("ref", relation.Members[i].Reference.ToString(CultureInfo.InvariantCulture));
+            _writer.WriteAttributeString("ref", relation.Members[i].MemberId.ToString(CultureInfo.InvariantCulture));
             _writer.WriteAttributeString("role", relation.Members[i].Role);
             _writer.WriteAttributeString("type", relation.Members[i].MemberType.ToString().ToLower(CultureInfo.InvariantCulture));
             _writer.WriteEndElement();

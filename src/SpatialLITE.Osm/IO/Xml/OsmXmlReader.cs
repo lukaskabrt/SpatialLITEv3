@@ -111,7 +111,7 @@ public class OsmXmlReader : IOsmReader
             additionalInfo = ReadMetadata();
         }
 
-        var result = new Node { ID = nodeId, Latitude = nodeLat, Longitude = nodeLon, Tags = [], Metadata = additionalInfo };
+        var result = new Node { Id = nodeId, Latitude = nodeLat, Longitude = nodeLon, Tags = [], Metadata = additionalInfo };
 
         if (_xmlReader.IsEmptyElement == false)
         {
@@ -149,7 +149,7 @@ public class OsmXmlReader : IOsmReader
             additionalInfo = ReadMetadata();
         }
 
-        var way = new Way { ID = wayId, Tags = [], Nodes = [], Metadata = additionalInfo };
+        var way = new Way { Id = wayId, Tags = [], Nodes = [], Metadata = additionalInfo };
 
         if (_xmlReader.IsEmptyElement == false)
         {
@@ -213,7 +213,7 @@ public class OsmXmlReader : IOsmReader
             additionalInfo = ReadMetadata();
         }
 
-        var relation = new Relation { ID = relationId, Tags = [], Members = [], Metadata = additionalInfo };
+        var relation = new Relation { Id = relationId, Tags = [], Members = [], Metadata = additionalInfo };
 
         if (false == _xmlReader.IsEmptyElement)
         {
@@ -271,7 +271,7 @@ public class OsmXmlReader : IOsmReader
         };
         _xmlReader.Skip();
 
-        return new RelationMember() { MemberType = memberType, Reference = refId, Role = attRole };
+        return new RelationMember() { MemberType = memberType, MemberId = refId, Role = attRole };
     }
 
     /// <summary>

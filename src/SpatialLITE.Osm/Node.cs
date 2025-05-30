@@ -13,7 +13,7 @@ public class Node : IOsmEntity
     /// <summary>
     /// Gets ID of the object.
     /// </summary>
-    public required long ID { get; set; }
+    public required long Id { get; set; }
 
     /// <summary>
     /// Gets the collection of tags associated with this node.
