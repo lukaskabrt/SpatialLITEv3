@@ -409,6 +409,23 @@ public class OsmXmlWriterTests
             }
         }
     }
+    [Fact]
+    public void Write_AddsVersionAttributeToOsmElement()
+    {
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        MemoryStream stream = new();
+
+        using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
+        {
+            target.Write(node);
+        }
+
+        stream.Seek(0, SeekOrigin.Begin);
+        XDocument doc = XDocument.Load(stream);
+        
+        Assert.Equal("0.6", doc.Root?.Attribute("version")?.Value);
+    }
+
     private void TestXmlOutput(MemoryStream xmlStream, IOsmEntity expected, bool readMetadata)
     {
         if (xmlStream.CanSeek)
