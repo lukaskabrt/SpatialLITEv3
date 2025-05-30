@@ -36,7 +36,7 @@ public class WkbReaderTests
     {
         var expected = ParseWKT<Point>("point zm (-10.1 15.5 100.5 1000.5)");
 
-        var target = new WkbReader(TestDataReader.Open("point-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("point-3DM.wkb"));
         var parsed = (Point?)target.Read();
 
         AssertPointsEqual(parsed, expected);
@@ -48,7 +48,7 @@ public class WkbReaderTests
         var expected1 = ParseWKT<Point>("point zm (-10.1 15.5 100.5 1000.5)");
         var expected2 = ParseWKT<Point>("point zm (-10.2 15.6 100.6 1000.6)");
 
-        var target = new WkbReader(TestDataReader.Open("two-points-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("two-points-3DM.wkb"));
 
         var parsed1 = (Point?)target.Read();
         var parsed2 = (Point?)target.Read();
@@ -60,7 +60,7 @@ public class WkbReaderTests
     [Fact]
     public void Read_ReturnsNullIfNoMoreGeometriesAreAvailable()
     {
-        var target = new WkbReader(TestDataReader.Open("point-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("point-3DM.wkb"));
 
         target.Read();
         var parsed = target.Read();
@@ -95,7 +95,7 @@ public class WkbReaderTests
     {
         var expected = ParseWKT<Point>("point zm (-10.1 15.5 100.5 1000.5)");
 
-        var target = new WkbReader(TestDataReader.Open("point-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("point-3DM.wkb"));
         var parsed = target.Read<Point>();
 
         AssertPointsEqual(parsed, expected);
@@ -104,7 +104,7 @@ public class WkbReaderTests
     [Fact]
     public void ReadT_ReturnsNullIfNoMoreGeometriesAreAvailable()
     {
-        var target = new WkbReader(TestDataReader.Open("point-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("point-3DM.wkb"));
 
         target.Read<Point>();
         var parsed = target.Read<Point>();
@@ -126,7 +126,7 @@ public class WkbReaderTests
     [Fact]
     public void ReadT_ThrowsExceptionIfWKBDoesNotRepresentSpecificGeometryType()
     {
-        var target = new WkbReader(TestDataReader.Open("point-3DM.wkb"));
+        var target = new WkbReader(TestDataReader.CoreIO.Open("point-3DM.wkb"));
         Assert.Throws<WkbFormatException>(target.Read<LineString>);
     }
 
@@ -157,7 +157,7 @@ public class WkbReaderTests
     {
         var wkt = "point m (-10.1 15.5 1000.5)";
         var expected = ParseWKT<Point>(wkt);
-        var parsed = WkbReader.Parse<Point>(TestDataReader.Read("point-2DM.wkb"));
+        var parsed = WkbReader.Parse<Point>(TestDataReader.CoreIO.Read("point-2DM.wkb"));
 
         AssertPointsEqual(parsed, expected);
     }
@@ -165,7 +165,7 @@ public class WkbReaderTests
     [Fact]
     public void ParseT_ThrowsExceptionIfWKBDoesNotRepresentSpecifiedType()
     {
-        var wkb = TestDataReader.Read("linestring-2D.wkb");
+        var wkb = TestDataReader.CoreIO.Read("linestring-2D.wkb");
 
         Assert.Throws<WkbFormatException>(() => WkbReader.Parse<Point>(wkb));
     }
@@ -188,7 +188,7 @@ public class WkbReaderTests
     public void ParsePoint_Parses2DPoint()
     {
         var wkt = "point (-10.1 15.5)";
-        byte[] wkb = TestDataReader.Read("point-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("point-2D.wkb");
 
         TestParsePoint(wkb, wkt);
     }
@@ -197,7 +197,7 @@ public class WkbReaderTests
     public void ParsePoint_Parses2DMeasuredPoint()
     {
         var wkt = "point m (-10.1 15.5 1000.5)";
-        byte[] wkb = TestDataReader.Read("point-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("point-2DM.wkb");
 
         TestParsePoint(wkb, wkt);
     }
@@ -206,7 +206,7 @@ public class WkbReaderTests
     public void ParsePoint_Parses3DPoint()
     {
         var wkt = "point z (-10.1 15.5 100.5)";
-        byte[] wkb = TestDataReader.Read("point-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("point-3D.wkb");
 
         TestParsePoint(wkb, wkt);
     }
@@ -215,7 +215,7 @@ public class WkbReaderTests
     public void ParsePoint_Parses3DMeasuredPoint()
     {
         var wkt = "point zm (-10.1 15.5 100.5 1000.5)";
-        byte[] wkb = TestDataReader.Read("point-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("point-3DM.wkb");
 
         TestParsePoint(wkb, wkt);
     }
@@ -224,7 +224,7 @@ public class WkbReaderTests
     public void Parse_ParsesEmptyLineString()
     {
         var wkt = "linestring empty";
-        byte[] wkb = TestDataReader.Read("linestring-empty.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("linestring-empty.wkb");
 
         TestParseLineString(wkb, wkt);
     }
@@ -233,7 +233,7 @@ public class WkbReaderTests
     public void Parse_Parses2DLineString()
     {
         var wkt = "linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5)";
-        byte[] wkb = TestDataReader.Read("linestring-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("linestring-2D.wkb");
 
         TestParseLineString(wkb, wkt);
     }
@@ -242,7 +242,7 @@ public class WkbReaderTests
     public void Parse_Parses2DMeasuredLineString()
     {
         var wkt = "linestring m (-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5)";
-        byte[] wkb = TestDataReader.Read("linestring-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("linestring-2DM.wkb");
 
         TestParseLineString(wkb, wkt);
     }
@@ -251,7 +251,7 @@ public class WkbReaderTests
     public void Parse_Parses3DLineString()
     {
         var wkt = "linestring z (-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5)";
-        byte[] wkb = TestDataReader.Read("linestring-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("linestring-3D.wkb");
         TestParseLineString(wkb, wkt);
     }
 
@@ -259,7 +259,7 @@ public class WkbReaderTests
     public void Parse_Parses3DMeasuredLineString()
     {
         var wkt = "linestring zm (-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5)";
-        byte[] wkb = TestDataReader.Read("linestring-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("linestring-3DM.wkb");
 
         TestParseLineString(wkb, wkt);
     }
@@ -268,7 +268,7 @@ public class WkbReaderTests
     public void Parse_ParsesEmptyPolygon()
     {
         var wkt = "polygon empty";
-        byte[] wkb = TestDataReader.Read("polygon-empty.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-empty.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -277,7 +277,7 @@ public class WkbReaderTests
     public void Parse_Parses2DPolygonOnlyExteriorRing()
     {
         var wkt = "polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5))";
-        byte[] wkb = TestDataReader.Read("polygon-ext-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-ext-2D.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -286,7 +286,7 @@ public class WkbReaderTests
     public void Parse_Parses2DMeasuredPolygonOnlyExteriorRing()
     {
         var wkt = "polygon m ((-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5))";
-        byte[] wkb = TestDataReader.Read("polygon-ext-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-ext-2DM.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -295,7 +295,7 @@ public class WkbReaderTests
     public void Parse_Parses3DPolygonOnlyExteriorRing()
     {
         var wkt = "polygon z ((-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5))";
-        byte[] wkb = TestDataReader.Read("polygon-ext-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-ext-3D.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -304,7 +304,7 @@ public class WkbReaderTests
     public void Parse_Parses3DMeasuredPolygonOnlyExteriorRing()
     {
         var wkt = "polygon zm ((-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5))";
-        byte[] wkb = TestDataReader.Read("polygon-ext-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-ext-3DM.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -313,7 +313,7 @@ public class WkbReaderTests
     public void Parse_Parses3DMeasuredPolygon()
     {
         var wkt = "polygon zm ((-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5),(-1.1 1.5 10.5 100.5, 2.2 -2.5 20.5 200.5, 3.3 3.5 -30.5 -300.5),(-1.1 1.5 10.5 100.5, 2.2 -2.5 20.5 200.5, 3.3 3.5 -30.5 -300.5))";
-        byte[] wkb = TestDataReader.Read("polygon-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("polygon-3DM.wkb");
 
         TestParsePolygon(wkb, wkt);
     }
@@ -322,7 +322,7 @@ public class WkbReaderTests
     public void ParseMultiPoint_ParsesEmptyMultipoint()
     {
         var wkt = "multipoint empty";
-        byte[] wkb = TestDataReader.Read("multipoint-empty.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipoint-empty.wkb");
 
         TestParseMultiPoint(wkb, wkt);
     }
@@ -331,7 +331,7 @@ public class WkbReaderTests
     public void ParseMultiPoint_Parses2DMultiPoint()
     {
         var wkt = "multipoint ((-10.1 15.5),(20.2 -25.5))";
-        byte[] wkb = TestDataReader.Read("multipoint-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipoint-2D.wkb");
 
         TestParseMultiPoint(wkb, wkt);
     }
@@ -340,7 +340,7 @@ public class WkbReaderTests
     public void ParseMultiPoint_Parses2DMeasuredMultiPoint()
     {
         var wkt = "multipoint m ((-10.1 15.5 1000.5),(20.2 -25.5 2000.5))";
-        byte[] wkb = TestDataReader.Read("multipoint-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipoint-2DM.wkb");
 
         TestParseMultiPoint(wkb, wkt);
     }
@@ -349,7 +349,7 @@ public class WkbReaderTests
     public void ParseMultiPoint_Parses3DMultiPoint()
     {
         var wkt = "multipoint z ((-10.1 15.5 100.5),(20.2 -25.5 200.5))";
-        byte[] wkb = TestDataReader.Read("multipoint-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipoint-3D.wkb");
 
         TestParseMultiPoint(wkb, wkt);
     }
@@ -358,7 +358,7 @@ public class WkbReaderTests
     public void ParseMultiPoint_Parses3DMeasuredMultiPoint()
     {
         var wkt = "multipoint zm ((-10.1 15.5 100.5 1000.5),(20.2 -25.5 200.5 2000.5))";
-        byte[] wkb = TestDataReader.Read("multipoint-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipoint-3DM.wkb");
 
         TestParseMultiPoint(wkb, wkt);
     }
@@ -367,7 +367,7 @@ public class WkbReaderTests
     public void ParseMultiLineString_ParsesEmptyMultiLineString()
     {
         var wkt = "multilinestring empty";
-        byte[] wkb = TestDataReader.Read("multilinestring-empty.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multilinestring-empty.wkb");
 
         TestParseMultiLineString(wkb, wkt);
     }
@@ -376,7 +376,7 @@ public class WkbReaderTests
     public void ParseMultiLineString_Parses2DMultiLineString()
     {
         var wkt = "multilinestring ((-10.1 15.5, 20.2 -25.5, 30.3 35.5),(-10.1 15.5, 20.2 -25.5, 30.3 35.5))";
-        byte[] wkb = TestDataReader.Read("multilinestring-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multilinestring-2D.wkb");
 
         TestParseMultiLineString(wkb, wkt);
     }
@@ -385,7 +385,7 @@ public class WkbReaderTests
     public void ParseMultiLineString_Parses2DMeasuredMultiLineString()
     {
         var wkt = "multilinestring m ((-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5),(-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5))";
-        byte[] wkb = TestDataReader.Read("multilinestring-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multilinestring-2DM.wkb");
 
         TestParseMultiLineString(wkb, wkt);
     }
@@ -394,7 +394,7 @@ public class WkbReaderTests
     public void ParseMultiLineString_Parses3DMultiLineString()
     {
         var wkt = "multilinestring z ((-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5),(-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5))";
-        byte[] wkb = TestDataReader.Read("multilinestring-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multilinestring-3D.wkb");
 
         TestParseMultiLineString(wkb, wkt);
     }
@@ -403,7 +403,7 @@ public class WkbReaderTests
     public void ParseMultiLineString_Parses3DMeasuredMultiLineString()
     {
         var wkt = "multilinestring zm ((-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5),(-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5))";
-        byte[] wkb = TestDataReader.Read("multilinestring-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multilinestring-3DM.wkb");
 
         TestParseMultiLineString(wkb, wkt);
     }
@@ -412,7 +412,7 @@ public class WkbReaderTests
     public void ParseMultiPolygon_ParsesEmptyMultiPolygon()
     {
         var wkt = "multipolygon empty";
-        byte[] wkb = TestDataReader.Read("multipolygon-empty.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipolygon-empty.wkb");
 
         TestParseMultiPolygon(wkb, wkt);
     }
@@ -421,7 +421,7 @@ public class WkbReaderTests
     public void ParseMultiPolygon_Parses2DMultiPolygon()
     {
         var wkt = "multipolygon (((-10.1 15.5, 20.2 -25.5, 30.3 35.5)),((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
-        byte[] wkb = TestDataReader.Read("multipolygon-2D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipolygon-2D.wkb");
 
         TestParseMultiPolygon(wkb, wkt);
     }
@@ -430,7 +430,7 @@ public class WkbReaderTests
     public void ParseMultiPolygon_Parses2DMeasuredMultiPolygon()
     {
         var wkt = "multipolygon m (((-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5)),((-10.1 15.5 1000.5, 20.2 -25.5 2000.5, 30.3 35.5 -3000.5)))";
-        byte[] wkb = TestDataReader.Read("multipolygon-2DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipolygon-2DM.wkb");
 
         TestParseMultiPolygon(wkb, wkt);
     }
@@ -439,7 +439,7 @@ public class WkbReaderTests
     public void ParseMultiPolygon_Parses3DMultiPolygon()
     {
         var wkt = "multipolygon z (((-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5)),((-10.1 15.5 100.5, 20.2 -25.5 200.5, 30.3 35.5 -300.5)))";
-        byte[] wkb = TestDataReader.Read("multipolygon-3D.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipolygon-3D.wkb");
 
         TestParseMultiPolygon(wkb, wkt);
     }
@@ -448,7 +448,7 @@ public class WkbReaderTests
     public void ParseMultiPolygon_Parses3DMeasuredMultiPolygon()
     {
         var wkt = "multipolygon zm (((-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5)),((-10.1 15.5 100.5 1000.5, 20.2 -25.5 200.5 2000.5, 30.3 35.5 -300.5 -3000.5)))";
-        byte[] wkb = TestDataReader.Read("multipolygon-3DM.wkb");
+        byte[] wkb = TestDataReader.CoreIO.Read("multipolygon-3DM.wkb");
 
         TestParseMultiPolygon(wkb, wkt);
     }
@@ -456,7 +456,7 @@ public class WkbReaderTests
     [Fact]
     public void ParseGeometryCollection_ParsesEmptyGeometryCollection()
     {
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-empty.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-empty.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Empty(parsed.Geometries);
@@ -467,7 +467,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection (point (-10.1 15.5))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-2D.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-2D.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -479,7 +479,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection m (point m (-10.1 15.5 1000.5))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-2DM.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-2DM.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -491,7 +491,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection z (point z (-10.1 15.5 100.5))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-3D.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-3D.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -503,7 +503,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection zm (point zm (-10.1 15.5 100.5 1000.5))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-3DM.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-3DM.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -515,7 +515,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-pt-ls-poly.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-pt-ls-poly.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Equal(3, parsed.Geometries.Count);
@@ -530,7 +530,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection (multipoint empty,multilinestring empty,multipolygon empty)";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-multi.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-multi.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Equal(3, parsed.Geometries.Count);
@@ -545,7 +545,7 @@ public class WkbReaderTests
     {
         var wkt = "geometrycollection (geometrycollection (point (-10.1 15.5)))";
         var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.Read("collection-nested.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-nested.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
