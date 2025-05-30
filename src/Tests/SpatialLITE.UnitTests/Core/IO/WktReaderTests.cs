@@ -32,13 +32,13 @@ public class WktReaderTests
     {
         get
         {
-            yield return new object[] { TestDataReader.Read("wkt-point-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-linestring-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-polygon-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-multipoint-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-multilinestring-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-multipolygon-3DM.wkt") };
-            yield return new object[] { TestDataReader.Read("wkt-geometry-collection-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-point-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-linestring-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-polygon-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-multipoint-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-multilinestring-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-multipolygon-3DM.wkt") };
+            yield return new object[] { TestDataReader.CoreIO.Read("wkt-geometry-collection-3DM.wkt") };
         }
     }
 
@@ -63,7 +63,7 @@ public class WktReaderTests
     [Fact]
     public void Read_ReturnsNullIfNoMoreGeometriesAreAvailableInInputStream()
     {
-        using var target = new WktReader(TestDataReader.Open("wkt-point-3DM.wkt"));
+        using var target = new WktReader(TestDataReader.CoreIO.Open("wkt-point-3DM.wkt"));
         target.Read();
         var readGeometry = target.Read();
 
@@ -73,7 +73,7 @@ public class WktReaderTests
     [Fact]
     public void Read_ReadsMultipleGeometries()
     {
-        using var target = new WktReader(TestDataReader.Open("wkt-point-and-linestring-3DM.wkt"));
+        using var target = new WktReader(TestDataReader.CoreIO.Open("wkt-point-and-linestring-3DM.wkt"));
         var readGeometry = target.Read();
         Assert.True(readGeometry is Point);
 
@@ -84,7 +84,7 @@ public class WktReaderTests
     [Fact]
     public void ReadT_ReadsGeometry()
     {
-        using var target = new WktReader(TestDataReader.Open("wkt-point-3DM.wkt"));
+        using var target = new WktReader(TestDataReader.CoreIO.Open("wkt-point-3DM.wkt"));
         var read = target.Read<Point>();
         Assert.NotNull(read);
     }
@@ -101,7 +101,7 @@ public class WktReaderTests
     [Fact]
     public void ReadT_ThrowsExceptionIfWKTDoesNotRepresentGeometryOfSpecificType()
     {
-        using var target = new WktReader(TestDataReader.Open("wkt-point-3DM.wkt"));
+        using var target = new WktReader(TestDataReader.CoreIO.Open("wkt-point-3DM.wkt"));
         Assert.Throws<WktParseException>(target.Read<LineString>);
     }
 

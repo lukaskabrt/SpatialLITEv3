@@ -13,7 +13,7 @@ public record struct RelationMember
     /// <summary>
     /// The role of the member in relation.
     /// </summary>
-    public required string Role { get; set; }
+    public string? Role { get; set; }
 
     /// <summary>
     /// The ID of the member entity.

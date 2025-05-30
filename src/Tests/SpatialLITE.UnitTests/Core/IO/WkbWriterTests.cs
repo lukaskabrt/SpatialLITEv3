@@ -97,7 +97,7 @@ public class WkbWriterTests
 
         target.Write(point);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-empty.wkb"));
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class WkbWriterTests
 
         target.Write(point);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("point-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("point-2D.wkb"));
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class WkbWriterTests
 
         target.Write(linestring);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("linestring-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("linestring-empty.wkb"));
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class WkbWriterTests
 
         target.Write(linestring);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("linestring-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("linestring-2D.wkb"));
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class WkbWriterTests
 
         target.Write(polygon);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("polygon-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("polygon-empty.wkb"));
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class WkbWriterTests
 
         target.Write(polygon);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("polygon-ext-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("polygon-ext-2D.wkb"));
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public class WkbWriterTests
 
         target.Write(multipoint);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multipoint-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multipoint-empty.wkb"));
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public class WkbWriterTests
 
         target.Write(multipoint);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multipoint-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multipoint-2D.wkb"));
     }
 
     [Fact]
@@ -201,7 +201,7 @@ public class WkbWriterTests
 
         target.Write(multilinestring);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multilinestring-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multilinestring-empty.wkb"));
     }
 
     [Fact]
@@ -214,7 +214,7 @@ public class WkbWriterTests
 
         target.Write(multilinestring);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multilinestring-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multilinestring-2D.wkb"));
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class WkbWriterTests
 
         target.Write(multipolygon);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multipolygon-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multipolygon-empty.wkb"));
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public class WkbWriterTests
 
         target.Write(multipolygon);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("multipolygon-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("multipolygon-2D.wkb"));
     }
 
     [Fact]
@@ -253,7 +253,7 @@ public class WkbWriterTests
 
         target.Write(collection);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-empty.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-empty.wkb"));
     }
 
     [Fact]
@@ -266,7 +266,7 @@ public class WkbWriterTests
 
         target.Write(collection);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-2D.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-2D.wkb"));
     }
 
     [Fact]
@@ -279,7 +279,7 @@ public class WkbWriterTests
 
         target.Write(collection);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-pt-ls-poly.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-pt-ls-poly.wkb"));
     }
 
     [Fact]
@@ -292,7 +292,7 @@ public class WkbWriterTests
 
         target.Write(collection);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-multi.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-multi.wkb"));
     }
 
     [Fact]
@@ -305,7 +305,7 @@ public class WkbWriterTests
 
         target.Write(collection);
 
-        AssertBytesEqual(stream.ToArray(), TestDataReader.Read("collection-nested.wkb"));
+        AssertBytesEqual(stream.ToArray(), TestDataReader.CoreIO.Read("collection-nested.wkb"));
     }
 
     private static void AssertBytesEqual(byte[] array, byte[] expected)

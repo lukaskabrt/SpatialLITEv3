@@ -9,7 +9,7 @@ public interface IOsmEntity
     /// <summary>
     /// Gets or sets ID of the object.
     /// </summary>
-    public long ID { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of tags associated with the <see cref="IOsmEntity" />.

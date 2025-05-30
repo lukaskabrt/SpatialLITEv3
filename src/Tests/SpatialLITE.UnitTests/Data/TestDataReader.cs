@@ -2,25 +2,34 @@
 
 namespace SpatialLITE.UnitTests.Data;
 
-public static class TestDataReader
+public class TestDataReader
 {
-    public static Stream Open(string name)
+    private readonly string _resourcePrefix;
+    private readonly Assembly _assembly;
+
+    public TestDataReader(string resourcePrefix)
     {
-        var assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
-        return assembly.GetManifestResourceStream("SpatialLITE.UnitTests.Data.Core.IO." + name)
-            ?? throw new Exception($"Resource {name} not found.");
+        _resourcePrefix = resourcePrefix;
+        _assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
     }
 
-    public static byte[] Read(string name)
+    public Stream Open(string name)
     {
-        var assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
+        return _assembly.GetManifestResourceStream(_resourcePrefix + name)
+            ?? throw new Exception($"Resource {_resourcePrefix + name} not found.");
+    }
 
+    public byte[] Read(string name)
+    {
         using var stream = new MemoryStream();
-        using var resourceStream = assembly.GetManifestResourceStream("SpatialLITE.UnitTests.Data.Core.IO." + name)
-            ?? throw new Exception($"Resource {name} not found.");
+        using var resourceStream = _assembly.GetManifestResourceStream(_resourcePrefix + name)
+            ?? throw new Exception($"Resource {_resourcePrefix + name} not found.");
 
         resourceStream.CopyTo(stream);
-
         return stream.ToArray();
     }
+
+    public static readonly TestDataReader CoreIO = new("SpatialLITE.UnitTests.Data.Core.IO.");
+
+    public static readonly TestDataReader OsmXml = new("SpatialLITE.UnitTests.Data.Osm.Xml.");
 }

@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Data\Core\IO\*" />
+    <EmbeddedResource Include="Data\**\*" />
   </ItemGroup>
 
 </Project>
