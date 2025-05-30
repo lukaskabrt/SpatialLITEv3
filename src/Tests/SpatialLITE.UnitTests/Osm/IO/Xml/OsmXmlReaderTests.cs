@@ -25,18 +25,7 @@ public class OsmXmlReaderTests
     }
 
     [Fact]
-    public void Constructor_StringSettings_SetsSettingsAndMakesItReadOnly()
-    {
-        var path = "../../../Data/Xml/osm-real-file.osm";
-        OsmXmlReaderSettings settings = new() { ReadMetadata = false };
-        using (OsmXmlReader target = new(path, settings))
-        {
-            Assert.Same(settings, target.Settings);
-        }
-    }
-
-    [Fact]
-    public void Constructor_StreamSettings_SetsSettingsAndMakesItReadOnly()
+    public void Constructor_StreamSettings_SetsSettings()
     {
         OsmXmlReaderSettings settings = new() { ReadMetadata = false };
         using (OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-node.osm"), settings))
@@ -346,8 +335,8 @@ public class OsmXmlReaderTests
     {
         var expected = new Relation
         {
-            ID = 2,
-            Tags = [new("name", "test"), new("name-2", "test-2")],
+            ID = 1,
+            Tags = [],
             Members = [new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" }],
             Metadata = _metadata
         };

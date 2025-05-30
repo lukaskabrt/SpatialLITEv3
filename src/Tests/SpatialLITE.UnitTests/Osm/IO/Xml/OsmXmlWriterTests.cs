@@ -8,43 +8,7 @@ namespace SpatialLITE.UnitTests.Osm.IO.Xml;
 public class OsmXmlWriterTests
 {
     //resolution for default granularity
-    private const double _resolution = 1E-07;
-
-    private readonly EntityMetadata _metadata;
-    private readonly NodeInfo _node, _nodeTags, _nodeProperties;
-    private readonly WayInfo _way, _wayTags, _wayProperties, _wayWithoutNodes;
-    private readonly RelationInfo _relationNode, _relationWay, _relationRelation, _relationNodeProperties, _relationTags;
-
-    public OsmXmlWriterTests()
-    {
-        _metadata = new EntityMetadata()
-        {
-            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
-            Uid = 127998,
-            User = "Luk@s",
-            Visible = true,
-            Version = 2,
-            Changeset = 6410629
-        };
-
-        _node = new NodeInfo(1, 50.4, 16.2, new TagsCollection());
-        _nodeTags = new NodeInfo(1, 50.4, 16.2, new TagsCollection(new Tag[] { new("name", "test"), new("name-2", "test-2") }));
-        _nodeProperties = new NodeInfo(1, 50.4, 16.2, new TagsCollection(), _metadata);
-
-        _way = new WayInfo(1, new TagsCollection(), new long[] { 10, 11, 12 });
-        _wayTags = new WayInfo(1, new TagsCollection(new Tag[] { new("name", "test"), new("name-2", "test-2") }), new long[] { 10, 11, 12 });
-        _wayProperties = new WayInfo(1, new TagsCollection(), new long[] { 10, 11, 12 }, _metadata);
-        _wayWithoutNodes = new WayInfo(1, new TagsCollection(), new long[] { });
-
-        _relationNode = new RelationInfo(1, new TagsCollection(), new RelationMemberInfo[] { new() { MemberType = EntityType.Node, Reference = 10, Role = "test" } });
-        _relationWay = new RelationInfo(1, new TagsCollection(), new RelationMemberInfo[] { new() { MemberType = EntityType.Way, Reference = 10, Role = "test" } });
-        _relationRelation = new RelationInfo(1, new TagsCollection(), new RelationMemberInfo[] { new() { MemberType = EntityType.Relation, Reference = 10, Role = "test" } });
-        _relationTags = new RelationInfo(
-            1,
-            new TagsCollection(new Tag[] { new("name", "test"), new("name-2", "test-2") }),
-            new RelationMemberInfo[] { new() { MemberType = EntityType.Node, Reference = 10, Role = "test" } });
-        _relationNodeProperties = new RelationInfo(1, new TagsCollection(), new RelationMemberInfo[] { new() { MemberType = EntityType.Node, Reference = 10, Role = "test" } }, _metadata);
-    }
+    private const double Resolution = 1E-07;
 
     [Fact]
     public void Constructor_StreamSettings_SetsSettings()
@@ -59,7 +23,7 @@ public class OsmXmlWriterTests
     [Fact]
     public void Constructor_PathSettings_SetsSettings()
     {
-        string path = Path.GetTempPath();
+        string path = Path.GetTempFileName();
 
         try
         {
@@ -104,7 +68,7 @@ public class OsmXmlWriterTests
     [Fact]
     public void Write_ThrowsArgumentExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
     {
-        var node = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var node = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
 
         MemoryStream stream = new();
 
@@ -116,63 +80,94 @@ public class OsmXmlWriterTests
     [Fact]
     public void Write_DoesNotThrowsExceptionIfMetadataContainsNullInsteadUsername()
     {
-        var node = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
-        node.Metadata.User = null;
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = null,
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var node = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
 
         MemoryStream stream = new();
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
         {
-            target.Write(_nodeProperties);
+            target.Write(node);
         }
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNode()
     {
+        var node = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_node);
+            target.Write(node);
         }
 
-        TestXmlOutput(stream, _node, false);
+        TestXmlOutput(stream, node, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithTags()
     {
+        var tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") });
+        var nodeTags = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = tags };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_nodeTags);
+            target.Write(nodeTags);
         }
 
-        TestXmlOutput(stream, _nodeTags, false);
+        TestXmlOutput(stream, nodeTags, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithMetadata()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var nodeProperties = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
-        TestXmlOutput(stream, _nodeProperties, true);
+        TestXmlOutput(stream, nodeProperties, true);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesntWriteNodeMetadataIfWriteMedataIsFalse()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var nodeProperties = new Node { ID = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
         stream = new MemoryStream(stream.ToArray());
@@ -190,50 +185,73 @@ public class OsmXmlWriterTests
     [Fact]
     public void Write_IEntityInfo_WritesWay()
     {
+        var way = new Way { ID = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_way);
+            target.Write(way);
         }
 
-        TestXmlOutput(stream, _way, false);
+        TestXmlOutput(stream, way, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesWayWithTags()
     {
+        var tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") });
+        var wayTags = new Way { ID = 1, Tags = tags, Nodes = new List<long> { 10, 11, 12 } };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_wayTags);
+            target.Write(wayTags);
         }
 
-        TestXmlOutput(stream, _wayTags, false);
+        TestXmlOutput(stream, wayTags, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesWayWithMetadata()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var wayProperties = new Way { ID = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
         {
-            target.Write(_wayProperties);
+            target.Write(wayProperties);
         }
 
-        TestXmlOutput(stream, _wayProperties, true);
+        TestXmlOutput(stream, wayProperties, true);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesntWriteWayMetadataIfWriteMedataIsFalse()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var wayProperties = new Way { ID = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_wayProperties);
+            target.Write(wayProperties);
         }
 
         stream = new MemoryStream(stream.ToArray());
@@ -251,76 +269,133 @@ public class OsmXmlWriterTests
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithNode()
     {
+        var relationNode = new Relation
+        {
+            ID = 1,
+            Tags = new TagsCollection(),
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" } }
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_relationNode);
+            target.Write(relationNode);
         }
 
-        TestXmlOutput(stream, _relationNode, false);
+        TestXmlOutput(stream, relationNode, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithWay()
     {
+        var relationWay = new Relation
+        {
+            ID = 1,
+            Tags = new TagsCollection(),
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Way, Reference = 10, Role = "test" } }
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_relationWay);
+            target.Write(relationWay);
         }
 
-        TestXmlOutput(stream, _relationWay, false);
+        TestXmlOutput(stream, relationWay, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithRelation()
     {
+        var relationRelation = new Relation
+        {
+            ID = 1,
+            Tags = new TagsCollection(),
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Relation, Reference = 10, Role = "test" } }
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_relationRelation);
+            target.Write(relationRelation);
         }
 
-        TestXmlOutput(stream, _relationRelation, false);
+        TestXmlOutput(stream, relationRelation, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithTags()
     {
+        var tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") });
+        var relationTags = new Relation
+        {
+            ID = 1,
+            Tags = tags,
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" } }
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_relationTags);
+            target.Write(relationTags);
         }
 
-        TestXmlOutput(stream, _relationTags, false);
+        TestXmlOutput(stream, relationTags, false);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithMetadata()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var relationNodeProperties = new Relation
+        {
+            ID = 1,
+            Tags = new TagsCollection(),
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" } },
+            Metadata = metadata
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
         {
-            target.Write(_relationNodeProperties);
+            target.Write(relationNodeProperties);
         }
 
-        TestXmlOutput(stream, _relationNodeProperties, true);
+        TestXmlOutput(stream, relationNodeProperties, true);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesntWriteRelationMetadataIfWriteMedataIsFalse()
     {
+        var metadata = new EntityMetadata()
+        {
+            Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
+            Uid = 127998,
+            User = "Luk@s",
+            Visible = true,
+            Version = 2,
+            Changeset = 6410629
+        };
+        var relationNodeProperties = new Relation
+        {
+            ID = 1,
+            Tags = new TagsCollection(),
+            Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, Reference = 10, Role = "test" } },
+            Metadata = metadata
+        };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
         {
-            target.Write(_relationNodeProperties);
+            target.Write(relationNodeProperties);
         }
 
         stream = new MemoryStream(stream.ToArray());
@@ -367,8 +442,8 @@ public class OsmXmlWriterTests
         Assert.NotNull(actual);
 
         Assert.Equal(expected.ID, actual.ID);
-        Assert.InRange(actual.Longitude, expected.Longitude - _resolution, expected.Longitude + _resolution);
-        Assert.InRange(actual.Latitude, expected.Latitude - _resolution, expected.Latitude + _resolution);
+        Assert.InRange(actual.Longitude, expected.Longitude - Resolution, expected.Longitude + Resolution);
+        Assert.InRange(actual.Latitude, expected.Latitude - Resolution, expected.Latitude + Resolution);
 
         CompareTags(expected.Tags, actual.Tags);
         CompareEntityDetails(expected.Metadata, actual.Metadata);

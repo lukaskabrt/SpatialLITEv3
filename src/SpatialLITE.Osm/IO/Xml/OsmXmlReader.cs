@@ -377,7 +377,7 @@ public class OsmXmlReader : IOsmReader
         }
         else
         {
-            result.Timestamp = DateTime.ParseExact(attTimestamp, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'", System.Globalization.CultureInfo.InvariantCulture);
+            result.Timestamp = DateTimeOffset.ParseExact(attTimestamp, "yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);
         }
 
         return result;
