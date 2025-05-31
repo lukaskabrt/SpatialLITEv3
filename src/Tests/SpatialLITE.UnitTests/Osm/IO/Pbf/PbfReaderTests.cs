@@ -5,19 +5,13 @@ using SpatialLITE.UnitTests.Data;
 
 namespace SpatialLITE.UnitTests.Osm.IO.Pbf;
 
-public class PbfReaderTests
+public class PbfReaderTests : OsmIOTests
 {
-    //resolution for default granularity
-    private const double Resolution = 1E-07;
-
-    private readonly EntityMetadata _details;
-    private readonly Node _node, _nodeTags, _nodeProperties;
-    private readonly Way _way, _wayTags, _wayProperties, _wayWithoutNodes;
-    private readonly Relation _relationNode, _relationWay, _relationRelation, _relationProperties, _relationTags;
+    private readonly EntityMetadata _metadata;
 
     public PbfReaderTests()
     {
-        _details = new EntityMetadata()
+        _metadata = new EntityMetadata()
         {
             Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
             Uid = 127998,
@@ -26,21 +20,6 @@ public class PbfReaderTests
             Version = 2,
             Changeset = 6410629
         };
-
-        _node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
-        _nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
-        _nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _details };
-
-        _way = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
-        _wayTags = new Way { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Nodes = new List<long> { 10, 11, 12 } };
-        _wayProperties = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = _details };
-        _wayWithoutNodes = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long>() };
-
-        _relationNode = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
-        _relationWay = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" } } };
-        _relationRelation = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" } } };
-        _relationTags = new Relation { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
-        _relationProperties = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } }, Metadata = _details };
     }
 
     [Fact]
@@ -130,27 +109,30 @@ public class PbfReaderTests
     public void Read_ReadsNode_DenseNoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-nd-node.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_node, readNode);
+        AssertNodesEqual(_node, readNode);
     }
 
     [Fact]
     public void Read_ReadsNodeWithTags_DenseNoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-nd-node-tags.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_nodeTags, readNode);
+        AssertNodesEqual(_nodeTags, readNode);
     }
 
     [Fact]
     public void Read_ReadsNodeWithMetadata_DenseNoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-nd-node-all-properties.pbf"), new OsmReaderSettings() { ReadMetadata = true });
+        var _nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_nodeProperties, readNode);
+        AssertNodesEqual(_nodeProperties, readNode);
     }
 
     [Fact]
@@ -169,27 +151,30 @@ public class PbfReaderTests
     public void Read_ReadsNode_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-node.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_node, readNode);
+        AssertNodesEqual(_node, readNode);
     }
 
     [Fact]
     public void Read_ReadsNodeWithTags_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-node-tags.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_nodeTags, readNode);
+        AssertNodesEqual(_nodeTags, readNode);
     }
 
     [Fact]
     public void Read_ReadsNodeWithMetadata_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-node-all-properties.pbf"), new OsmReaderSettings() { ReadMetadata = true });
+        var _nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
         var readNode = target.Read() as Node;
 
-        CompareNodes(_nodeProperties, readNode);
+        AssertNodesEqual(_nodeProperties, readNode);
     }
 
     [Fact]
@@ -208,27 +193,30 @@ public class PbfReaderTests
     public void Read_ReadsWay_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _way = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
         var readWay = target.Read() as Way;
 
-        CompareWays(_way, readWay);
+        AssertWaysEqual(_way, readWay);
     }
 
     [Fact]
     public void Read_ReadsWayWithTags_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-tags.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _wayTags = new Way { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Nodes = new List<long> { 10, 11, 12 } };
         var readWay = target.Read() as Way;
 
-        CompareWays(_wayTags, readWay);
+        AssertWaysEqual(_wayTags, readWay);
     }
 
     [Fact]
     public void Read_ReadsWayWithMetadata_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-all-properties.pbf"), new OsmReaderSettings() { ReadMetadata = true });
+        var _wayProperties = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = _metadata };
         var readWay = target.Read() as Way;
 
-        CompareWays(_wayProperties, readWay);
+        AssertWaysEqual(_wayProperties, readWay);
     }
 
     [Fact]
@@ -247,54 +235,60 @@ public class PbfReaderTests
     public void Read_ReadsWayWithoutNodes_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-without-nodes.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _wayWithoutNodes = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long>() };
         var readWay = target.Read() as Way;
 
-        CompareWays(_wayWithoutNodes, readWay);
+        AssertWaysEqual(_wayWithoutNodes, readWay);
     }
 
     [Fact]
     public void Read_ReadsRelationWithNode_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-node.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _relationNode = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
         var readRelation = target.Read() as Relation;
 
-        CompareRelation(_relationNode, readRelation);
+        AssertRelationsEqual(_relationNode, readRelation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithWay_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-way.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _relationWay = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" } } };
         var readRelation = target.Read() as Relation;
 
-        CompareRelation(_relationWay, readRelation);
+        AssertRelationsEqual(_relationWay, readRelation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithRelation_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-relation.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _relationRelation = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" } } };
         var readRelation = target.Read() as Relation;
 
-        CompareRelation(_relationRelation, readRelation);
+        AssertRelationsEqual(_relationRelation, readRelation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithTags_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-tags.pbf"), new OsmReaderSettings() { ReadMetadata = false });
+        var _relationTags = new Relation { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
         var readRelation = target.Read() as Relation;
 
-        CompareRelation(_relationTags, readRelation);
+        AssertRelationsEqual(_relationTags, readRelation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithAllProperties_NoCompression()
     {
         PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-all-properties.pbf"), new OsmReaderSettings() { ReadMetadata = true });
+        var _relationProperties = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } }, Metadata = _metadata };
         var readRelation = target.Read() as Relation;
 
-        CompareRelation(_relationProperties, readRelation);
+        AssertRelationsEqual(_relationProperties, readRelation);
     }
 
     [Fact]
@@ -307,76 +301,5 @@ public class PbfReaderTests
         {
             Assert.Null(readRelation.Metadata);
         }
-    }
-
-    private void CompareNodes(Node expected, Node? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.InRange(actual.Longitude, expected.Longitude - Resolution, expected.Longitude + Resolution);
-        Assert.InRange(actual.Latitude, expected.Latitude - Resolution, expected.Latitude + Resolution);
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareWays(Way expected, Way? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Nodes.Count, actual.Nodes.Count);
-        for (var i = 0; i < expected.Nodes.Count; i++)
-        {
-            Assert.Equal(expected.Nodes[i], actual.Nodes[i]);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareRelation(Relation expected, Relation? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Members.Count, actual.Members.Count);
-        for (var i = 0; i < expected.Members.Count; i++)
-        {
-            Assert.Equal(expected.Members[i].MemberId, actual.Members[i].MemberId);
-            Assert.Equal(expected.Members[i].MemberType, actual.Members[i].MemberType);
-            Assert.Equal(expected.Members[i].Role, actual.Members[i].Role);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareTags(TagsCollection? expected, TagsCollection? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Count, actual.Count);
-        Assert.True(expected.All(actual.Contains));
-    }
-
-    private void CompareEntityDetails(EntityMetadata? expected, EntityMetadata? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Timestamp, actual.Timestamp);
-        Assert.Equal(expected.Uid, actual.Uid);
-        Assert.Equal(expected.User, actual.User);
-        Assert.Equal(expected.Visible, actual.Visible);
-        Assert.Equal(expected.Version, actual.Version);
-        Assert.Equal(expected.Changeset, actual.Changeset);
     }
 }

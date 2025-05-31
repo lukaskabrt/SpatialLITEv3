@@ -1,12 +1,14 @@
 ﻿using SpatialLite.Osm;
 
-namespace SpatialLITE.UnitTests.Osm.IO.Xml;
+namespace SpatialLITE.UnitTests.Osm.IO;
 
 /// <summary>
 /// Base class for OSM IO tests with shared functionality for entity comparison.
 /// </summary>
 public abstract class OsmIOTests
 {
+    private const double Tolerance = 1e-7;
+
     /// <summary>
     /// Compares two Node entities for equality.
     /// </summary>
@@ -17,8 +19,8 @@ public abstract class OsmIOTests
         Assert.NotNull(actual);
 
         Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Longitude, actual.Longitude);
-        Assert.Equal(expected.Latitude, actual.Latitude);
+        Assert.Equal(expected.Longitude, actual.Longitude, Tolerance);
+        Assert.Equal(expected.Latitude, actual.Latitude, Tolerance);
 
         AssertTagsEqual(expected.Tags, actual.Tags);
         AssertMetadataEquals(expected.Metadata, actual.Metadata);

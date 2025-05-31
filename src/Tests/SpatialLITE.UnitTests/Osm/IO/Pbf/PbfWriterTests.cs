@@ -4,19 +4,13 @@ using SpatialLITE.Osm.IO.Pbf;
 
 namespace SpatialLITE.UnitTests.Osm.IO.Pbf;
 
-public class PbfWriterTests
+public class PbfWriterTests : OsmIOTests
 {
-    //resolution for default granularity
-    private const double Resolution = 1E-07;
-
-    private readonly EntityMetadata _details;
-    private readonly Node _node, _nodeTags, _nodeProperties;
-    private readonly Way _way, _wayTags, _wayProperties, _wayWithoutNodes;
-    private readonly Relation _relationNode, _relationWay, _relationRelation, _relationNodeProperties, _relationTags;
+    private readonly EntityMetadata _metadata;
 
     public PbfWriterTests()
     {
-        _details = new EntityMetadata()
+        _metadata = new EntityMetadata()
         {
             Timestamp = new DateTime(2010, 11, 19, 22, 5, 56, DateTimeKind.Utc),
             Uid = 127998,
@@ -25,21 +19,6 @@ public class PbfWriterTests
             Version = 2,
             Changeset = 6410629
         };
-
-        _node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
-        _nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
-        _nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _details };
-
-        _way = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
-        _wayTags = new Way { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Nodes = new List<long> { 10, 11, 12 } };
-        _wayProperties = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = _details };
-        _wayWithoutNodes = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long>() };
-
-        _relationNode = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
-        _relationWay = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" } } };
-        _relationRelation = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" } } };
-        _relationTags = new Relation { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
-        _relationNodeProperties = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } }, Metadata = _details };
     }
 
     [Fact]
@@ -121,276 +100,300 @@ public class PbfWriterTests
     [Fact]
     public void Write_ThrowsArgumentNullExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
     {
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         using (PbfWriter target = new(new MemoryStream(), new PbfWriterSettings() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true }))
         {
-            Assert.Throws<ArgumentNullException>(() => target.Write(_node));
+            Assert.Throws<ArgumentNullException>(() => target.Write(node));
         }
     }
 
     [Fact]
     public void Write_ThrowsArgumentNullExceptionIfMetadataContainsNullInsteadOfUsername()
     {
-        if (_nodeProperties.Metadata != null)
+        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
+        if (nodeProperties.Metadata != null)
         {
-            _nodeProperties.Metadata.User = null;
+            nodeProperties.Metadata.User = null;
         }
 
         using (PbfWriter target = new(new MemoryStream(), new PbfWriterSettings() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true }))
         {
-            Assert.Throws<ArgumentNullException>(() => target.Write(_nodeProperties));
+            Assert.Throws<ArgumentNullException>(() => target.Write(nodeProperties));
         }
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNode()
     {
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_node);
+            target.Write(node);
         }
 
-        TestPbfOutput(stream, _node);
+        TestPbfOutput(stream, node);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithTags()
     {
+        var nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeTags);
+            target.Write(nodeTags);
         }
 
-        TestPbfOutput(stream, _nodeTags);
+        TestPbfOutput(stream, nodeTags);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithMetadata()
     {
+        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = true };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
-        TestPbfOutput(stream, _nodeProperties);
+        TestPbfOutput(stream, nodeProperties);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesNotWriteNodeMetadataIfWriteMetadataSettingsIsFalse()
     {
+        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
-        TestPbfOutput(stream, _node);
+        TestPbfOutput(stream, node);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNode_Dense()
     {
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         PbfWriterSettings settings = new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_node);
+            target.Write(node);
         }
 
-        TestPbfOutput(stream, _node);
+        TestPbfOutput(stream, node);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithTags_Dense()
     {
+        var nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }) };
         PbfWriterSettings settings = new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeTags);
+            target.Write(nodeTags);
         }
 
-        TestPbfOutput(stream, _nodeTags);
+        TestPbfOutput(stream, nodeTags);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesNodeWithMetadata_Dense()
     {
+        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
         PbfWriterSettings settings = new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
-        TestPbfOutput(stream, _nodeProperties);
+        TestPbfOutput(stream, nodeProperties);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesNotWriteNodeMetadataIfWriteMetadataSettingsIsFalse_Dense()
     {
+        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = _metadata };
+        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
         PbfWriterSettings settings = new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_nodeProperties);
+            target.Write(nodeProperties);
         }
 
-        TestPbfOutput(stream, _node);
+        TestPbfOutput(stream, node);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesWay()
     {
+        var way = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_way);
+            target.Write(way);
         }
 
-        TestPbfOutput(stream, _way);
+        TestPbfOutput(stream, way);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesWayWithTags()
     {
+        var wayTags = new Way { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Nodes = new List<long> { 10, 11, 12 } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_wayTags);
+            target.Write(wayTags);
         }
 
-        TestPbfOutput(stream, _wayTags);
+        TestPbfOutput(stream, wayTags);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesWayWithMetadata()
     {
+        var wayProperties = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = _metadata };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = true };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_wayProperties);
+            target.Write(wayProperties);
         }
 
-        TestPbfOutput(stream, _wayProperties);
+        TestPbfOutput(stream, wayProperties);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesNotWriteWayMetadataIfWriteMetadataSettingsIsFalse()
     {
+        var wayProperties = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 }, Metadata = _metadata };
+        var way = new Way { Id = 1, Tags = new TagsCollection(), Nodes = new List<long> { 10, 11, 12 } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_wayProperties);
+            target.Write(wayProperties);
         }
 
-        TestPbfOutput(stream, _way);
+        TestPbfOutput(stream, way);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithNode()
     {
+        var relationNode = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationNode);
+            target.Write(relationNode);
         }
 
-        TestPbfOutput(stream, _relationNode);
+        TestPbfOutput(stream, relationNode);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithWay()
     {
+        var relationWay = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" } } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationWay);
+            target.Write(relationWay);
         }
 
-        TestPbfOutput(stream, _relationWay);
+        TestPbfOutput(stream, relationWay);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithRelation()
     {
+        var relationRelation = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" } } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationRelation);
+            target.Write(relationRelation);
         }
 
-        TestPbfOutput(stream, _relationRelation);
+        TestPbfOutput(stream, relationRelation);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithTags()
     {
+        var relationTags = new Relation { Id = 1, Tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") }), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationTags);
+            target.Write(relationTags);
         }
 
-        TestPbfOutput(stream, _relationTags);
+        TestPbfOutput(stream, relationTags);
     }
 
     [Fact]
     public void Write_IEntityInfo_WritesRelationWithMetadata()
     {
+        var relationNodeProperties = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } }, Metadata = _metadata };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = true };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationNodeProperties);
+            target.Write(relationNodeProperties);
         }
 
-        TestPbfOutput(stream, _relationNodeProperties);
+        TestPbfOutput(stream, relationNodeProperties);
     }
 
     [Fact]
     public void Write_IEntityInfo_DoesNotWriteRelationMetadataIfWriteMetadataSettingsIsFalse()
     {
+        var relationNodeProperties = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } }, Metadata = _metadata };
+        var relationNode = new Relation { Id = 1, Tags = new TagsCollection(), Members = new List<RelationMember> { new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" } } };
         PbfWriterSettings settings = new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false };
         MemoryStream stream = new();
 
         using (PbfWriter target = new(stream, settings))
         {
-            target.Write(_relationNodeProperties);
+            target.Write(relationNodeProperties);
         }
 
-        TestPbfOutput(stream, _relationNode);
+        TestPbfOutput(stream, relationNode);
     }
 
     [Fact]
@@ -491,82 +494,14 @@ public class PbfWriterTests
         switch (expected.EntityType)
         {
             case EntityType.Node:
-                CompareNodes((Node)expected, (Node?)read);
+                AssertNodesEqual((Node)expected, (Node?)read);
                 break;
             case EntityType.Way:
-                CompareWays((Way)expected, (Way?)read);
+                AssertWaysEqual((Way)expected, (Way?)read);
                 break;
             case EntityType.Relation:
-                CompareRelation((Relation)expected, (Relation?)read);
+                AssertRelationsEqual((Relation)expected, (Relation?)read);
                 break;
         }
-    }
-
-    private void CompareNodes(Node expected, Node? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.InRange(actual.Longitude, expected.Longitude - Resolution, expected.Longitude + Resolution);
-        Assert.InRange(actual.Latitude, expected.Latitude - Resolution, expected.Latitude + Resolution);
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareWays(Way expected, Way? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Nodes.Count, actual.Nodes.Count);
-        for (var i = 0; i < expected.Nodes.Count; i++)
-        {
-            Assert.Equal(expected.Nodes[i], actual.Nodes[i]);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareRelation(Relation expected, Relation? actual)
-    {
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Members.Count, actual.Members.Count);
-        for (var i = 0; i < expected.Members.Count; i++)
-        {
-            Assert.Equal(expected.Members[i], actual.Members[i]);
-        }
-
-        CompareTags(expected.Tags, actual.Tags);
-        CompareEntityDetails(expected.Metadata, actual.Metadata);
-    }
-
-    private void CompareTags(TagsCollection expected, TagsCollection actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Count, actual.Count);
-        Assert.True(expected.All(actual.Contains));
-    }
-
-    private void CompareEntityDetails(EntityMetadata? expected, EntityMetadata? actual)
-    {
-        if (expected == null && actual == null)
-        {
-            return;
-        }
-
-        Assert.NotNull(expected);
-        Assert.NotNull(actual);
-        Assert.Equal(expected.Timestamp, actual.Timestamp);
-        Assert.Equal(expected.Uid, actual.Uid);
-        Assert.Equal(expected.User, actual.User);
-        Assert.Equal(expected.Visible, actual.Visible);
-        Assert.Equal(expected.Version, actual.Version);
-        Assert.Equal(expected.Changeset, actual.Changeset);
     }
 }
