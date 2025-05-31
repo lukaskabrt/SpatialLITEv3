@@ -107,17 +107,16 @@ public class PbfReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNode_DenseNoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-nd-node.pbf"), new() { ReadMetadata = false });
-        var _node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
-        var readNode = target.Read() as Node;
+        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
 
-        AssertNodesEqual(_node, readNode);
+        var node = ReadEntity<Node>("pbf-nd-node.pbf", false);
+
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_ReadsNodeWithTags_DenseNoCompression()
     {
-        var target = new PbfReader(TestDataReader.OsmPbf.Open("pbf-nd-node-tags.pbf"), new() { ReadMetadata = false });
         var expected = new Node
         {
             Id = 1,
@@ -126,181 +125,197 @@ public class PbfReaderTests : OsmIOTests
             Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")]
         };
 
-        var readNode = target.Read() as Node;
+        var node = ReadEntity<Node>("pbf-nd-node-tags.pbf", false);
 
-        AssertNodesEqual(expected, readNode);
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_ReadsNodeWithMetadata_DenseNoCompression()
     {
-        var target = new PbfReader(TestDataReader.OsmPbf.Open("pbf-nd-node-all-properties.pbf"), new() { ReadMetadata = true });
         var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
-        var readNode = target.Read() as Node;
 
-        AssertNodesEqual(expected, readNode);
+        var node = ReadEntity<Node>("pbf-nd-node-all-properties.pbf", true);
+
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_SkipsNodeMetadataIfProcessMetadataIsFalse_DenseNoCompression()
     {
-        var target = new PbfReader(TestDataReader.OsmPbf.Open("pbf-nd-node-all-properties.pbf"), new() { ReadMetadata = false });
-        var readNode = target.Read() as Node;
+        var node = ReadEntity<Node>("pbf-nd-node-all-properties.pbf", false);
 
-        Assert.NotNull(readNode);
-        Assert.Null(readNode.Metadata);
+        Assert.NotNull(node);
+        Assert.Null(node.Metadata);
     }
 
     [Fact]
     public void Read_ReadsNode_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-node.pbf"), new() { ReadMetadata = false });
         var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
-        var readNode = target.Read() as Node;
 
-        AssertNodesEqual(expected, readNode);
+        var node = ReadEntity<Node>("pbf-n-node.pbf", false);
+
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_ReadsNodeWithTags_NoCompression()
     {
-        var target = new PbfReader(TestDataReader.OsmPbf.Open("pbf-n-node-tags.pbf"), new() { ReadMetadata = false });
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")] };
-        var readNode = target.Read() as Node;
+        var expected = new Node
+        {
+            Id = 1,
+            Latitude = 50.4,
+            Longitude = 16.2,
+            Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")]
+        };
 
-        AssertNodesEqual(expected, readNode);
+        var node = ReadEntity<Node>("pbf-n-node-tags.pbf", false);
+
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_ReadsNodeWithMetadata_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-node-all-properties.pbf"), new() { ReadMetadata = true });
         var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
-        var readNode = target.Read() as Node;
 
-        AssertNodesEqual(expected, readNode);
+        var node = ReadEntity<Node>("pbf-n-node-all-properties.pbf", true);
+
+        AssertNodesEqual(expected, node);
     }
 
     [Fact]
     public void Read_SkipsNodeMetadataIfProcessMetadataIsFalse_NoCompression()
     {
-        var target = new PbfReader(TestDataReader.OsmPbf.Open("pbf-n-node-all-properties.pbf"), new() { ReadMetadata = false });
-        var readNode = target.Read() as Node;
+        var node = ReadEntity<Node>("pbf-n-node-all-properties.pbf", false);
 
-        Assert.NotNull(readNode);
-        Assert.Null(readNode.Metadata);
+        Assert.NotNull(node);
+        Assert.Null(node.Metadata);
     }
 
     [Fact]
     public void Read_ReadsWay_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way.pbf"), new() { ReadMetadata = false });
         var expected = new Way { Id = 1, Tags = [], Nodes = [10, 11, 12] };
-        var readWay = target.Read() as Way;
 
-        AssertWaysEqual(expected, readWay);
+        var way = ReadEntity<Way>("pbf-n-way.pbf", false);
+
+        AssertWaysEqual(expected, way);
     }
 
     [Fact]
     public void Read_ReadsWayWithTags_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-tags.pbf"), new() { ReadMetadata = false });
-        var expected = new Way { Id = 1, Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")], Nodes = [10, 11, 12] };
-        var readWay = target.Read() as Way;
+        var expected = new Way
+        {
+            Id = 1,
+            Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")],
+            Nodes = [10, 11, 12]
+        };
 
-        AssertWaysEqual(expected, readWay);
+        var way = ReadEntity<Way>("pbf-n-way-tags.pbf", false);
+
+        AssertWaysEqual(expected, way);
     }
 
     [Fact]
     public void Read_ReadsWayWithMetadata_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-all-properties.pbf"), new() { ReadMetadata = true });
         var expected = new Way { Id = 1, Tags = [], Nodes = [10, 11, 12], Metadata = _metadata };
-        var readWay = target.Read() as Way;
 
-        AssertWaysEqual(expected, readWay);
+        var way = ReadEntity<Way>("pbf-n-way-all-properties.pbf", true);
+
+        AssertWaysEqual(expected, way);
     }
 
     [Fact]
     public void Read_SkipsWayMetadataIfProcessMetadataIsFalse_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-all-properties.pbf"), new() { ReadMetadata = false });
-        var readWay = target.Read() as Way;
+        var way = ReadEntity<Way>("pbf-n-way-all-properties.pbf", false);
 
-        Assert.NotNull(readWay);
-        Assert.Null(readWay.Metadata);
+        Assert.NotNull(way);
+        Assert.Null(way.Metadata);
     }
 
     [Fact]
     public void Read_ReadsWayWithoutNodes_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-way-without-nodes.pbf"), new() { ReadMetadata = false });
         var expected = new Way { Id = 1, Tags = [], Nodes = [] };
-        var readWay = target.Read() as Way;
 
-        AssertWaysEqual(expected, readWay);
+        var way = ReadEntity<Way>("pbf-n-way-without-nodes.pbf", false);
+
+        AssertWaysEqual(expected, way);
     }
 
     [Fact]
     public void Read_ReadsRelationWithNode_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-node.pbf"), new() { ReadMetadata = false });
         var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }] };
-        var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqual(expected, readRelation);
+        var relation = ReadEntity<Relation>("pbf-n-relation-node.pbf", false);
+
+        AssertRelationsEqual(expected, relation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithWay_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-way.pbf"), new() { ReadMetadata = false });
         var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Way, MemberId = 10, Role = "test" }] };
-        var readRelation = target.Read() as Relation;
 
-        AssertRelationsEqual(expected, readRelation);
+        var relation = ReadEntity<Relation>("pbf-n-relation-way.pbf", false);
+
+        AssertRelationsEqual(expected, relation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithRelation_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-relation.pbf"), new() { ReadMetadata = false });
         var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Relation, MemberId = 10, Role = "test" }] };
 
-        var readRelation = target.Read() as Relation;
+        var relation = ReadEntity<Relation>("pbf-n-relation-relation.pbf", false);
 
-        AssertRelationsEqual(expected, readRelation);
+        AssertRelationsEqual(expected, relation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithTags_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-tags.pbf"), new() { ReadMetadata = false });
-        var expected = new Relation { Id = 1, Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")], Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }] };
+        var expected = new Relation
+        {
+            Id = 1,
+            Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")],
+            Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }]
+        };
 
-        var readRelation = target.Read() as Relation;
+        var relation = ReadEntity<Relation>("pbf-n-relation-tags.pbf", false);
 
-        AssertRelationsEqual(expected, readRelation);
+        AssertRelationsEqual(expected, relation);
     }
 
     [Fact]
     public void Read_ReadsRelationWithAllProperties_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-all-properties.pbf"), new() { ReadMetadata = true });
-        var expected = new Relation { Id = 1, Tags = [], Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }], Metadata = _metadata };
-        var readRelation = target.Read() as Relation;
+        var expected = new Relation
+        {
+            Id = 1,
+            Tags = [],
+            Members = [new RelationMember { MemberType = EntityType.Node, MemberId = 10, Role = "test" }],
+            Metadata = _metadata
+        };
 
-        AssertRelationsEqual(expected, readRelation);
+        var relation = ReadEntity<Relation>("pbf-n-relation-all-properties.pbf", true);
+
+        AssertRelationsEqual(expected, relation);
     }
 
     [Fact]
     public void Read_SkipsRelationMetadataIfProcessMetadataIsFalse_NoCompression()
     {
-        PbfReader target = new(TestDataReader.OsmPbf.Open("pbf-n-relation-all-properties.pbf"), new() { ReadMetadata = false });
-        var readRelation = target.Read() as Relation;
+        var relation = ReadEntity<Relation>("pbf-n-relation-all-properties.pbf", false);
 
-        Assert.NotNull(readRelation);
-        Assert.Null(readRelation.Metadata);
+        Assert.NotNull(relation);
+        Assert.Null(relation.Metadata);
     }
 
     private static T ReadEntity<T>(string filename, bool readMetadata) where T : IOsmEntity
