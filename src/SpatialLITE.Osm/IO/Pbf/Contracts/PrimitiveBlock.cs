@@ -25,7 +25,7 @@ internal class PrimitiveBlock
     public required List<PrimitiveGroup> PrimitiveGroup { get; set; }
 
     /// <summary>
-    /// Gets or sets granularity of the position data. Default value is 1000.
+    /// Gets or sets granularity of the position data. Default value is 100.
     /// </summary>
     [ProtoMember(16, IsRequired = false, Name = "granularity")]
     public int Granularity
@@ -47,7 +47,7 @@ internal class PrimitiveBlock
     public long LonOffset { get; set; }
 
     /// <summary>
-    /// Gets or sets granularity of the DateTime data. Default value is 100.
+    /// Gets or sets granularity of the DateTime data. Default value is 1000.
     /// </summary>
     [ProtoMember(18, IsRequired = false, Name = "date_granularity")]
     public int DateGranularity

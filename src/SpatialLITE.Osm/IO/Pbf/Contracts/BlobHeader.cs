@@ -14,7 +14,7 @@ internal class BlobHeader
     /// </summary>
     /// <remarks>
     /// Supported values are 'OSMHeader' and 'OSMData'.
-    /// </remarks>S
+    /// </remarks>
     [ProtoMember(1, IsRequired = true, Name = "type")]
     public required string Type { get; set; }
 

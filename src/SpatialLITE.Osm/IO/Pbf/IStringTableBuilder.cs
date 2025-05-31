@@ -15,7 +15,7 @@ internal interface IStringTableBuilder
     public uint GetStringIndex(string str);
 
     /// <summary>
-    /// Creates a StringTable object with data from StringTable object.
+    /// Creates a StringTable object with data from the builder.
     /// </summary>
     /// <returns>The StringTable object with data from the IStringBuilder.</returns>
     public StringTable BuildStringTable();
