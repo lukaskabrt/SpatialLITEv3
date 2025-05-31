@@ -17,7 +17,7 @@ public class PbfWriter : IOsmWriter
     /// </summary>
     public const int MaxDataBlockSize = 16 * 1024 * 1024;
 
-    private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0);
+    private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private bool _disposed = false;
     private readonly Stream _output;
@@ -77,17 +77,12 @@ public class PbfWriter : IOsmWriter
     /// </remarks>
     public void Write(IOsmEntity entity)
     {
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+
         if (Settings.WriteMetadata)
         {
-            if (entity.Metadata == null)
-            {
-                throw new ArgumentException("Entity doesn't contain metadata obejct, but writer was created with WriteMetadata setting.");
-            }
-
-            if (entity.Metadata.User == null)
-            {
-                throw new ArgumentNullException(nameof(entity), "Entity.Metadata.User cannot be null.");
-            }
+            ArgumentNullException.ThrowIfNull(entity.Metadata, nameof(entity.Metadata));
+            ArgumentNullException.ThrowIfNull(entity.Metadata.User, nameof(entity.Metadata.User));
         }
 
         switch (entity.EntityType)

@@ -11,21 +11,20 @@ namespace SpatialLITE.Osm.IO.Pbf;
 /// </summary>
 public class PbfReader : IOsmReader
 {
-
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
     /// </summary>
     public const int MaxDataBlockSize = 32 * 1024 * 1024;
 
     /// <summary>
-    /// Defines maximal allowed size of uncopressed OsmHeader block. Larger blocks are considered invalid.
+    /// Defines maximal allowed size of uncompressed OsmHeader block. Larger blocks are considered invalid.
     /// </summary>
     public const int MaxHeaderBlockSize = 64 * 1024;
 
     private bool _disposed = false;
     private readonly Stream _input;
     private readonly Queue<IOsmEntity> _cache;
-    private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0);
+    private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     /// <summary>
     /// Initializes a new instance of the PbfReader class that read data form specified stream.
