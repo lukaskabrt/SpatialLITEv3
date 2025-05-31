@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
     <ProjectReference Include="..\SpatialLITE.Core\SpatialLITE.Core.csproj" />
+    <ProjectReference Include="..\SpatialLITE.Osm\SpatialLITE.Osm.csproj" />
   </ItemGroup>
 
 </Project>
