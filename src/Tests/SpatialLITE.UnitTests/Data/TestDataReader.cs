@@ -75,4 +75,9 @@ public class TestDataReader
     /// TestDataReader for OSM XML test data.
     /// </summary>
     public static readonly TestDataReader OsmXml = new(Path.Combine("Osm", "Xml"));
+
+    /// <summary>
+    /// TestDataReader for OSM PBF test data.
+    /// </summary>
+    public static readonly TestDataReader OsmPbf = new(Path.Combine("Osm", "Pbf"));
 }

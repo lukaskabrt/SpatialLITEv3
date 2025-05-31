@@ -3,21 +3,20 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
   <!-- Analyzers-->
   <ItemGroup>
     <!-- Used primarily to check Async suffix in method names, although it does much more. Ref https://github.com/dotnet/roslyn/issues/40050 -->
     <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" />
   </ItemGroup>
-
   <!-- Package Versions -->
   <ItemGroup>
+    <PackageVersion Include="protobuf-net" Version="3.2.52" />
+
     <!-- Testing Dependencies -->
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="xunit" Version="2.5.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
-    
     <!-- Benchmarking Dependencies -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
   </ItemGroup>
