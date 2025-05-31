@@ -119,11 +119,11 @@ public class PbfWriterTests
     }
 
     [Fact]
-    public void Write_ThrowsArgumentExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
+    public void Write_ThrowsArgumentNullExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
     {
         using (PbfWriter target = new(new MemoryStream(), new PbfWriterSettings() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true }))
         {
-            Assert.Throws<ArgumentException>(() => target.Write(_node));
+            Assert.Throws<ArgumentNullException>(() => target.Write(_node));
         }
     }
 

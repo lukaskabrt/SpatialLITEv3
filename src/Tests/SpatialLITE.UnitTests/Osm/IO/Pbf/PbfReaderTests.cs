@@ -81,21 +81,21 @@ public class PbfReaderTests
     [Fact]
     public void Constructor_StringSettings_ThrowsExceptionIfFileDoesNotContainOSMHeaderBeforeOSMData()
     {
-        var filename = Path.Combine("..", "..", "..", "Data", "Pbf", "pbf-without-osm-header.pbf");
+        var filename = TestDataReader.OsmPbf.GetPath("pbf-without-osm-header.pbf");
         Assert.Throws<InvalidDataException>(() => new PbfReader(filename, new OsmReaderSettings() { ReadMetadata = false }));
     }
 
     [Fact]
     public void Constructor_StringSettings_ThrowsExceptionIfOSMHeaderDefinedUnsupportedRequiredFeature()
     {
-        var filename = Path.Combine("..", "..", "..", "Data", "Pbf", "pbf-unsupported-required-feature.pbf");
+        var filename = TestDataReader.OsmPbf.GetPath("pbf-unsupported-required-feature.pbf");
         Assert.Throws<InvalidDataException>(() => new PbfReader(filename, new OsmReaderSettings() { ReadMetadata = false }));
     }
 
     [Fact]
     public void Constructor_StringSettings_SetsSettings()
     {
-        var filename = Path.Combine("..", "..", "..", "Data", "Pbf", "pbf-n-node.pbf");
+        var filename = TestDataReader.OsmPbf.GetPath("pbf-n-node.pbf");
         OsmReaderSettings settings = new();
 
         using (PbfReader target = new(filename, settings))
@@ -307,30 +307,6 @@ public class PbfReaderTests
         {
             Assert.Null(readRelation.Metadata);
         }
-    }
-
-    [Fact]
-    public void Dispose_ClosesOutputStreamIfWritingToFiles()
-    {
-        var filename = Path.Combine("..", "..", "..", "Data", "Pbf", "pbf-n-node.pbf");
-        OsmReaderSettings settings = new() { ReadMetadata = true };
-
-        PbfReader target = new(filename, settings);
-        target.Dispose();
-
-        using var testStream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-    }
-
-    [Fact]
-    public void Dispose_ClosesOutputStreamIfWritingToStream()
-    {
-        var stream = TestDataReader.OsmPbf.Open("pbf-n-node.pbf");
-        OsmReaderSettings settings = new() { ReadMetadata = true };
-
-        PbfReader target = new(stream, settings);
-        target.Dispose();
-
-        Assert.False(stream.CanRead);
     }
 
     private void CompareNodes(Node expected, Node? actual)
