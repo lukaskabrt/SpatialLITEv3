@@ -4,6 +4,7 @@
 
 - Use CRLF line endings for `*.cs` files
 - Use UTF-8 encoding for all source files
+- Wrap lines longer than 160 characters
 
 ## Additional Guidelines
 

@@ -26,14 +26,14 @@ public class PbfReaderTests : OsmIOTests
     public void Constructor_StreamSettings_ThrowsExceptionIfStreamDoesNotContainOSMHeaderBeforeOSMData()
     {
         var dataStream = TestDataReader.OsmPbf.Open("pbf-without-osm-header.pbf");
-        Assert.Throws<InvalidDataException>(() => new PbfReader(dataStream, new OsmReaderSettings() { ReadMetadata = false }));
+        Assert.Throws<InvalidDataException>(() => new PbfReader(dataStream, new() { ReadMetadata = false }));
     }
 
     [Fact]
     public void Constructor_StreamSettings_ThrowsExceptionIfOSMHeaderDefinedUnsupportedRequiredFeature()
     {
         var dataStream = TestDataReader.OsmPbf.Open("pbf-unsupported-required-feature.pbf");
-        Assert.Throws<InvalidDataException>(() => new PbfReader(dataStream, new OsmReaderSettings() { ReadMetadata = false }));
+        Assert.Throws<InvalidDataException>(() => new PbfReader(dataStream, new() { ReadMetadata = false }));
     }
 
     [Fact]
