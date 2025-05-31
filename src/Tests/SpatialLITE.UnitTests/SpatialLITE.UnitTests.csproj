@@ -34,7 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Data\**\*" />
+    <Content Include="Data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

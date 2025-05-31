@@ -2,34 +2,77 @@
 
 namespace SpatialLITE.UnitTests.Data;
 
+/// <summary>
+/// Helper class for loading test data files.
+/// </summary>
 public class TestDataReader
 {
-    private readonly string _resourcePrefix;
-    private readonly Assembly _assembly;
+    private readonly string _dataFolderPath;
 
-    public TestDataReader(string resourcePrefix)
+    /// <summary>
+    /// Initializes a new instance of the TestDataReader class.
+    /// </summary>
+    /// <param name="folderPath">Relative folder path for test data files</param>
+    public TestDataReader(string folderPath)
     {
-        _resourcePrefix = resourcePrefix;
-        _assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
+        var assembly = typeof(TestDataReader).GetTypeInfo().Assembly;
+
+        // Build path to the output directory where files are copied
+        var assemblyLocation = assembly.Location;
+        var assemblyDirectory = Path.GetDirectoryName(assemblyLocation)
+            ?? throw new InvalidOperationException("Could not determine assembly directory.");
+        _dataFolderPath = Path.Combine(assemblyDirectory, "Data", folderPath);
     }
 
+    /// <summary>
+    /// Opens a stream to the test data file.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Stream of the test data</returns>
     public Stream Open(string name)
     {
-        return _assembly.GetManifestResourceStream(_resourcePrefix + name)
-            ?? throw new Exception($"Resource {_resourcePrefix + name} not found.");
+        var filePath = GetPath(name);
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"Test data file not found: {filePath}");
+        }
+
+        return File.OpenRead(filePath);
     }
 
+    /// <summary>
+    /// Reads the test data file into a byte array.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Byte array containing the test data</returns>
     public byte[] Read(string name)
     {
-        using var stream = new MemoryStream();
-        using var resourceStream = _assembly.GetManifestResourceStream(_resourcePrefix + name)
-            ?? throw new Exception($"Resource {_resourcePrefix + name} not found.");
+        var filePath = GetPath(name);
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"Test data file not found: {filePath}");
+        }
 
-        resourceStream.CopyTo(stream);
-        return stream.ToArray();
+        return File.ReadAllBytes(filePath);
     }
 
-    public static readonly TestDataReader CoreIO = new("SpatialLITE.UnitTests.Data.Core.IO.");
+    /// <summary>
+    /// Gets the full path to a test data file.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Full path to the test data file</returns>
+    public string GetPath(string name)
+    {
+        return Path.Combine(_dataFolderPath, name);
+    }
 
-    public static readonly TestDataReader OsmXml = new("SpatialLITE.UnitTests.Data.Osm.Xml.");
+    /// <summary>
+    /// TestDataReader for Core IO test data.
+    /// </summary>
+    public static readonly TestDataReader CoreIO = new(Path.Combine("Core", "IO"));
+
+    /// <summary>
+    /// TestDataReader for OSM XML test data.
+    /// </summary>
+    public static readonly TestDataReader OsmXml = new(Path.Combine("Osm", "Xml"));
 }
