@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,6 +14,12 @@
     <ProjectReference Include="..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
     <ProjectReference Include="..\SpatialLITE.Core\SpatialLITE.Core.csproj" />
     <ProjectReference Include="..\SpatialLITE.Osm\SpatialLITE.Osm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\Osm\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

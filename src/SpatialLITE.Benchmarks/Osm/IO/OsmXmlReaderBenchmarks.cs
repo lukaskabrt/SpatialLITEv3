@@ -1,40 +1,41 @@
 using BenchmarkDotNet.Attributes;
 using SpatialLite.Osm;
+using SpatialLITE.Benchmarks.Data;
 using SpatialLITE.Osm.IO.Xml;
+using System.IO.Compression;
 
 namespace SpatialLITE.Benchmarks.Osm.IO;
 
 [MemoryDiagnoser]
-public partial class OsmXmlReaderBenchmarks
+public class OsmXmlReaderBenchmarks
 {
-    private MemoryStream _multipleNodesStream = null!;
-    private MemoryStream _multipleNodesWithTagsStream = null!;
-    private MemoryStream _multipleNodesWithMetadataStream = null!;
-    private MemoryStream _multipleWaysStream = null!;
-    private MemoryStream _multipleWaysWithTagsStream = null!;
-    private MemoryStream _multipleRelationsStream = null!;
-    private MemoryStream _multipleRelationsWithTagsStream = null!;
-    private MemoryStream _complexMixedStream = null!;
+    private readonly MemoryStream _xml = new();
+    private readonly MemoryStream _xmlWithMetadata = new();
 
-    [GlobalCleanup]
-    public void Cleanup()
+    [GlobalSetup(Target = nameof(ReadFileWithoutMetadata))]
+    public void SetupWithoutMetadata()
     {
-        _multipleNodesStream?.Dispose();
-        _multipleNodesWithTagsStream?.Dispose();
-        _multipleNodesWithMetadataStream?.Dispose();
-        _multipleWaysStream?.Dispose();
-        _multipleWaysWithTagsStream?.Dispose();
-        _multipleRelationsStream?.Dispose();
-        _multipleRelationsWithTagsStream?.Dispose();
-        _complexMixedStream?.Dispose();
+        LoadXmlData(_xml, "andorra.osm.gz");
+    }
+
+    [GlobalSetup(Target = nameof(ReadFileWithMetadata))]
+    public void SetupWithMetadata()
+    {
+        LoadXmlData(_xmlWithMetadata, "andorra-metadata.osm.gz");
+    }
+
+    private static void LoadXmlData(MemoryStream stream, string fileName)
+    {
+        using var source = BenchmarkDataReader.OsmXml.Open(fileName);
+        using var gzipStream = new GZipStream(source, CompressionMode.Decompress);
+        gzipStream.CopyTo(stream);
     }
 
     [Benchmark]
-    public int ReadMultipleNodes()
+    public int ReadFileWithMetadata()
     {
-        // Reset stream position and create new reader for this iteration
-        _multipleNodesStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleNodesStream, new OsmXmlReaderSettings { ReadMetadata = false });
+        _xmlWithMetadata.Position = 0;
+        using var reader = new OsmXmlReader(_xmlWithMetadata, new OsmXmlReaderSettings { ReadMetadata = true });
 
         int count = 0;
         IOsmEntity? entity;
@@ -47,113 +48,10 @@ public partial class OsmXmlReaderBenchmarks
     }
 
     [Benchmark]
-    public int ReadMultipleNodesWithTags()
+    public int ReadFileWithoutMetadata()
     {
-        // Reset stream position and create new reader for this iteration
-        _multipleNodesWithTagsStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleNodesWithTagsStream, new OsmXmlReaderSettings { ReadMetadata = false });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadMultipleNodesWithMetadata()
-    {
-        // Reset stream position and create new reader for this iteration
-        _multipleNodesWithMetadataStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleNodesWithMetadataStream, new OsmXmlReaderSettings { ReadMetadata = true });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadMultipleWays()
-    {
-        // Reset stream position and create new reader for this iteration
-        _multipleWaysStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleWaysStream, new OsmXmlReaderSettings { ReadMetadata = false });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadMultipleWaysWithTags()
-    {
-        // Reset stream position and create new reader for this iteration
-        _multipleWaysWithTagsStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleWaysWithTagsStream, new OsmXmlReaderSettings { ReadMetadata = false });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadMultipleRelations()
-    {
-        // Reset stream position and create new reader for this iteration
-        _multipleRelationsStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleRelationsStream, new OsmXmlReaderSettings { ReadMetadata = false });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadMultipleRelationsWithTags()
-    {
-        // Reset stream position and create new reader for this iteration
-        _multipleRelationsWithTagsStream.Position = 0;
-        using var reader = new OsmXmlReader(_multipleRelationsWithTagsStream, new OsmXmlReaderSettings { ReadMetadata = false });
-
-        int count = 0;
-        IOsmEntity? entity;
-        while ((entity = reader.Read()) != null)
-        {
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int ReadComplexMixedData()
-    {
-        // Reset stream position and create new reader for this iteration
-        _complexMixedStream.Position = 0;
-        using var reader = new OsmXmlReader(_complexMixedStream, new OsmXmlReaderSettings { ReadMetadata = false });
+        _xml.Position = 0;
+        using var reader = new OsmXmlReader(_xml, new OsmXmlReaderSettings { ReadMetadata = false });
 
         int count = 0;
         IOsmEntity? entity;

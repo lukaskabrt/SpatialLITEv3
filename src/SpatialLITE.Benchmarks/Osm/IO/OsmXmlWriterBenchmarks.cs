@@ -1,160 +1,73 @@
 using BenchmarkDotNet.Attributes;
 using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
+using SpatialLITE.Benchmarks.Data;
 using SpatialLITE.Osm.IO.Xml;
+using System.IO.Compression;
 
 namespace SpatialLITE.Benchmarks.Osm.IO;
 
 [MemoryDiagnoser]
 public partial class OsmXmlWriterBenchmarks
 {
-    private List<Node> _multipleNodes = null!;
-    private List<Node> _multipleNodesWithTags = null!;
-    private List<Node> _multipleNodesWithMetadata = null!;
-    private List<Way> _multipleWays = null!;
-    private List<Way> _multipleWaysWithTags = null!;
-    private List<Relation> _multipleRelations = null!;
-    private List<Relation> _multipleRelationsWithTags = null!;
-    private List<IOsmEntity> _complexMixedEntities = null!;
+    private readonly MemoryStream _xml = new(100 * 1024 * 1024); // 100 MB buffer for the XML data
+    private readonly List<IOsmEntity> _entities = new();
+    private readonly List<IOsmEntity> _entitiesWithMetadata = new();
 
-    [GlobalCleanup]
-    public void Cleanup()
+    [GlobalSetup(Target = nameof(WriteFileWithoutMetadata))]
+    public void SetupWithoutMetadata()
     {
-        _multipleNodes?.Clear();
-        _multipleNodesWithTags?.Clear();
-        _multipleNodesWithMetadata?.Clear();
-        _multipleWays?.Clear();
-        _multipleWaysWithTags?.Clear();
-        _multipleRelations?.Clear();
-        _multipleRelationsWithTags?.Clear();
-        _complexMixedEntities?.Clear();
+        LoadXmlData(_entities, "andorra.osm.gz", readMetadata: false);
     }
 
-    [Benchmark]
-    public int WriteMultipleNodes()
+    [GlobalSetup(Target = nameof(WriteFileWithMetadata))]
+    public void SetupWithMetadata()
     {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
+        LoadXmlData(_entitiesWithMetadata, "andorra-metadata.osm.gz", readMetadata: true);
+    }
 
-        int count = 0;
-        foreach (var node in _multipleNodes)
+    private static void LoadXmlData(List<IOsmEntity> target, string fileName, bool readMetadata)
+    {
+        using var source = BenchmarkDataReader.OsmXml.Open(fileName);
+        using var gzipStream = new GZipStream(source, CompressionMode.Decompress);
+
+        IOsmEntity? entity;
+        using var reader = new OsmXmlReader(gzipStream, new OsmXmlReaderSettings { ReadMetadata = readMetadata });
+        while ((entity = reader.Read()) != null)
         {
-            writer.Write(node);
-            count++;
+            target.Add(entity);
         }
-
-        return count;
     }
 
     [Benchmark]
-    public int WriteMultipleNodesWithTags()
+    public long WriteFileWithMetadata()
     {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
+        _xml.Position = 0;
+        using var writer = new OsmXmlWriter(_xml, new OsmWriterSettings { WriteMetadata = true });
 
-        int count = 0;
-        foreach (var node in _multipleNodesWithTags)
-        {
-            writer.Write(node);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteMultipleNodesWithMetadata()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = true });
-
-        int count = 0;
-        foreach (var node in _multipleNodesWithMetadata)
-        {
-            writer.Write(node);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteMultipleWays()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
-
-        int count = 0;
-        foreach (var way in _multipleWays)
-        {
-            writer.Write(way);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteMultipleWaysWithTags()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
-
-        int count = 0;
-        foreach (var way in _multipleWaysWithTags)
-        {
-            writer.Write(way);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteMultipleRelations()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
-
-        int count = 0;
-        foreach (var relation in _multipleRelations)
-        {
-            writer.Write(relation);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteMultipleRelationsWithTags()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
-
-        int count = 0;
-        foreach (var relation in _multipleRelationsWithTags)
-        {
-            writer.Write(relation);
-            count++;
-        }
-
-        return count;
-    }
-
-    [Benchmark]
-    public int WriteComplexMixedEntities()
-    {
-        using var stream = new MemoryStream();
-        using var writer = new OsmXmlWriter(stream, new OsmWriterSettings { WriteMetadata = false });
-
-        int count = 0;
-        foreach (var entity in _complexMixedEntities)
+        foreach (var entity in _entitiesWithMetadata)
         {
             writer.Write(entity);
-            count++;
         }
 
-        return count;
+        writer.Flush();
+
+        return _xml.Position;
+    }
+
+    [Benchmark]
+    public long WriteFileWithoutMetadata()
+    {
+        _xml.Position = 0;
+        using var writer = new OsmXmlWriter(_xml, new OsmWriterSettings { WriteMetadata = false });
+
+        foreach (var entity in _entities)
+        {
+            writer.Write(entity);
+        }
+
+        writer.Flush();
+
+        return _xml.Position;
     }
 }
