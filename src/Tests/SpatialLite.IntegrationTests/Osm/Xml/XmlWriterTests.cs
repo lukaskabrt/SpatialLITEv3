@@ -1,7 +1,7 @@
 ﻿using SpatialLite.Osm.IO;
-using SpatialLITE.Osm.IO.Xml;
+using SpatialLite.Osm.IO.Xml;
 
-namespace SpatialLITE.IntegrationTests.Osm.Xml;
+namespace SpatialLite.IntegrationTests.Osm.Xml;
 
 public class XmlWriterOsmiumTests : OsmiumTests
 {

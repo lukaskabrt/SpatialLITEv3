@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.UnitTests.Core.Geometries;
+﻿namespace SpatialLite.UnitTests.Core.Geometries;
 
 public class MultiPolygonTests
 {

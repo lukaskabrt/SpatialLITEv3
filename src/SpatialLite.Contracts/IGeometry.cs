@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.Contracts;
+﻿namespace SpatialLite.Contracts;
 
 /// <summary>
 /// Defines common properties and methods for all geometry objects.

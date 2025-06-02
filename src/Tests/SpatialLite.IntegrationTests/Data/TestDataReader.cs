@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace SpatialLITE.IntegrationTests.Data;
+namespace SpatialLite.IntegrationTests.Data;
 
 /// <summary>
 /// Helper class for loading test data files.

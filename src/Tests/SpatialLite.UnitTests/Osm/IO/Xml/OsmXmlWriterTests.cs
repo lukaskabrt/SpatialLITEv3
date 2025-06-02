@@ -1,9 +1,9 @@
 ﻿using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLITE.Osm.IO.Xml;
+using SpatialLite.Osm.IO.Xml;
 using System.Xml.Linq;
 
-namespace SpatialLITE.UnitTests.Osm.IO.Xml;
+namespace SpatialLite.UnitTests.Osm.IO.Xml;
 
 public class OsmXmlWriterTests : OsmIOTests
 {

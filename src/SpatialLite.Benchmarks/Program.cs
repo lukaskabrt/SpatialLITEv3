@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
-using SpatialLITE.Benchmarks.Contracts;
-using SpatialLITE.Benchmarks.Core.IO;
-using SpatialLITE.Benchmarks.Osm.IO;
+using SpatialLite.Benchmarks.Contracts;
+using SpatialLite.Benchmarks.Core.IO;
+using SpatialLite.Benchmarks.Osm.IO;
 
 BenchmarkRunner.Run<EnvelopeBenchmarks>();
 BenchmarkRunner.Run<WktReaderBenchmarks>();

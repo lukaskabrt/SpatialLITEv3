@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace SpatialLITE.Osm.IO.Pbf.Contracts;
+namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for changesets.

@@ -1,9 +1,9 @@
 ﻿using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLITE.Osm.IO.Pbf;
-using SpatialLITE.UnitTests.Data;
+using SpatialLite.Osm.IO.Pbf;
+using SpatialLite.UnitTests.Data;
 
-namespace SpatialLITE.UnitTests.Osm.IO.Pbf;
+namespace SpatialLite.UnitTests.Osm.IO.Pbf;
 
 public class PbfReaderTests : OsmIOTests
 {

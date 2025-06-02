@@ -1,10 +1,10 @@
 using BenchmarkDotNet.Attributes;
 using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLITE.Benchmarks.Data;
-using SpatialLITE.Osm.IO.Pbf;
+using SpatialLite.Benchmarks.Data;
+using SpatialLite.Osm.IO.Pbf;
 
-namespace SpatialLITE.Benchmarks.Osm.IO;
+namespace SpatialLite.Benchmarks.Osm.IO;
 
 [MemoryDiagnoser]
 public class PbfReaderBenchmarks

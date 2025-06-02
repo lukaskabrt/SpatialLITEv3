@@ -1,6 +1,6 @@
 ﻿using SpatialLite.Core.IO;
 
-namespace SpatialLITE.UnitTests.Core.IO;
+namespace SpatialLite.UnitTests.Core.IO;
 
 public class WkbWriterSettingsTests
 {

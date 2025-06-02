@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace SpatialLITE.Benchmarks.Data;
+namespace SpatialLite.Benchmarks.Data;
 
 /// <summary>
 /// Helper class for loading test data files.

@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace SpatialLITE.Osm.IO.Pbf.Contracts;
+namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents content of the fileblock's data stream.

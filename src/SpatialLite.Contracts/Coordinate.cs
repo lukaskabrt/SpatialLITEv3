@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.Contracts;
+﻿namespace SpatialLite.Contracts;
 
 /// <summary>
 /// Represents a location in the coordinate space.

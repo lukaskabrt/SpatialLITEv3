@@ -1,12 +1,12 @@
 ﻿using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLITE.IntegrationTests.Data;
-using SpatialLITE.Osm.IO.Pbf;
+using SpatialLite.IntegrationTests.Data;
+using SpatialLite.Osm.IO.Pbf;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace SpatialLITE.IntegrationTests.Osm;
+namespace SpatialLite.IntegrationTests.Osm;
 
 public class OsmiumTests
 {

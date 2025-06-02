@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace SpatialLITE.Osm.IO.Pbf.Contracts;
+namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents container for PBF data transfer objects for OSM entities.

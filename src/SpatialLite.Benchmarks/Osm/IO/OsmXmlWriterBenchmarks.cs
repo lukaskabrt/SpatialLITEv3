@@ -1,11 +1,11 @@
 using BenchmarkDotNet.Attributes;
 using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLITE.Benchmarks.Data;
-using SpatialLITE.Osm.IO.Xml;
+using SpatialLite.Benchmarks.Data;
+using SpatialLite.Osm.IO.Xml;
 using System.IO.Compression;
 
-namespace SpatialLITE.Benchmarks.Osm.IO;
+namespace SpatialLite.Benchmarks.Osm.IO;
 
 [MemoryDiagnoser]
 public partial class OsmXmlWriterBenchmarks

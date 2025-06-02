@@ -2,7 +2,7 @@ using BenchmarkDotNet.Attributes;
 using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
 
-namespace SpatialLITE.Benchmarks.Core.IO;
+namespace SpatialLite.Benchmarks.Core.IO;
 
 [MemoryDiagnoser]
 public class WktReaderBenchmarks

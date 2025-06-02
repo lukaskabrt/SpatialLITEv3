@@ -1,6 +1,6 @@
-﻿using SpatialLITE.Osm.IO.Pbf;
+﻿using SpatialLite.Osm.IO.Pbf;
 
-namespace SpatialLITE.IntegrationTests.Osm.Pbf;
+namespace SpatialLite.IntegrationTests.Osm.Pbf;
 
 public class PbfWriterOsmiumTests : OsmiumTests
 {

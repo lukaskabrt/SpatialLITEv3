@@ -1,4 +1,4 @@
-﻿using SpatialLITE.Osm.IO.Pbf.Contracts;
+﻿using SpatialLite.Osm.IO.Pbf.Contracts;
 
 namespace SpatialLite.Osm.IO.Pbf;
 

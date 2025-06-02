@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using System.Text;
 
-namespace SpatialLITE.Osm.IO.Pbf.Contracts;
+namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Stores all strings for Primitive block.

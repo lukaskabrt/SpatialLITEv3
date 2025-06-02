@@ -1,10 +1,8 @@
-﻿using SpatialLite.Osm;
-using SpatialLite.Osm.IO;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using System.Xml;
 
-namespace SpatialLITE.Osm.IO.Xml;
+namespace SpatialLite.Osm.IO.Xml;
 
 /// <summary>
 /// Represents an IOsmWriter, that can write OSM entities to XML format.

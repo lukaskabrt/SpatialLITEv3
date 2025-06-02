@@ -1,6 +1,4 @@
-﻿using SpatialLite.Osm.IO;
-
-namespace SpatialLITE.Osm.IO.Xml;
+﻿namespace SpatialLite.Osm.IO.Xml;
 
 /// <summary>
 /// Contains settings that determine behaviour of the OsmXmlReader.

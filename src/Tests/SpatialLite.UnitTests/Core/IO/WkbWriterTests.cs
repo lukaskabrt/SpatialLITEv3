@@ -1,8 +1,8 @@
 ﻿using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
-using SpatialLITE.UnitTests.Data;
+using SpatialLite.UnitTests.Data;
 
-namespace SpatialLITE.UnitTests.Core.IO;
+namespace SpatialLite.UnitTests.Core.IO;
 
 public class WkbWriterTests
 {

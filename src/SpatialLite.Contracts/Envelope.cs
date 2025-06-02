@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.Contracts;
+﻿namespace SpatialLite.Contracts;
 
 /// <summary>
 /// Represents minimal bounding box of a geometry.

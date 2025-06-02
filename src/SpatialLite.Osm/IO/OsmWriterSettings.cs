@@ -13,5 +13,5 @@ public class OsmWriterSettings
     /// <summary>
     /// Gets or sets the name of the program that will be save to the output file.
     /// </summary>
-    public string ProgramName { get; init; } = "SpatialLITE";
+    public string ProgramName { get; init; } = "SpatialLite";
 }

@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.Contracts;
+﻿namespace SpatialLite.Contracts;
 
 /// <summary>
 /// Defines properties and methods for collections of polygons.

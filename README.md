@@ -1,8 +1,8 @@
-# SpatialLITE
+# SpatialLite
 
-SpatialLITE is a lightweight .NET library for spatial data processing.
+SpatialLite is a lightweight .NET library for spatial data processing.
 
-![CI](https://github.com/lukaskabrt/SpatialLITE/workflows/CI/badge.svg?branch=develop)
+![CI](https://github.com/lukaskabrt/SpatialLite/workflows/CI/badge.svg?branch=develop)
 
 
 ## Features
@@ -38,24 +38,24 @@ Console.WriteLine("End point: {0}", geometry.End);
 
 ## Packages
 
-SpatialLITE is distributed as a set of NuGet packages. You can install only packages, you need.
+SpatialLite is distributed as a set of NuGet packages. You can install only packages, you need.
 
 ## Documentation
 
 API reference and more complex examples are available at http://spatial.litesolutions.net
 
 
-### SpatialLITE.Core [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Core.svg)](https://www.nuget.org/packages/SpatialLite.Core) [![Package stats SpatialLITE](https://img.shields.io/nuget/dt/SpatialLITE.Core.svg)](https://www.nuget.org/packages/SpatialLite.Core)
+### SpatialLite.Core [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Core.svg)](https://www.nuget.org/packages/SpatialLite.Core) [![Package stats SpatialLite](https://img.shields.io/nuget/dt/SpatialLite.Core.svg)](https://www.nuget.org/packages/SpatialLite.Core)
 
 Provides contains basic data structures for geospatial data and common infrastructure. It is required by all provided add-ons.
 
 
-### SpatialLITE.Gps [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Gps.svg)](https://www.nuget.org/packages/SpatialLite.Gps) [![Package stats SpatialLITE.Gps](https://img.shields.io/nuget/dt/SpatialLITE.Gps.svg)](https://www.nuget.org/packages/SpatialLite.Gps)
+### SpatialLite.Gps [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Gps.svg)](https://www.nuget.org/packages/SpatialLite.Gps) [![Package stats SpatialLite.Gps](https://img.shields.io/nuget/dt/SpatialLite.Gps.svg)](https://www.nuget.org/packages/SpatialLite.Gps)
 
 Add-on for the SpatialLite library that adds support for GPX data format.
 
 
-### SpatialLITE.Osm [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Osm.svg)](https://www.nuget.org/packages/SpatialLite.Osm) [![Package stats SpatialLITE.Osm](https://img.shields.io/nuget/dt/SpatialLITE.Osm.svg)](https://www.nuget.org/packages/SpatialLite.Osm)
+### SpatialLite.Osm [![NuGet](https://img.shields.io/nuget/v/SpatialLite.Osm.svg)](https://www.nuget.org/packages/SpatialLite.Osm) [![Package stats SpatialLite.Osm](https://img.shields.io/nuget/dt/SpatialLite.Osm.svg)](https://www.nuget.org/packages/SpatialLite.Osm)
 
 Add-on for the SpatialLite library that adds support for OpenStreetMap data formats.
 

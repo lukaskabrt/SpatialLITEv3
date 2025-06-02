@@ -1,6 +1,6 @@
 ﻿using SpatialLite.Osm;
 
-namespace SpatialLITE.UnitTests.Osm.IO;
+namespace SpatialLite.UnitTests.Osm.IO;
 
 /// <summary>
 /// Base class for OSM IO tests with shared functionality for entity comparison.

@@ -1,6 +1,4 @@
-﻿using SpatialLite.Osm.IO;
-
-namespace SpatialLITE.Osm.IO.Pbf;
+﻿namespace SpatialLite.Osm.IO.Pbf;
 
 /// <summary>
 ///  Contains settings that determine behaviour of the PbfWriter.

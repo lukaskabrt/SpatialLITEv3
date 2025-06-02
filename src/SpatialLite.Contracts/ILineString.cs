@@ -1,4 +1,4 @@
-﻿namespace SpatialLITE.Contracts;
+﻿namespace SpatialLite.Contracts;
 
 /// <summary>
 /// Defines properties and methods for line strings. A line string is a curve with linear connection between consecutive points.

@@ -1,10 +1,7 @@
 ﻿using ProtoBuf;
-using SpatialLite.Osm;
-using SpatialLite.Osm.IO;
-using SpatialLite.Osm.IO.Pbf;
-using SpatialLITE.Osm.IO.Pbf.Contracts;
+using SpatialLite.Osm.IO.Pbf.Contracts;
 
-namespace SpatialLITE.Osm.IO.Pbf;
+namespace SpatialLite.Osm.IO.Pbf;
 
 /// <summary>
 /// Represents IOsmReader that can read OSM entities from PBF format.

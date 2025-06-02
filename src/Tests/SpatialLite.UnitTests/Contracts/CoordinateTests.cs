@@ -1,6 +1,6 @@
-﻿using SpatialLITE.Contracts;
+﻿using SpatialLite.Contracts;
 
-namespace SpatialLITE.UnitTests.Contracts;
+namespace SpatialLite.UnitTests.Contracts;
 
 public class CoordinateTests
 {

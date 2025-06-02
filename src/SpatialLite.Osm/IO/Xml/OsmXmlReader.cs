@@ -1,8 +1,6 @@
-﻿using SpatialLite.Osm;
-using SpatialLite.Osm.IO;
-using System.Xml;
+﻿using System.Xml;
 
-namespace SpatialLITE.Osm.IO.Xml;
+namespace SpatialLite.Osm.IO.Xml;
 
 /// <summary>
 /// Represents a OsmReader, that can read OSM entities saved in the XML format.

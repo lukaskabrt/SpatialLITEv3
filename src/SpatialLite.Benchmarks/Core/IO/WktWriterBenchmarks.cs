@@ -1,9 +1,9 @@
 using BenchmarkDotNet.Attributes;
 using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
-using SpatialLITE.Contracts;
+using SpatialLite.Contracts;
 
-namespace SpatialLITE.Benchmarks.Core.IO;
+namespace SpatialLite.Benchmarks.Core.IO;
 
 [MemoryDiagnoser]
 public class WktWriterBenchmarks

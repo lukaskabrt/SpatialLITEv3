@@ -1,6 +1,6 @@
 ﻿using SpatialLite.Osm;
 
-namespace SpatialLITE.UnitTests.Osm;
+namespace SpatialLite.UnitTests.Osm;
 
 public class TagsCollectionTests
 {

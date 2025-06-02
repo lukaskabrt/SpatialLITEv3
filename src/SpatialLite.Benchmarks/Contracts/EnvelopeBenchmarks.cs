@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
-using SpatialLITE.Contracts;
+using SpatialLite.Contracts;
 
-namespace SpatialLITE.Benchmarks.Contracts;
+namespace SpatialLite.Benchmarks.Contracts;
 
 [MemoryDiagnoser]
 public class EnvelopeBenchmarks

@@ -1,7 +1,7 @@
 ﻿using SpatialLite.Core.Geometries;
-using SpatialLITE.Contracts;
+using SpatialLite.Contracts;
 
-namespace SpatialLITE.UnitTests.Core.Geometries;
+namespace SpatialLite.UnitTests.Core.Geometries;
 
 public class LineStringTests
 {

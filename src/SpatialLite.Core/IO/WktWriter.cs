@@ -1,4 +1,4 @@
-﻿using SpatialLITE.Contracts;
+﻿using SpatialLite.Contracts;
 using System.Globalization;
 
 namespace SpatialLite.Core.IO;
