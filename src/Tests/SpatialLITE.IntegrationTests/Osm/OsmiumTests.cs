@@ -22,7 +22,7 @@ public class OsmiumTests
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            osmiumPath = Path.Combine(assemblyDirectory, "Tools", "Osmium", "Linux", "osmium");
+            osmiumPath = "osmium";
         }
         else
         {
