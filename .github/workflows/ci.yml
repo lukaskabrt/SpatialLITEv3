@@ -31,6 +31,14 @@ jobs:
       
     - name: Build
       run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore
-      
+    
+    - name: Make Osmium executable (if present)
+      run: |
+        if [ -f src/Tests/SpatialLITE.IntegrationTests/bin/Debug/net8.0/Tools/Osmium/Linux/osmium ]; then
+          chmod +x src/Tests/SpatialLITE.IntegrationTests/bin/Debug/net8.0/Tools/Osmium/Linux/osmium
+        else
+          echo "Osmium binary not found, integration tests may fail"
+        fi
+        
     - name: Test
       run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --verbosity normal
