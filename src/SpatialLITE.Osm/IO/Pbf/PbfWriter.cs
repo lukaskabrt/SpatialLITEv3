@@ -197,19 +197,14 @@ public class PbfWriter : IOsmWriter
         }
         else if (Settings.Compression == CompressionMode.ZlibDeflate)
         {
-            var zlibStream = new MemoryStream();
-
-            //ZLIB header
-            zlibStream.WriteByte(120);
-            zlibStream.WriteByte(156);
-
-            using (var deflateStream = new System.IO.Compression.DeflateStream(zlibStream, System.IO.Compression.CompressionMode.Compress, true))
+            var stream = new MemoryStream();
+            using (var deflateStream = new System.IO.Compression.ZLibStream(stream, System.IO.Compression.CompressionMode.Compress))
             {
                 deflateStream.Write(blobContent, 0, blobContent.Length);
             }
 
             blob.RawSize = blobContent.Length;
-            blob.ZlibData = zlibStream.ToArray();
+            blob.ZlibData = stream.ToArray();
         }
 
         var blobStream = new MemoryStream();
