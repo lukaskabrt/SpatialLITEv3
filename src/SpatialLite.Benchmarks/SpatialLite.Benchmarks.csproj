@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpatialLite.Contracts\SpatialLite.Contracts.csproj" />
+    <ProjectReference Include="..\SpatialLite.Core\SpatialLite.Core.csproj" />
+    <ProjectReference Include="..\SpatialLite.Osm\SpatialLite.Osm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\Osm\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

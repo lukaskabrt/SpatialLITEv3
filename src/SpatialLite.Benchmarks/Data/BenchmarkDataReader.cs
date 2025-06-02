@@ -1,0 +1,81 @@
+﻿using System.Reflection;
+
+namespace SpatialLite.Benchmarks.Data;
+
+/// <summary>
+/// Helper class for loading test data files.
+/// </summary>
+public class BenchmarkDataReader
+{
+    private readonly string _dataFolderPath;
+
+    /// <summary>
+    /// Initializes a new instance of the TestDataReader class.
+    /// </summary>
+    /// <param name="folderPath">Relative folder path for test data files</param>
+    public BenchmarkDataReader(string folderPath)
+    {
+        var assembly = typeof(BenchmarkDataReader).GetTypeInfo().Assembly;
+
+        // Build path to the output directory where files are copied
+        var assemblyLocation = assembly.Location;
+
+        // BenchmarkDotNet runs from its own directory which is several levels inside bin directory.
+        var assemblyDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(assemblyLocation)))))!
+            ?? throw new InvalidOperationException("Could not determine assembly directory.");
+
+        _dataFolderPath = Path.Combine(assemblyDirectory, "Data", folderPath);
+    }
+
+    /// <summary>
+    /// Opens a stream to the test data file.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Stream of the test data</returns>
+    public Stream Open(string name)
+    {
+        var filePath = GetPath(name);
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"Test data file not found: {filePath}");
+        }
+
+        return File.OpenRead(filePath);
+    }
+
+    /// <summary>
+    /// Reads the test data file into a byte array.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Byte array containing the test data</returns>
+    public byte[] Read(string name)
+    {
+        var filePath = GetPath(name);
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"Test data file not found: {filePath}");
+        }
+
+        return File.ReadAllBytes(filePath);
+    }
+
+    /// <summary>
+    /// Gets the full path to a test data file.
+    /// </summary>
+    /// <param name="name">Name of the test data file</param>
+    /// <returns>Full path to the test data file</returns>
+    public string GetPath(string name)
+    {
+        return Path.Combine(_dataFolderPath, name);
+    }
+
+    /// <summary>
+    /// TestDataReader for OSM XML test data.
+    /// </summary>
+    public static readonly BenchmarkDataReader OsmXml = new(Path.Combine("Osm", "Xml"));
+
+    /// <summary>
+    /// TestDataReader for OSM PBF test data.
+    /// </summary>
+    public static readonly BenchmarkDataReader OsmPbf = new(Path.Combine("Osm", "Pbf"));
+}
