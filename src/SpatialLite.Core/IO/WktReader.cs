@@ -1,5 +1,5 @@
-﻿using SpatialLite.Core.Geometries;
-using SpatialLite.Contracts;
+﻿using SpatialLite.Contracts;
+using SpatialLite.Core.Geometries;
 using System.Globalization;
 
 namespace SpatialLite.Core.IO;
