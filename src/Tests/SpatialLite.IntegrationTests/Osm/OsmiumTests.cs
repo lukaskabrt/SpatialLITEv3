@@ -1,6 +1,6 @@
-﻿using SpatialLite.Osm;
+﻿using SpatialLite.IntegrationTests.Data;
+using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLite.IntegrationTests.Data;
 using SpatialLite.Osm.IO.Pbf;
 using System.Diagnostics;
 using System.Reflection;

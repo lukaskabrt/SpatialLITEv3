@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
+using SpatialLite.Benchmarks.Data;
 using SpatialLite.Osm;
 using SpatialLite.Osm.IO;
-using SpatialLite.Benchmarks.Data;
 using SpatialLite.Osm.IO.Xml;
 using System.IO.Compression;
 

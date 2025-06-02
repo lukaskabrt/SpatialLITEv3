@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
+using SpatialLite.Contracts;
 using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
-using SpatialLite.Contracts;
 
 namespace SpatialLite.Benchmarks.Core.IO;
 

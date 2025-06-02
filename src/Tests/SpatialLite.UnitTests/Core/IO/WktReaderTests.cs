@@ -1,6 +1,6 @@
-﻿using SpatialLite.Core.Geometries;
+﻿using SpatialLite.Contracts;
+using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
-using SpatialLite.Contracts;
 using SpatialLite.UnitTests.Data;
 
 namespace SpatialLite.UnitTests.Core.IO;
