@@ -198,7 +198,7 @@ public class PbfWriter : IOsmWriter
         else if (Settings.Compression == CompressionMode.ZlibDeflate)
         {
             var stream = new MemoryStream();
-            using (var deflateStream = new System.IO.Compression.ZLibStream(stream, System.IO.Compression.CompressionMode.Compress))
+            using (var deflateStream = new System.IO.Compression.ZLibStream(stream, System.IO.Compression.CompressionMode.Compress, true))
             {
                 deflateStream.Write(blobContent, 0, blobContent.Length);
             }

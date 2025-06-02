@@ -4,6 +4,7 @@ using SpatialLITE.IntegrationTests.Data;
 using SpatialLITE.Osm.IO.Pbf;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace SpatialLITE.IntegrationTests.Osm;
 
@@ -14,9 +15,23 @@ public class OsmiumTests
         var assembly = typeof(OsmiumTests).GetTypeInfo().Assembly;
         var assemblyDirectory = Path.GetDirectoryName(assembly.Location)!;
 
-        var osmiumInfo = new ProcessStartInfo()
+        string osmiumPath;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            FileName = Path.Combine(assemblyDirectory, "Tools", "Osmium", "Windows", "osmium.exe"),
+            osmiumPath = Path.Combine(assemblyDirectory, "Tools", "Osmium", "Windows", "osmium.exe");
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            osmiumPath = Path.Combine(assemblyDirectory, "Tools", "Osmium", "Linux", "osmium");
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("Unsupported operating system for Osmium.");
+        }
+
+        var processInfo = new ProcessStartInfo()
+        {
+            FileName = osmiumPath,
             Arguments = $"cat {file} --output {targetFile}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -28,7 +43,7 @@ public class OsmiumTests
         string? stdErr = null;
         int? exitCode = null;
 
-        using (var osmium = Process.Start(osmiumInfo))
+        using (var osmium = Process.Start(processInfo))
         {
             stdOut = osmium?.StandardOutput.ReadToEnd();
             stdErr = osmium?.StandardError.ReadToEnd();
