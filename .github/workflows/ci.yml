@@ -36,9 +36,17 @@ jobs:
       run: |
         if [ -f src/Tests/SpatialLITE.IntegrationTests/bin/Debug/net8.0/Tools/Osmium/Linux/osmium ]; then
           chmod +x src/Tests/SpatialLITE.IntegrationTests/bin/Debug/net8.0/Tools/Osmium/Linux/osmium
+          echo "Osmium binary found"
         else
           echo "Osmium binary not found, integration tests may fail"
         fi
         
     - name: Test
-      run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --verbosity normal
+      run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --verbosity normal --logger:"trx"
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/TestResults/*.trx'
