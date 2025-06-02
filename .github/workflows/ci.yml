@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SOLUTION_PATH: src/SpatialLITE.sln
+      SOLUTION_PATH: src/SpatialLite.sln
 
     steps:
     - uses: actions/checkout@v3
