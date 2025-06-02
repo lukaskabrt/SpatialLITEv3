@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
-    <ProjectReference Include="..\SpatialLITE.Core\SpatialLITE.Core.csproj" />
-    <ProjectReference Include="..\SpatialLITE.Osm\SpatialLITE.Osm.csproj" />
+    <ProjectReference Include="..\SpatialLite.Contracts\SpatialLite.Contracts.csproj" />
+    <ProjectReference Include="..\SpatialLite.Core\SpatialLite.Core.csproj" />
+    <ProjectReference Include="..\SpatialLite.Osm\SpatialLite.Osm.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -14,7 +14,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
@@ -24,9 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
-    <ProjectReference Include="..\..\SpatialLITE.Core\SpatialLITE.Core.csproj" />
-    <ProjectReference Include="..\..\SpatialLITE.Osm\SpatialLITE.Osm.csproj" />
+    <ProjectReference Include="..\..\SpatialLite.Osm\SpatialLite.Osm.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +33,10 @@
 
   <ItemGroup>
     <Content Include="Data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    
+    <Content Include="Tools\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

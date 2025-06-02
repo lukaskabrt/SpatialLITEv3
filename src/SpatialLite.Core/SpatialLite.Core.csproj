@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpatialLITE.Contracts\SpatialLITE.Contracts.csproj" />
+    <ProjectReference Include="..\SpatialLite.Contracts\SpatialLite.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
