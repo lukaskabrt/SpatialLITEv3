@@ -33,7 +33,7 @@ jobs:
       run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore
     
     - name: Download Osmium
-      run: apt-get install osmium-tool --quiet --yes
+      run: sudo apt-get install osmium-tool --quiet --yes
         
     - name: Test
       run: dotnet test ${{ env.SOLUTION_PATH }} --no-build --verbosity normal
