@@ -9,26 +9,26 @@ namespace SpatialLite.Benchmarks.Osm.IO;
 [MemoryDiagnoser]
 public class PbfReaderBenchmarks
 {
-    private readonly MemoryStream _pbf = new();
-    private readonly MemoryStream _pbfWithMetadata = new();
+    private byte[] _pbf = [];
+    private byte[] _pbfWithMetadata = [];
 
     [GlobalSetup(Target = nameof(ReadFileWithoutMetadata))]
     public void SetupWithoutMetadata()
     {
-        BenchmarkDataReader.OsmPbf.Open("andorra.osm.pbf").CopyTo(_pbf);
+        _pbf = BenchmarkDataReader.OsmPbf.Read("andorra.osm.pbf");
     }
 
     [GlobalSetup(Target = nameof(ReadFileWithMetadata))]
     public void SetupWithMetadata()
     {
-        BenchmarkDataReader.OsmPbf.Open("andorra-metadata.osm.pbf").CopyTo(_pbfWithMetadata);
+        _pbfWithMetadata = BenchmarkDataReader.OsmPbf.Read("andorra-metadata.osm.pbf");
     }
 
     [Benchmark]
     public int ReadFileWithMetadata()
     {
-        _pbfWithMetadata.Position = 0;
-        using var reader = new PbfReader(_pbfWithMetadata, new OsmReaderSettings { ReadMetadata = true });
+        using var stream = new MemoryStream(_pbfWithMetadata);
+        using var reader = new PbfReader(stream, new OsmReaderSettings { ReadMetadata = true });
 
         int count = 0;
         IOsmEntity? entity;
@@ -43,8 +43,8 @@ public class PbfReaderBenchmarks
     [Benchmark]
     public int ReadFileWithoutMetadata()
     {
-        _pbf.Position = 0;
-        using var reader = new PbfReader(_pbf, new OsmReaderSettings { ReadMetadata = false });
+        using var stream = new MemoryStream(_pbf);
+        using var reader = new PbfReader(stream, new OsmReaderSettings { ReadMetadata = false });
 
         int count = 0;
         IOsmEntity? entity;

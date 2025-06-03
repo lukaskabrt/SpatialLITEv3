@@ -9,6 +9,24 @@ namespace SpatialLite.Osm.IO.Pbf;
 /// </summary>
 public class PbfReader : IOsmReader
 {
+    static PbfReader()
+    {
+        Serializer.PrepareSerializer<Blob>();
+        Serializer.PrepareSerializer<BlobHeader>();
+        Serializer.PrepareSerializer<HeaderBBox>();
+        Serializer.PrepareSerializer<OsmHeader>();
+        Serializer.PrepareSerializer<PbfDenseMetadata>();
+        Serializer.PrepareSerializer<PbfDenseNodes>();
+        Serializer.PrepareSerializer<PbfChangeset>();
+        Serializer.PrepareSerializer<PbfMetadata>();
+        Serializer.PrepareSerializer<PbfNode>();
+        Serializer.PrepareSerializer<PbfRelation>();
+        Serializer.PrepareSerializer<PbfWay>();
+        Serializer.PrepareSerializer<PrimitiveBlock>();
+        Serializer.PrepareSerializer<PrimitiveGroup>();
+        Serializer.PrepareSerializer<StringTable>();
+    }
+
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
     /// </summary>
@@ -177,9 +195,7 @@ public class PbfReader : IOsmReader
     /// <returns>Deserialized content of the read blob or null if blob contains unknown data.</returns>
     private object? ReadBlob(BlobHeader header)
     {
-        var buffer = new byte[header.DataSize];
-        _input.Read(buffer, 0, header.DataSize);
-        Blob blob = Serializer.Deserialize<Blob>(new MemoryStream(buffer));
+        var blob = Serializer.Deserialize<Blob>(_input, length: header.DataSize);
 
         Stream blobContentStream;
         if (blob.Raw != null)
@@ -189,11 +205,7 @@ public class PbfReader : IOsmReader
         else if (blob.ZlibData != null)
         {
             var deflateStreamData = new MemoryStream(blob.ZlibData);
-
-            //skip ZLIB header
-            deflateStreamData.Seek(2, SeekOrigin.Begin);
-
-            blobContentStream = new System.IO.Compression.DeflateStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+            blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
         }
         else
         {
@@ -282,18 +294,18 @@ public class PbfReader : IOsmReader
             double lat = 1E-09 * (block.LatOffset + block.Granularity * node.Latitude);
             double lon = 1E-09 * (block.LonOffset + block.Granularity * node.Longitude);
 
-            var tags = new List<KeyValuePair<string, string>>();
+            var tags = new TagsCollection(node.Keys?.Count ?? 0);
             if (node.Keys != null)
             {
                 for (var i = 0; i < node.Keys.Count; i++)
                 {
-                    tags.Add(new KeyValuePair<string, string>(block.StringTable[node.Keys[i]], block.StringTable[node.Values![i]]));
+                    tags.Add(block.StringTable[node.Keys[i]], block.StringTable[node.Values![i]]);
                 }
             }
 
             var metadata = ProcessMetadata(node.Metadata, block);
 
-            var parsed = new Node { Id = node.ID, Position = new Coordinate(lon, lat), Tags = new TagsCollection(tags), Metadata = metadata };
+            var parsed = new Node { Id = node.ID, Position = new Coordinate(lon, lat), Tags = tags, Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }
@@ -330,7 +342,7 @@ public class PbfReader : IOsmReader
             double lat = 1E-09 * (block.LatOffset + block.Granularity * latStore);
             double lon = 1E-09 * (block.LonOffset + block.Granularity * lonStore);
 
-            var tags = new List<KeyValuePair<string, string>>();
+            var tags = new TagsCollection();
             if (group.DenseNodes.KeysVals.Count > 0)
             {
                 while (group.DenseNodes.KeysVals[keyValueIndex] != 0)
@@ -338,7 +350,7 @@ public class PbfReader : IOsmReader
                     string key = block.StringTable[group.DenseNodes.KeysVals[keyValueIndex++]];
                     string value = block.StringTable[group.DenseNodes.KeysVals[keyValueIndex++]];
 
-                    tags.Add(new KeyValuePair<string, string>(key, value));
+                    tags.Add(key, value);
                 }
 
                 //Skip '0' used as delimiter
@@ -369,7 +381,7 @@ public class PbfReader : IOsmReader
                 }
             }
 
-            var parsed = new Node { Id = idStore, Position = new Coordinate(lon, lat), Tags = new TagsCollection(tags), Metadata = metadata };
+            var parsed = new Node { Id = idStore, Position = new Coordinate(lon, lat), Tags = tags, Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }
@@ -397,18 +409,18 @@ public class PbfReader : IOsmReader
                 refs.Add(refStore);
             }
 
-            var tags = new List<KeyValuePair<string, string>>();
+            var tags = new TagsCollection(way.Keys?.Count ?? 0);
             if (way.Keys != null)
             {
                 for (var i = 0; i < way.Keys.Count; i++)
                 {
-                    tags.Add(new KeyValuePair<string, string>(block.StringTable[way.Keys[i]], block.StringTable[way.Values![i]]));
+                    tags.Add(block.StringTable[way.Keys[i]], block.StringTable[way.Values![i]]);
                 }
             }
 
             var metadata = ProcessMetadata(way.Metadata, block);
 
-            var parsed = new Way { Id = way.ID, Tags = new TagsCollection(tags), Nodes = refs, Metadata = metadata };
+            var parsed = new Way { Id = way.ID, Tags = tags, Nodes = refs, Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }
@@ -452,18 +464,18 @@ public class PbfReader : IOsmReader
                 members.Add(new RelationMember() { MemberType = memberType, MemberId = memberRefStore, Role = role });
             }
 
-            var tags = new List<KeyValuePair<string, string>>();
+            var tags = new TagsCollection(relation.Keys?.Count ?? 0);
             if (relation.Keys != null)
             {
                 for (var i = 0; i < relation.Keys.Count; i++)
                 {
-                    tags.Add(new KeyValuePair<string, string>(block.StringTable[relation.Keys[i]], block.StringTable[relation.Values![i]]));
+                    tags.Add(block.StringTable[relation.Keys[i]], block.StringTable[relation.Values![i]]);
                 }
             }
 
             var metadata = ProcessMetadata(relation.Metadata, block);
 
-            var parsed = new Relation { Id = relation.ID, Tags = new TagsCollection(tags), Members = members, Metadata = metadata };
+            var parsed = new Relation { Id = relation.ID, Tags = tags, Members = members, Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }

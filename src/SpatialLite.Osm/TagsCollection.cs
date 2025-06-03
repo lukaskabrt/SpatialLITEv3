@@ -172,10 +172,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
 
     private void EnsureInitialized()
     {
-        if (_tags is null)
-        {
-            _tags = _capacity > 0 ? new List<KeyValuePair<string, string>>(_capacity) : new List<KeyValuePair<string, string>>();
-        }
+        _tags ??= _capacity > 0 ? new List<KeyValuePair<string, string>>(_capacity) : new List<KeyValuePair<string, string>>();
     }
 
     private int FindIndex(string key)
