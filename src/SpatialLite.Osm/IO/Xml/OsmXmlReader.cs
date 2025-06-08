@@ -1,5 +1,5 @@
-﻿using System.Xml;
-using SpatialLite.Contracts;
+﻿using SpatialLite.Contracts;
+using System.Xml;
 
 namespace SpatialLite.Osm.IO.Xml;
 
