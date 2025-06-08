@@ -19,8 +19,8 @@ public abstract class OsmIOTests
         Assert.NotNull(actual);
 
         Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Longitude, actual.Longitude, Tolerance);
-        Assert.Equal(expected.Latitude, actual.Latitude, Tolerance);
+        Assert.Equal(expected.Position.X, actual.Position.X, Tolerance);
+        Assert.Equal(expected.Position.Y, actual.Position.Y, Tolerance);
 
         AssertTagsEqual(expected.Tags, actual.Tags);
         AssertMetadataEquals(expected.Metadata, actual.Metadata);

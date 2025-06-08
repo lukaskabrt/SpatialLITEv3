@@ -68,7 +68,7 @@ public class OsmXmlWriterTests : OsmIOTests
     [Fact]
     public void Write_ThrowsArgumentExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection() };
 
         MemoryStream stream = new();
 
@@ -89,7 +89,7 @@ public class OsmXmlWriterTests : OsmIOTests
             Version = 2,
             Changeset = 6410629
         };
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection(), Metadata = metadata };
 
         MemoryStream stream = new();
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
@@ -101,7 +101,7 @@ public class OsmXmlWriterTests : OsmIOTests
     [Fact]
     public void Write_IEntityInfo_WritesNode()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection() };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
@@ -116,7 +116,7 @@ public class OsmXmlWriterTests : OsmIOTests
     public void Write_IEntityInfo_WritesNodeWithTags()
     {
         var tags = new TagsCollection(new[] { new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2") });
-        var nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = tags };
+        var nodeTags = new Node { Id = 1, Position = new(16.2, 50.4), Tags = tags };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
@@ -139,7 +139,7 @@ public class OsmXmlWriterTests : OsmIOTests
             Version = 2,
             Changeset = 6410629
         };
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection(), Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = true }))
@@ -162,7 +162,7 @@ public class OsmXmlWriterTests : OsmIOTests
             Version = 2,
             Changeset = 6410629
         };
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection(), Metadata = metadata };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection(), Metadata = metadata };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
@@ -413,7 +413,7 @@ public class OsmXmlWriterTests : OsmIOTests
     [Fact]
     public void Write_AddsVersionAttributeToOsmElement()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection() };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))
@@ -430,7 +430,7 @@ public class OsmXmlWriterTests : OsmIOTests
     [Fact]
     public void Dispose_WritesOsmEndTag()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = new TagsCollection() };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = new TagsCollection() };
         MemoryStream stream = new();
 
         using (OsmXmlWriter target = new(stream, new OsmWriterSettings() { WriteMetadata = false }))

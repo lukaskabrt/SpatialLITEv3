@@ -107,7 +107,7 @@ public class PbfReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNode_DenseNoCompression()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         var node = ReadEntity<Node>("pbf-nd-node.pbf", false);
 
@@ -120,8 +120,7 @@ public class PbfReaderTests : OsmIOTests
         var expected = new Node
         {
             Id = 1,
-            Latitude = 50.4,
-            Longitude = 16.2,
+            Position = new(16.2, 50.4),
             Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")]
         };
 
@@ -133,7 +132,7 @@ public class PbfReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNodeWithMetadata_DenseNoCompression()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
 
         var node = ReadEntity<Node>("pbf-nd-node-all-properties.pbf", true);
 
@@ -152,7 +151,7 @@ public class PbfReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNode_NoCompression()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         var node = ReadEntity<Node>("pbf-n-node.pbf", false);
 
@@ -165,8 +164,7 @@ public class PbfReaderTests : OsmIOTests
         var expected = new Node
         {
             Id = 1,
-            Latitude = 50.4,
-            Longitude = 16.2,
+            Position = new(16.2, 50.4),
             Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")]
         };
 
@@ -178,7 +176,7 @@ public class PbfReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNodeWithMetadata_NoCompression()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
 
         var node = ReadEntity<Node>("pbf-n-node-all-properties.pbf", true);
 

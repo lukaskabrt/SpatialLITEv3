@@ -102,7 +102,7 @@ public class OsmXmlReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsSimpleNode()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-simple-node.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
@@ -113,7 +113,7 @@ public class OsmXmlReaderTests : OsmIOTests
     [Fact]
     public void Read_ReadsNodeWithUnknownElement()
     {
-        var expected = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var expected = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         OsmXmlReader target = new(TestDataReader.OsmXml.Open("osm-node-with-tag-and-unknown-element.osm"), new OsmXmlReaderSettings() { ReadMetadata = false });
         var readNode = target.Read() as Node;
@@ -130,8 +130,7 @@ public class OsmXmlReaderTests : OsmIOTests
         var expected = new Node
         {
             Id = 2,
-            Latitude = 50.4,
-            Longitude = 16.2,
+            Position = new(16.2, 50.4),
             Tags = [new("name", "test"), new("name-2", "test-2")]
         };
 
@@ -147,8 +146,7 @@ public class OsmXmlReaderTests : OsmIOTests
         var expected = new Node
         {
             Id = 3,
-            Latitude = 50.4,
-            Longitude = 16.2,
+            Position = new(16.2, 50.4),
             Tags = [],
             Metadata = _metadata
         };
