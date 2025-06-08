@@ -14,7 +14,7 @@ public class WktWriterBenchmarks
     private readonly MultiPoint _multiPoint;
     private readonly MultiLineString _multiLineString;
     private readonly MultiPolygon _multiPolygon;
-    private readonly GeometryCollection<Geometry> _geometryCollection;
+    private readonly GeometryCollection<IGeometry> _geometryCollection;
     private readonly Polygon _polygonWithInnerRing;
 
     public WktWriterBenchmarks()
@@ -44,7 +44,7 @@ public class WktWriterBenchmarks
         _polygonWithInnerRing = new Polygon(exteriorRing);
         _polygonWithInnerRing.InteriorRings.Add(innerRing);
 
-        _geometryCollection = new GeometryCollection<Geometry>();
+        _geometryCollection = new GeometryCollection<IGeometry>();
         _geometryCollection.Geometries.Add(_point);
         _geometryCollection.Geometries.Add(_lineString);
         _geometryCollection.Geometries.Add(_polygon);

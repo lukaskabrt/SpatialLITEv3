@@ -5,16 +5,14 @@ namespace SpatialLite.Core.Geometries;
 /// <summary>
 /// Represents a curve with linear interpolation between consecutive vertices.  
 /// </summary>
-public class LineString : Geometry, ILineString
+public class LineString : ILineString
 {
-
     private readonly List<Coordinate> _coordinates;
 
     /// <summary>
     /// Initializes a new instance of the <c>LineString</c> class that is empty and has assigned WSG84 coordinate reference system.
     /// </summary>
     public LineString()
-        : base()
     {
         _coordinates = [];
     }
@@ -24,7 +22,6 @@ public class LineString : Geometry, ILineString
     /// </summary>
     /// <param name="coordinates">The collection of coordinates to be copied to the new LineString.</param>
     public LineString(IEnumerable<Coordinate> coordinates)
-        : base()
     {
         _coordinates = new(coordinates);
     }
@@ -104,7 +101,7 @@ public class LineString : Geometry, ILineString
     /// <returns>
     /// Returns an <see cref="Envelope"/> object that specifies the minimal bounding box of the <c>IGeometry</c> object.
     /// </returns>
-    public override Envelope GetEnvelope()
+    public Envelope GetEnvelope()
     {
         return new Envelope(_coordinates);
     }
@@ -113,7 +110,7 @@ public class LineString : Geometry, ILineString
     /// Gets collection of all <see cref="Coordinate"/> of this IGeometry object
     /// </summary>
     /// <returns>the collection of all <see cref="Coordinate"/> of this object</returns>
-    public override IEnumerable<Coordinate> GetCoordinates()
+    public IEnumerable<Coordinate> GetCoordinates()
     {
         return Coordinates;
     }

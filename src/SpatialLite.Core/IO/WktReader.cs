@@ -46,7 +46,7 @@ public class WktReader : IDisposable
     /// </summary>
     /// <param name="wkt">The string with WKT representation of a Geometry.</param>
     /// <returns>The parsed Geometry.</returns>
-    public static Geometry? Parse(string wkt)
+    public static IGeometry? Parse(string wkt)
     {
         var tokens = new WktTokensBuffer(WktTokenizer.Tokenize(wkt));
         return ParseGeometryTaggedText(tokens);
@@ -58,7 +58,7 @@ public class WktReader : IDisposable
     /// <typeparam name="T">The type of the Geometry to be parsed.</typeparam>
     /// <param name="wkt">The string with WKT representation of a Geometry.</param>
     /// <returns>The parsed Geometry of given type.</returns>
-    public static T? Parse<T>(string wkt) where T : Geometry
+    public static T? Parse<T>(string wkt) where T : IGeometry
     {
         var parsed = Parse(wkt);
 
@@ -73,7 +73,7 @@ public class WktReader : IDisposable
         }
         else
         {
-            return null;
+            return default;
         }
     }
 
@@ -81,7 +81,7 @@ public class WktReader : IDisposable
     /// Reads next geometry from the input.
     /// </summary>
     /// <returns>The geometry object read from the reader or null if no more geometries are available.</returns>
-    public Geometry? Read()
+    public IGeometry? Read()
     {
         return ParseGeometryTaggedText(_tokens);
     }
@@ -91,7 +91,7 @@ public class WktReader : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of Geometry to be parsed.</typeparam>
     /// <returns>The geometry object of specific type read from the reader or null if no more geometries are available.</returns>
-    public T? Read<T>() where T : Geometry
+    public T? Read<T>() where T : IGeometry
     {
         var parsed = ParseGeometryTaggedText(_tokens);
 
@@ -106,7 +106,7 @@ public class WktReader : IDisposable
         }
         else
         {
-            return null;
+            return default;
         }
     }
 
@@ -124,7 +124,7 @@ public class WktReader : IDisposable
     /// </summary>
     /// <param name="tokens">The list of tokens.</param>
     /// <returns>A geometry specified by tokens.</returns>
-    private static Geometry? ParseGeometryTaggedText(WktTokensBuffer tokens)
+    private static IGeometry? ParseGeometryTaggedText(WktTokensBuffer tokens)
     {
         var t = tokens.Peek(true);
 
@@ -585,7 +585,7 @@ public class WktReader : IDisposable
     /// <param name="tokens">The list of tokens.</param>
     /// <returns>A GeometryCollection specified by tokens.</returns>
     /// <remarks><![CDATA[<GeometryCollection tagged text> ::=  GeometryCollection {z}{m} <GeometryCollection text>]]></remarks>
-    private static GeometryCollection<Geometry> ParseGeometryCollectionTaggedText(WktTokensBuffer tokens)
+    private static GeometryCollection<IGeometry> ParseGeometryCollectionTaggedText(WktTokensBuffer tokens)
     {
         Expect("geometrycollection", tokens);
         Expect(TokenType.WHITESPACE, tokens);
@@ -606,19 +606,19 @@ public class WktReader : IDisposable
     /// <param name="tokens">The list of tokens.</param>
     /// <returns>A GeometryCollection specified by tokens.</returns>
     /// <remarks><![CDATA[<GeometryCollection text> ::= <empty set> | <left paren> <geometry tagged text> {<comma> <geometry tagged text>}* <right paren>]]></remarks>
-    private static GeometryCollection<Geometry> ParseGeometryCollectionText(WktTokensBuffer tokens)
+    private static GeometryCollection<IGeometry> ParseGeometryCollectionText(WktTokensBuffer tokens)
     {
         var t = tokens.Peek(true);
 
         if (t.Type == TokenType.STRING && t.Value.ToUpperInvariant() == "EMPTY")
         {
             tokens.GetToken(true);
-            return new GeometryCollection<Geometry>();
+            return new GeometryCollection<IGeometry>();
         }
 
         Expect(TokenType.LEFT_PARENTHESIS, tokens);
 
-        var result = new GeometryCollection<Geometry>();
+        var result = new GeometryCollection<IGeometry>();
         var geometry = ParseGeometryTaggedText(tokens);
         if (geometry != null)
         {

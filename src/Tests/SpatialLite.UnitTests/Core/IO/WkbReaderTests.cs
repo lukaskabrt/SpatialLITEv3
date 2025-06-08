@@ -85,7 +85,7 @@ public class WkbReaderTests
         var stream = new MemoryStream();
 
         var target = new WkbReader(stream);
-        var read = target.Read<Geometry>();
+        var read = target.Read<IGeometry>();
 
         Assert.Null(read);
     }
@@ -175,7 +175,7 @@ public class WkbReaderTests
     {
         var wkb = Array.Empty<byte>();
 
-        Assert.Null(WkbReader.Parse<Geometry>(wkb));
+        Assert.Null(WkbReader.Parse<IGeometry>(wkb));
     }
 
     [Fact]
@@ -456,7 +456,7 @@ public class WkbReaderTests
     [Fact]
     public void ParseGeometryCollection_ParsesEmptyGeometryCollection()
     {
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-empty.wkb"));
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-empty.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Empty(parsed.Geometries);
@@ -466,8 +466,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_Parses2DGeometryCollection()
     {
         var wkt = "geometrycollection (point (-10.1 15.5))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-2D.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-2D.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -478,8 +478,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_Parses2DMeasuredGeometryCollection()
     {
         var wkt = "geometrycollection m (point m (-10.1 15.5 1000.5))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-2DM.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-2DM.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -490,8 +490,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_Parses3DGeometryCollection()
     {
         var wkt = "geometrycollection z (point z (-10.1 15.5 100.5))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-3D.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-3D.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -502,8 +502,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_Parses3DMeasuredGeometryCollection()
     {
         var wkt = "geometrycollection zm (point zm (-10.1 15.5 100.5 1000.5))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-3DM.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-3DM.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -514,8 +514,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_ParsesCollectionWithPointLineStringAndPolygon()
     {
         var wkt = "geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-pt-ls-poly.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-pt-ls-poly.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Equal(3, parsed.Geometries.Count);
@@ -529,8 +529,8 @@ public class WkbReaderTests
     public void ParseGeometryCollection_ParsesCollectionWithMultiGeometries()
     {
         var wkt = "geometrycollection (multipoint empty,multilinestring empty,multipolygon empty)";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-multi.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-multi.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Equal(3, parsed.Geometries.Count);
@@ -544,13 +544,13 @@ public class WkbReaderTests
     public void ParseGeometryCollection_ParsesNestedCollection()
     {
         var wkt = "geometrycollection (geometrycollection (point (-10.1 15.5)))";
-        var expected = ParseWKT<GeometryCollection<Geometry>>(wkt);
-        var parsed = WkbReader.Parse<GeometryCollection<Geometry>>(TestDataReader.CoreIO.Read("collection-nested.wkb"));
+        var expected = ParseWKT<GeometryCollection<IGeometry>>(wkt);
+        var parsed = WkbReader.Parse<GeometryCollection<IGeometry>>(TestDataReader.CoreIO.Read("collection-nested.wkb"));
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
-        Assert.Equal(((GeometryCollection<Geometry>)expected.Geometries[0]).Geometries.Count, ((GeometryCollection<Geometry>)parsed.Geometries[0]).Geometries.Count);
-        AssertPointsEqual((Point)((GeometryCollection<Geometry>)parsed.Geometries[0]).Geometries[0], (Point)((GeometryCollection<Geometry>)expected.Geometries[0]).Geometries[0]);
+        Assert.Equal(((GeometryCollection<IGeometry>)expected.Geometries[0]).Geometries.Count, ((GeometryCollection<IGeometry>)parsed.Geometries[0]).Geometries.Count);
+        AssertPointsEqual((Point)((GeometryCollection<IGeometry>)parsed.Geometries[0]).Geometries[0], (Point)((GeometryCollection<IGeometry>)expected.Geometries[0]).Geometries[0]);
     }
 
     private void TestParsePoint(byte[] wkb, string expectedAsWkt)
@@ -669,5 +669,5 @@ public class WkbReaderTests
         }
     }
 
-    private static T ParseWKT<T>(string wkt) where T : Geometry => WktReader.Parse<T>(wkt)!;
+    private static T ParseWKT<T>(string wkt) where T : IGeometry => WktReader.Parse<T>(wkt)!;
 }

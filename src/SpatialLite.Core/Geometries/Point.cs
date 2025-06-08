@@ -5,16 +5,14 @@ namespace SpatialLite.Core.Geometries;
 /// <summary>
 /// Represents a location in the coordinate space.
 /// </summary>
-public class Point : Geometry, IPoint
+public class Point : IPoint
 {
-
     private Coordinate _position = Coordinate.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <c>Point</c> class that is empty and has assigned the WSG84 coordinate reference system.
     /// </summary>
     public Point()
-        : base()
     {
     }
 
@@ -24,7 +22,6 @@ public class Point : Geometry, IPoint
     /// <param name="x">The X-coordinate of the <c>Point</c></param>
     /// <param name="y">The Y-coordinate of the <c>Point</c></param>
     public Point(double x, double y)
-        : base()
     {
         _position = new Coordinate(x, y);
     }
@@ -34,7 +31,6 @@ public class Point : Geometry, IPoint
     /// </summary>
     /// <param name="position">The position of this <c>Point</c></param>
     public Point(Coordinate position)
-        : base()
     {
         _position = position;
     }
@@ -48,7 +44,6 @@ public class Point : Geometry, IPoint
         {
             return _position;
         }
-
         set
         {
             _position = value;
@@ -59,7 +54,7 @@ public class Point : Geometry, IPoint
     /// Returns Envelope, that covers this Point.
     /// </summary>
     /// <returns>Envelope, that covers this Point.</returns>
-    public override Envelope GetEnvelope()
+    public Envelope GetEnvelope()
     {
         return new Envelope(Position);
     }
@@ -68,7 +63,7 @@ public class Point : Geometry, IPoint
     /// Gets collection of all <see cref="Coordinate"/> of this IGeometry object
     /// </summary>
     /// <returns>the collection of all <see cref="Coordinate"/> of this object</returns>
-    public override IEnumerable<Coordinate> GetCoordinates()
+    public IEnumerable<Coordinate> GetCoordinates()
     {
         yield return Position;
     }

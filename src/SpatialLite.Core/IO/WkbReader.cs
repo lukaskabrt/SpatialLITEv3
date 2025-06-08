@@ -43,7 +43,7 @@ public class WkbReader : IDisposable
     /// <param name="wkb">The binary array with WKB serialized geometry.</param>
     /// <returns>Parsed geometry.</returns>
     /// <exception cref="WkbFormatException">Throws exception if wkb array does not contains valid WKB geometry.</exception>
-    public static Geometry? Parse(byte[] wkb)
+    public static IGeometry? Parse(byte[] wkb)
     {
         if (wkb == null)
         {
@@ -67,7 +67,7 @@ public class WkbReader : IDisposable
                         throw new NotSupportedException("Big endian encoding is not supported in the current version of WkbReader.");
                     }
 
-                    Geometry parsed = ReadGeometry(reader);
+                    var parsed = ReadGeometry(reader);
 
                     return parsed;
                 }
@@ -86,7 +86,7 @@ public class WkbReader : IDisposable
     /// <param name="wkb">The binary array with WKB serialized geometry.</param>
     /// <returns>Parsed geometry.</returns>
     /// <exception cref="WkbFormatException">Throws exception if wkb array does not contains valid WKB geometry of specific type.</exception>
-    public static T? Parse<T>(byte[] wkb) where T : Geometry
+    public static T? Parse<T>(byte[] wkb) where T : IGeometry
     {
         var parsed = Parse(wkb);
 
@@ -101,7 +101,7 @@ public class WkbReader : IDisposable
         }
         else
         {
-            return null;
+            return default;
         }
     }
 
@@ -118,7 +118,7 @@ public class WkbReader : IDisposable
     /// Read geometry in WKB format from the input.
     /// </summary>
     /// <returns>Parsed geometry or null if no other geometry is available.</returns>
-    public Geometry? Read()
+    public IGeometry? Read()
     {
         if (_inputReader.PeekChar() == -1)
         {
@@ -147,7 +147,7 @@ public class WkbReader : IDisposable
     /// <typeparam name="T">The Geometry type to be parsed.</typeparam>
     /// <returns>Geometry object of specific type read from the input, or null if no other geometry is available.</returns>
     /// <exception cref="WkbFormatException">Throws exception if wkb array does not contains valid WKB geometry of specific type.</exception>
-    public T? Read<T>() where T : Geometry
+    public T? Read<T>() where T : IGeometry
     {
         var parsed = Read();
 
@@ -162,7 +162,7 @@ public class WkbReader : IDisposable
         }
         else
         {
-            return null;
+            return default;
         }
     }
 
@@ -208,7 +208,7 @@ public class WkbReader : IDisposable
     /// </summary>
     /// <param name="reader">The reader used to read data from input stream.</param>
     /// <returns>Geometry read from the input.</returns>
-    private static Geometry ReadGeometry(BinaryReader reader)
+    private static IGeometry ReadGeometry(BinaryReader reader)
     {
         WkbGeometryType geometryType = (WkbGeometryType)reader.ReadUInt32();
 
@@ -346,11 +346,11 @@ public class WkbReader : IDisposable
     /// </summary>
     /// <param name="reader">The reader used to read data from input stream.</param>
     /// <returns>GeometryCollection read from the input.</returns>
-    private static GeometryCollection<Geometry> ReadGeometryCollection(BinaryReader reader)
+    private static GeometryCollection<IGeometry> ReadGeometryCollection(BinaryReader reader)
     {
         int pointsCount = (int)reader.ReadUInt32();
 
-        GeometryCollection<Geometry> result = new();
+        GeometryCollection<IGeometry> result = new();
         for (int i = 0; i < pointsCount; i++)
         {
             result.Geometries.Add(ReadGeometry(reader));

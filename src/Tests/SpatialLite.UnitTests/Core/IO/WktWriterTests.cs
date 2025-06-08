@@ -71,14 +71,14 @@ public class WktWriterTests
             yield return new object[] { new MultiPoint(), "multipoint empty" };
             yield return new object[] { new MultiLineString(), "multilinestring empty" };
             yield return new object[] { new MultiPolygon(), "multipolygon empty" };
-            yield return new object[] { new GeometryCollection<Geometry>(), "geometrycollection empty" };
+            yield return new object[] { new GeometryCollection<IGeometry>(), "geometrycollection empty" };
 
         }
     }
 
     [Theory]
     [MemberData(nameof(WriteToStringTestData))]
-    public void WriteToString_WritesAllGeometryTypes(Geometry toWrite, string expectedWkt)
+    public void WriteToString_WritesAllGeometryTypes(IGeometry toWrite, string expectedWkt)
     {
         TestWriteGeometry(toWrite, expectedWkt);
     }
@@ -207,14 +207,14 @@ public class WktWriterTests
     {
         get
         {
-            yield return new object[] { new GeometryCollection<Geometry>(), "geometrycollection empty" };
-            yield return new object[] { new GeometryCollection<Geometry>([new Point(CoordinatesXY[0])]), "geometrycollection (point (-10.1 15.5))" };
+            yield return new object[] { new GeometryCollection<IGeometry>(), "geometrycollection empty" };
+            yield return new object[] { new GeometryCollection<IGeometry>([new Point(CoordinatesXY[0])]), "geometrycollection (point (-10.1 15.5))" };
         }
     }
 
     [Theory]
     [MemberData(nameof(Write_WritesGeometryCollectionOfAllDimensionsTestData))]
-    public void Write_WritesGeometryCollectionOfAllDimensions(GeometryCollection<Geometry> toWrite, string expectedWkt)
+    public void Write_WritesGeometryCollectionOfAllDimensions(GeometryCollection<IGeometry> toWrite, string expectedWkt)
     {
         TestWriteGeometry(toWrite, expectedWkt);
     }
@@ -223,7 +223,7 @@ public class WktWriterTests
     public void Write_WritesCollectionWithAllGeometryTypes()
     {
         var wkt = "geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)),multipoint empty,multilinestring empty,multipolygon empty)";
-        var collection = new GeometryCollection<Geometry>();
+        var collection = new GeometryCollection<IGeometry>();
         collection.Geometries.Add(new Point(CoordinatesXY[0]));
         collection.Geometries.Add(new LineString(CoordinatesXY));
         collection.Geometries.Add(new Polygon(CoordinatesXY));
@@ -238,8 +238,8 @@ public class WktWriterTests
     public void Write_WritesNestedCollection()
     {
         var wkt = "geometrycollection (geometrycollection (point (-10.1 15.5)))";
-        var collection = new GeometryCollection<Geometry>();
-        var nested = new GeometryCollection<Geometry>();
+        var collection = new GeometryCollection<IGeometry>();
+        var nested = new GeometryCollection<IGeometry>();
         nested.Geometries.Add(new Point(CoordinatesXY[0]));
         collection.Geometries.Add(nested);
 

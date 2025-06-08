@@ -7,7 +7,6 @@ namespace SpatialLite.Core.Geometries;
 /// </summary>
 public class MultiPoint : GeometryCollection<Point>, IMultiPoint
 {
-
     /// <summary>
     /// Initializes a new instance of the MultiPoint class that is empty and has assigned WSG84 coordinate reference system.
     /// </summary>
