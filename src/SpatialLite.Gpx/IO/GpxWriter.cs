@@ -202,7 +202,7 @@ public class GpxWriter : IDisposable, IGpxWriter
                 }
             }
 
-            if (metadata.Comment != null)
+            if (metadata.Type != null)
             {
                 _xmlWriter.WriteElementString("type", metadata.Type);
             }
