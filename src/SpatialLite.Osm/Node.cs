@@ -1,4 +1,6 @@
-﻿namespace SpatialLite.Osm;
+﻿using SpatialLite.Contracts;
+
+namespace SpatialLite.Osm;
 
 /// <summary>
 /// Represents information about node.
@@ -21,14 +23,9 @@ public class Node : IOsmEntity
     public required TagsCollection Tags { get; set; }
 
     /// <summary>
-    /// Gets the latitude of the node.
+    /// Gets the position of the node.
     /// </summary>
-    public required double Latitude { get; set; }
-
-    /// <summary>
-    /// Gets the longitude of the node.
-    /// </summary>
-    public required double Longitude { get; set; }
+    public required Coordinate Position { get; set; }
 
     /// <summary>
     /// Gets or sets metadata of this Node.

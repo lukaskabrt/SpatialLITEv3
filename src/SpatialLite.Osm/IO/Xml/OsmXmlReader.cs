@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using SpatialLite.Contracts;
 
 namespace SpatialLite.Osm.IO.Xml;
 
@@ -109,7 +110,7 @@ public class OsmXmlReader : IOsmReader
             additionalInfo = ReadMetadata();
         }
 
-        var result = new Node { Id = nodeId, Latitude = nodeLat, Longitude = nodeLon, Tags = [], Metadata = additionalInfo };
+        var result = new Node { Id = nodeId, Position = new Coordinate(nodeLon, nodeLat), Tags = [], Metadata = additionalInfo };
 
         if (_xmlReader.IsEmptyElement == false)
         {

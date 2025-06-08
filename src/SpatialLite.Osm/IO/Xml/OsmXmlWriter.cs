@@ -147,8 +147,8 @@ public class OsmXmlWriter : IOsmWriter
     private void WriteNode(Node node)
     {
         _writer.WriteStartElement("node");
-        _writer.WriteAttributeString("lon", node.Longitude.ToString(CultureInfo.InvariantCulture));
-        _writer.WriteAttributeString("lat", node.Latitude.ToString(CultureInfo.InvariantCulture));
+        _writer.WriteAttributeString("lon", node.Position.X.ToString(CultureInfo.InvariantCulture));
+        _writer.WriteAttributeString("lat", node.Position.Y.ToString(CultureInfo.InvariantCulture));
         _writer.WriteAttributeString("id", node.Id.ToString(CultureInfo.InvariantCulture));
 
         if (Settings.WriteMetadata)
