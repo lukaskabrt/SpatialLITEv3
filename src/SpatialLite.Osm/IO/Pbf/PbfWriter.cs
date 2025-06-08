@@ -8,6 +8,23 @@ namespace SpatialLite.Osm.IO.Pbf;
 /// </summary>
 public class PbfWriter : IOsmWriter
 {
+    static PbfWriter()
+    {
+        Serializer.PrepareSerializer<Blob>();
+        Serializer.PrepareSerializer<BlobHeader>();
+        Serializer.PrepareSerializer<HeaderBBox>();
+        Serializer.PrepareSerializer<OsmHeader>();
+        Serializer.PrepareSerializer<PbfDenseMetadata>();
+        Serializer.PrepareSerializer<PbfDenseNodes>();
+        Serializer.PrepareSerializer<PbfChangeset>();
+        Serializer.PrepareSerializer<PbfMetadata>();
+        Serializer.PrepareSerializer<PbfNode>();
+        Serializer.PrepareSerializer<PbfRelation>();
+        Serializer.PrepareSerializer<PbfWay>();
+        Serializer.PrepareSerializer<PrimitiveBlock>();
+        Serializer.PrepareSerializer<PrimitiveGroup>();
+        Serializer.PrepareSerializer<StringTable>();
+    }
 
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
