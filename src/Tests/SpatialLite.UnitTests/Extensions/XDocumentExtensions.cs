@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace SpatialLite.UnitTests.Gpx;
+namespace SpatialLite.UnitTests.Extensions;
 
 /// <summary>
 /// Extends XDocument with correct DeepEquals function

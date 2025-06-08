@@ -24,11 +24,11 @@ public class GpxDocument
     /// <param name="waypoints">A collection of waypoints to add to the document.</param>
     /// <param name="routes">A collection of routes to add to the document.</param>
     /// <param name="tracks">A collection of tracks to add to the document.</param>
-    public GpxDocument(List<GpxWaypoint> waypoints, List<GpxRoute> routes, List<GpxTrack> tracks)
+    public GpxDocument(IEnumerable<GpxWaypoint> waypoints, IEnumerable<GpxRoute> routes, IEnumerable<GpxTrack> tracks)
     {
-        Waypoints = waypoints;
-        Routes = routes;
-        Tracks = tracks;
+        Waypoints = new List<GpxWaypoint>(waypoints);
+        Routes = new List<GpxRoute>(routes);
+        Tracks = new List<GpxTrack>(tracks);
     }
 
     /// <summary>
