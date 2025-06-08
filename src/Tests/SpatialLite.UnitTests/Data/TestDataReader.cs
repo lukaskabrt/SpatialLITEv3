@@ -80,4 +80,9 @@ public class TestDataReader
     /// TestDataReader for OSM PBF test data.
     /// </summary>
     public static readonly TestDataReader OsmPbf = new(Path.Combine("Osm", "Pbf"));
+
+    /// <summary>
+    /// TestDataReader for GPX test data.
+    /// </summary>
+    public static readonly TestDataReader Gpx = new(Path.Combine("Gpx"));
 }
