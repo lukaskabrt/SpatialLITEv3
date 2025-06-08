@@ -137,4 +137,34 @@ public class TagsCollectionTests
         var target = new TagsCollection();
         Assert.Throws<ArgumentException>(() => target["key"] = value!);
     }
+
+    [Fact]
+    public void Constructor_LazyInitialization_DoesNotCreateUnderlyingCollectionUntilFirstAdd()
+    {
+        var target = new TagsCollection();
+
+        // Should be empty but not have initialized internal storage yet
+        Assert.Empty(target);
+
+        // After adding first tag, should have content
+        target.Add("key", "value");
+        Assert.Single(target);
+        Assert.NotEmpty(target);
+    }
+
+    [Fact]
+    public void Keys_AreCaseSensitive_WithOrdinalComparison()
+    {
+        var target = new TagsCollection();
+        target.Add("Key", "value1");
+        target.Add("key", "value2");
+
+        // Should have both keys since they are different with case-sensitive comparison
+        Assert.Equal(2, target.Count);
+        Assert.Equal("value1", target["Key"]);
+        Assert.Equal("value2", target["key"]);
+        Assert.True(target.ContainsKey("Key"));
+        Assert.True(target.ContainsKey("key"));
+        Assert.False(target.ContainsKey("KEY"));
+    }
 }
