@@ -1,4 +1,5 @@
-﻿using SpatialLite.Core.Geometries;
+﻿using SpatialLite.Contracts;
+using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
 using SpatialLite.UnitTests.Data;
 
@@ -246,7 +247,7 @@ public class WkbWriterTests
     [Fact]
     public void Write_WritesEmptyGeometryCollection()
     {
-        var collection = (GeometryCollection<Geometry>)ParseWKT("geometrycollection empty");
+        var collection = (GeometryCollection<IGeometry>)ParseWKT("geometrycollection empty");
 
         using var stream = new MemoryStream();
         using var target = new WkbWriter(stream, new WkbWriterSettings());
@@ -259,7 +260,7 @@ public class WkbWriterTests
     [Fact]
     public void Write_Writes2DGeometryCollection()
     {
-        var collection = (GeometryCollection<Geometry>)ParseWKT("geometrycollection (point (-10.1 15.5))");
+        var collection = (GeometryCollection<IGeometry>)ParseWKT("geometrycollection (point (-10.1 15.5))");
 
         using var stream = new MemoryStream();
         using var target = new WkbWriter(stream, new WkbWriterSettings());
@@ -272,7 +273,7 @@ public class WkbWriterTests
     [Fact]
     public void Write_WritesCollectionWithPointLineStringAndPolygon()
     {
-        var collection = (GeometryCollection<Geometry>)ParseWKT("geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))");
+        var collection = (GeometryCollection<IGeometry>)ParseWKT("geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))");
 
         using var stream = new MemoryStream();
         using var target = new WkbWriter(stream, new WkbWriterSettings());
@@ -285,7 +286,7 @@ public class WkbWriterTests
     [Fact]
     public void Write_WritesCollectionWithMultiGeometries()
     {
-        var collection = (GeometryCollection<Geometry>)ParseWKT("geometrycollection (multipoint empty,multilinestring empty,multipolygon empty)");
+        var collection = (GeometryCollection<IGeometry>)ParseWKT("geometrycollection (multipoint empty,multilinestring empty,multipolygon empty)");
 
         using var stream = new MemoryStream();
         using var target = new WkbWriter(stream, new WkbWriterSettings());
@@ -298,7 +299,7 @@ public class WkbWriterTests
     [Fact]
     public void Write_WritesNestedCollection()
     {
-        var collection = (GeometryCollection<Geometry>)ParseWKT("geometrycollection (geometrycollection (point (-10.1 15.5)))");
+        var collection = (GeometryCollection<IGeometry>)ParseWKT("geometrycollection (geometrycollection (point (-10.1 15.5)))");
 
         using var stream = new MemoryStream();
         using var target = new WkbWriter(stream, new WkbWriterSettings());
@@ -325,5 +326,5 @@ public class WkbWriterTests
         }
     }
 
-    private static Geometry ParseWKT(string wkt) => WktReader.Parse(wkt)!;
+    private static IGeometry ParseWKT(string wkt) => WktReader.Parse(wkt)!;
 }

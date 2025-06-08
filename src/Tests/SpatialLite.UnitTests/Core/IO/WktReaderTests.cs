@@ -147,7 +147,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection empty";
 
-        var parsed = (GeometryCollection<Geometry>?)WktReader.Parse(wkt);
+        var parsed = (GeometryCollection<IGeometry>?)WktReader.Parse(wkt);
 
         Assert.NotNull(parsed);
         Assert.Empty(parsed.Geometries);
@@ -646,7 +646,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection empty";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Empty(parsed.Geometries);
@@ -657,7 +657,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection (point (-10.1 15.5))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -669,7 +669,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection m (point m (-10.1 15.5 1000.5))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -681,7 +681,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection z (point z (-10.1 15.5 100.5))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -693,7 +693,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection zm (point zm (-10.1 15.5 100.5 1000.5))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
@@ -705,7 +705,7 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection (point (-10.1 15.5),linestring (-10.1 15.5, 20.2 -25.5, 30.3 35.5),polygon ((-10.1 15.5, 20.2 -25.5, 30.3 35.5)))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Equal(3, parsed.Geometries.Count);
@@ -719,11 +719,11 @@ public class WktReaderTests
     {
         var wkt = "geometrycollection (geometrycollection (point (-10.1 15.5)))";
 
-        var parsed = WktReader.Parse<GeometryCollection<Geometry>>(wkt);
+        var parsed = WktReader.Parse<GeometryCollection<IGeometry>>(wkt);
 
         Assert.NotNull(parsed);
         Assert.Single(parsed.Geometries);
-        var nested = (GeometryCollection<Geometry>)parsed.Geometries[0];
+        var nested = (GeometryCollection<IGeometry>)parsed.Geometries[0];
         CompareCoordinate(_coordinatesXY[0], ((Point)nested.Geometries[0]).Position);
     }
 
@@ -732,7 +732,7 @@ public class WktReaderTests
     {
         var wkt = "point empty";
 
-        Assert.Throws<WktParseException>(() => WktReader.Parse<GeometryCollection<Geometry>>(wkt));
+        Assert.Throws<WktParseException>(() => WktReader.Parse<GeometryCollection<IGeometry>>(wkt));
     }
 
     private void CompareCoordinate(Coordinate expected, Coordinate actual)

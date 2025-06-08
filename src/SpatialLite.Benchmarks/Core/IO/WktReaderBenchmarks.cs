@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Attributes;
+using SpatialLite.Contracts;
 using SpatialLite.Core.Geometries;
 using SpatialLite.Core.IO;
 
@@ -53,9 +54,9 @@ public class WktReaderBenchmarks
     }
 
     [Benchmark]
-    public GeometryCollection<Geometry>? ParseGeometryCollection()
+    public GeometryCollection<IGeometry>? ParseGeometryCollection()
     {
-        return WktReader.Parse<GeometryCollection<Geometry>>(_geometryCollectionWkt);
+        return WktReader.Parse<GeometryCollection<IGeometry>>(_geometryCollectionWkt);
     }
 
     [Benchmark]
@@ -65,7 +66,7 @@ public class WktReaderBenchmarks
     }
 
     [Benchmark]
-    public Geometry? ParseGeneric()
+    public IGeometry? ParseGeneric()
     {
         return WktReader.Parse(_pointWkt);
     }

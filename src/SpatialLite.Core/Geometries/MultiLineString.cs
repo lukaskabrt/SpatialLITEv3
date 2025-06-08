@@ -7,7 +7,6 @@ namespace SpatialLite.Core.Geometries;
 /// </summary>
 public class MultiLineString : GeometryCollection<LineString>, IMultiLineString
 {
-
     /// <summary>
     /// Initializes a new instance of the MultiLineString class that is empty and has assigned WSG84 coordinate reference system.
     /// </summary>

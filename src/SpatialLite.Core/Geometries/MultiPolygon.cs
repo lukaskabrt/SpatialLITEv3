@@ -7,7 +7,6 @@ namespace SpatialLite.Core.Geometries;
 /// </summary>
 public class MultiPolygon : GeometryCollection<Polygon>, IMultiPolygon
 {
-
     /// <summary>
     /// Initializes a new instance of the MultiPolygon class that is empty and has assigned WSG84 coordinate reference system.
     /// </summary>

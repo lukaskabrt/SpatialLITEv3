@@ -5,13 +5,12 @@ namespace SpatialLite.Core.Geometries;
 /// <summary>
 /// Represents a polygon, which may include holes.
 /// </summary>
-public class Polygon : Geometry, IPolygon
+public class Polygon : IPolygon
 {
     /// <summary>
     /// Initializes a new instance of the <c>Polygon</c> class in WSG84 coordinate reference system that without ExteriorRing and no InteriorRings.
     /// </summary>
     public Polygon()
-        : base()
     {
         ExteriorRing = [];
         InteriorRings = [];
@@ -59,7 +58,7 @@ public class Polygon : Geometry, IPolygon
     /// <returns>
     /// Returns an <see cref="Envelope"/> object that specifies the minimal bounding box of the <c>Polygon</c> object.
     /// </returns>
-    public override Envelope GetEnvelope()
+    public Envelope GetEnvelope()
     {
         return ExteriorRing.Count == 0 ? new Envelope() : new Envelope(ExteriorRing);
     }
@@ -68,7 +67,7 @@ public class Polygon : Geometry, IPolygon
     /// Gets collection of all <see cref="Coordinate"/> of this IGeometry object
     /// </summary>
     /// <returns>the collection of all <see cref="Coordinate"/> of this object</returns>
-    public override IEnumerable<Coordinate> GetCoordinates()
+    public IEnumerable<Coordinate> GetCoordinates()
     {
         return ExteriorRing.Concat(InteriorRings.SelectMany(o => o));
     }
