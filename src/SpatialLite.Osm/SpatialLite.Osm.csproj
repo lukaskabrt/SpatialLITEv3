@@ -8,4 +8,8 @@
     <PackageReference Include="protobuf-net" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SpatialLite.Contracts\SpatialLite.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -68,7 +68,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_ThrowsArgumentNullExceptionIfWriteMetadataIsTrueButEntityDoesNotHaveMetadata()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
         using var target = new PbfWriter(new MemoryStream(), new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true });
 
         Assert.Throws<ArgumentNullException>(() => target.Write(node));
@@ -77,7 +77,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_ThrowsArgumentNullExceptionIfMetadataContainsNullInsteadOfUsername()
     {
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
         if (nodeProperties.Metadata != null)
         {
             nodeProperties.Metadata.User = null;
@@ -90,7 +90,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_WritesNode()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         MemoryStream stream = new();
         using (var target = new PbfWriter(stream, new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false }))
@@ -104,7 +104,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_WritesNodeWithTags()
     {
-        var nodeTags = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")] };
+        var nodeTags = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")] };
 
         MemoryStream stream = new();
         using (var target = new PbfWriter(stream, new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false }))
@@ -118,7 +118,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_WritesNodeWithMetadata()
     {
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
 
         MemoryStream stream = new();
         using (var target = new PbfWriter(stream, new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = true }))
@@ -132,8 +132,8 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_DoesNotWriteNodeMetadataIfWriteMetadataSettingsIsFalse()
     {
-        var nodeWithProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var nodeWithProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         MemoryStream stream = new();
         using (var target = new PbfWriter(stream, new() { UseDenseFormat = false, Compression = CompressionMode.None, WriteMetadata = false }))
@@ -147,7 +147,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_WritesNode_Dense()
     {
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         MemoryStream stream = new();
         using (var target = new PbfWriter(stream, new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = false }))
@@ -164,8 +164,7 @@ public class PbfWriterTests : OsmIOTests
         var nodeTags = new Node
         {
             Id = 1,
-            Latitude = 50.4,
-            Longitude = 16.2,
+            Position = new(16.2, 50.4),
             Tags = [new KeyValuePair<string, string>("name", "test"), new KeyValuePair<string, string>("name-2", "test-2")]
         };
 
@@ -181,7 +180,7 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_WritesNodeWithMetadata_Dense()
     {
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
 
         MemoryStream stream = new();
         using (PbfWriter target = new(stream, new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = true }))
@@ -195,8 +194,8 @@ public class PbfWriterTests : OsmIOTests
     [Fact]
     public void Write_IOsmEntity_DoesNotWriteNodeMetadataIfWriteMetadataSettingsIsFalse_Dense()
     {
-        var nodeProperties = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [], Metadata = _metadata };
-        var node = new Node { Id = 1, Latitude = 50.4, Longitude = 16.2, Tags = [] };
+        var nodeProperties = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [], Metadata = _metadata };
+        var node = new Node { Id = 1, Position = new(16.2, 50.4), Tags = [] };
 
         MemoryStream stream = new();
         using (PbfWriter target = new(stream, new() { UseDenseFormat = true, Compression = CompressionMode.None, WriteMetadata = false }))
@@ -389,7 +388,7 @@ public class PbfWriterTests : OsmIOTests
         //1000 nodes should fit into tokens
         for (var i = 0; i < 1000; i++)
         {
-            Node node = new() { Id = i, Latitude = 45.87, Longitude = -126.5, Tags = [] };
+            Node node = new() { Id = i, Position = new(-126.5, 45.87), Tags = [] };
             target.Write(node);
         }
 

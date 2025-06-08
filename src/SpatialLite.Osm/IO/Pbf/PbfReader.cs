@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using SpatialLite.Contracts;
 using SpatialLite.Osm.IO.Pbf.Contracts;
 
 namespace SpatialLite.Osm.IO.Pbf;
@@ -292,7 +293,7 @@ public class PbfReader : IOsmReader
 
             var metadata = ProcessMetadata(node.Metadata, block);
 
-            var parsed = new Node { Id = node.ID, Latitude = lat, Longitude = lon, Tags = new TagsCollection(tags), Metadata = metadata };
+            var parsed = new Node { Id = node.ID, Position = new Coordinate(lon, lat), Tags = new TagsCollection(tags), Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }
@@ -368,7 +369,7 @@ public class PbfReader : IOsmReader
                 }
             }
 
-            var parsed = new Node { Id = idStore, Latitude = lat, Longitude = lon, Tags = new TagsCollection(tags), Metadata = metadata };
+            var parsed = new Node { Id = idStore, Position = new Coordinate(lon, lat), Tags = new TagsCollection(tags), Metadata = metadata };
             _cache.Enqueue(parsed);
         }
     }

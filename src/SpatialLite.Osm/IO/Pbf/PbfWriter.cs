@@ -341,8 +341,8 @@ public class PbfWriter : IOsmWriter
             var toAdd = new PbfNode
             {
                 ID = node.Id,
-                Latitude = (long)Math.Round((node.Latitude / 1E-09 - latOffset) / positionGranularity),
-                Longitude = (long)Math.Round((node.Longitude / 1E-09 - lonOffset) / positionGranularity)
+                Latitude = (long)Math.Round((node.Position.Y / 1E-09 - latOffset) / positionGranularity),
+                Longitude = (long)Math.Round((node.Position.X / 1E-09 - lonOffset) / positionGranularity)
             };
 
             if (node.Tags.Count > 0)
@@ -389,11 +389,11 @@ public class PbfWriter : IOsmWriter
             result.Id.Add(node.Id - lastID);
             lastID = node.Id;
 
-            var latValue = (long)Math.Round((node.Latitude / 1E-09 - latOffset) / positionGranularity);
+            var latValue = (long)Math.Round((node.Position.Y / 1E-09 - latOffset) / positionGranularity);
             result.Latitude.Add(latValue - lastLat);
             lastLat = latValue;
 
-            var lonValue = (long)Math.Round((node.Longitude / 1E-09 - lonOffset) / positionGranularity);
+            var lonValue = (long)Math.Round((node.Position.X / 1E-09 - lonOffset) / positionGranularity);
             result.Longitude.Add(lonValue - lastLon);
             lastLon = lonValue;
 
