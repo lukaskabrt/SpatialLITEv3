@@ -1,5 +1,4 @@
 using SpatialLite.Contracts;
-using SpatialLite.Contracts.Algorithms;
 
 namespace SpatialLite.UnitTests.Core.Algorithms;
 
@@ -7,20 +6,6 @@ public partial class EuclideanDistanceCalculatorTests
 {
     public class PointToPoint : EuclideanDistanceCalculatorTests
     {
-        [Theory]
-        [InlineData(1, 4, -2, 3, 2, 1, 2.236067977)]
-        [InlineData(-1, 0, -2, 3, 2, 1, 2.236067977)]
-        public void CalculatesDistance_IfProjectionIsWithinSegment(double cx, double cy, double ax, double ay, double bx, double by, double expectedDistance)
-        {
-            var c = new Coordinate(cx, cy);
-            var a = new Coordinate(ax, ay);
-            var b = new Coordinate(bx, by);
-
-            var distance = _calculator.CalculateDistance(c, a, b, LineMode.Line);
-
-            Assert.Equal(expectedDistance, distance, Precision);
-        }
-
         [Fact]
         public void ReturnsZero_IfPointsAreIdentical()
         {

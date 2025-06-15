@@ -83,7 +83,7 @@ public partial class EuclideanDistanceCalculatorTests
         [InlineData(double.NaN, double.NaN, 1, 2, 3, 4)]
         [InlineData(3, 5, double.NaN, double.NaN, 3, 4)]
         [InlineData(3, 5, 1, 2, double.NaN, double.NaN)]
-        public void ReturnsNull_IfPointIsEmpty(double cx, double cy, double ax, double ay, double bx, double by)
+        public void ReturnsNaN_IfPointIsEmpty(double cx, double cy, double ax, double ay, double bx, double by)
         {
             var c = new Coordinate(cx, cy);
             var a = new Coordinate(ax, ay);
