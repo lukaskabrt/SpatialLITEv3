@@ -1,6 +1,8 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 using SpatialLite.Contracts;
 using SpatialLite.Osm.IO.Pbf.Contracts;
+using System.Buffers;
 
 namespace SpatialLite.Osm.IO.Pbf;
 
@@ -195,26 +197,71 @@ public class PbfReader : IOsmReader
     /// <returns>Deserialized content of the read blob or null if blob contains unknown data.</returns>
     private object? ReadBlob(BlobHeader header)
     {
-        var blob = Serializer.Deserialize<Blob>(_input, length: header.DataSize);
+        var buffer = ArrayPool<byte>.Shared.Rent(header.DataSize);
+        _input.ReadExactly(buffer, 0, header.DataSize);
 
-        Stream blobContentStream;
-        if (blob.Raw != null)
+        var pbf = PbfBlock.Create(buffer.AsSpan(0, header.DataSize));
+
+        Stream? blobContentStream = null;
+        int? rawSize = null;
+
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
         {
-            blobContentStream = new MemoryStream(blob.Raw);
+            switch (fieldNumber)
+            {
+                case 1:
+                    var rawData = pbf.ReadLengthPrefixedBytes();
+                    var rawBuffer = ArrayPool<byte>.Shared.Rent(rawData.Length);
+                    rawData.CopyTo(rawBuffer);
+
+                    blobContentStream = new MemoryStream(rawBuffer, 0, rawData.Length);
+                    break;
+                case 2:
+                    rawSize = pbf.ReadInt();
+                    break;
+                case 3:
+                    var deflateData = pbf.ReadLengthPrefixedBytes();
+                    var deflateBuffer = ArrayPool<byte>.Shared.Rent(deflateData.Length);
+                    deflateData.CopyTo(deflateBuffer);
+
+                    var deflateStreamData = new MemoryStream(deflateBuffer);
+                    blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
         }
-        else if (blob.ZlibData != null)
+
+        ArrayPool<byte>.Shared.Return(buffer);
+
+        if (blobContentStream == null)
         {
-            var deflateStreamData = new MemoryStream(blob.ZlibData);
-            blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+            throw new InvalidOperationException();
         }
-        else
-        {
-            throw new NotSupportedException();
-        }
+
+        //var blob = Serializer.Deserialize<Blob>(_input, length: header.DataSize);
+
+        //if (blob.Raw != null)
+        //{
+        //    blobContentStream = new MemoryStream(blob.Raw);
+        //}
+        //else if (blob.ZlibData != null)
+        //{
+        //    var deflateStreamData = new MemoryStream(blob.ZlibData);
+        //    blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+        //}
+        //else
+        //{
+        //    throw new NotSupportedException();
+        //}
 
         if (header.Type.Equals("OSMData", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize.HasValue && blob.RawSize > MaxDataBlockSize) || (blob.RawSize.HasValue == false && blobContentStream.Length > MaxDataBlockSize))
+            if ((rawSize.HasValue && rawSize > MaxDataBlockSize) || (rawSize.HasValue == false && blobContentStream.Length > MaxDataBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMData block");
             }
@@ -223,7 +270,7 @@ public class PbfReader : IOsmReader
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize.HasValue && blob.RawSize > MaxHeaderBlockSize) || (blob.RawSize.HasValue == false && blobContentStream.Length > MaxHeaderBlockSize))
+            if ((rawSize.HasValue && rawSize > MaxHeaderBlockSize) || (rawSize.HasValue == false && blobContentStream.Length > MaxHeaderBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMHeader block");
             }

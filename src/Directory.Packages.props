@@ -10,8 +10,8 @@
   </ItemGroup>
   <!-- Package Versions -->
   <ItemGroup>
+    <PackageVersion Include="PbfLite" Version="1.0.0" />
     <PackageVersion Include="protobuf-net" Version="3.2.52" />
-
     <!-- Testing Dependencies -->
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
