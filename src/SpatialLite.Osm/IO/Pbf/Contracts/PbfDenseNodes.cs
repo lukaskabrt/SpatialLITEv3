@@ -8,10 +8,10 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 [ProtoContract(Name = "DenseNodes")]
 internal class PbfDenseNodes
 {
-    private IList<long> _id;
-    private IList<long> _latitude;
-    private IList<long> _longitude;
-    private IList<int> _keysVals;
+    private List<long> _id;
+    private List<long> _latitude;
+    private List<long> _longitude;
+    private List<uint> _keysVals;
 
     /// <summary>
     /// Initializes a new instance of the DenseNodes class with internal fields initialized to default capacity.
@@ -21,7 +21,7 @@ internal class PbfDenseNodes
         _id = new List<long>();
         _latitude = new List<long>();
         _longitude = new List<long>();
-        _keysVals = new List<int>();
+        _keysVals = new List<uint>();
     }
 
     /// <summary>
@@ -33,14 +33,14 @@ internal class PbfDenseNodes
         _id = new List<long>(capacity);
         _latitude = new List<long>(capacity);
         _longitude = new List<long>(capacity);
-        _keysVals = new List<int>(capacity);
+        _keysVals = new List<uint>(capacity);
     }
 
     /// <summary>
     /// Gets or sets ids of the nodes. This property is delta encoded.
     /// </summary>
     [ProtoMember(1, Name = "id", IsRequired = true, DataFormat = DataFormat.ZigZag, Options = MemberSerializationOptions.Packed)]
-    public IList<long> Id
+    public List<long> Id
     {
         get { return _id; }
         set { _id = value; }
@@ -53,7 +53,7 @@ internal class PbfDenseNodes
     /// double nodeLat = 1E-09 * (block.LatOffset + (block.Granularity * Latitude));
     /// </example>
     [ProtoMember(8, Name = "lat", IsRequired = true, DataFormat = DataFormat.ZigZag, Options = MemberSerializationOptions.Packed)]
-    public IList<long> Latitude
+    public List<long> Latitude
     {
         get { return _latitude; }
         set { _latitude = value; }
@@ -66,7 +66,7 @@ internal class PbfDenseNodes
     /// double nodeLon = 1E-09 * (block.LonOffset + (block.Granularity * Longitude));
     /// </example>
     [ProtoMember(9, Name = "lon", IsRequired = true, DataFormat = DataFormat.ZigZag, Options = MemberSerializationOptions.Packed)]
-    public IList<long> Longitude
+    public List<long> Longitude
     {
         get { return _longitude; }
         set { _longitude = value; }
@@ -85,7 +85,7 @@ internal class PbfDenseNodes
     /// Tags are saved as (KeyIndex, ValueIndex) pairs. Tags for consecutive nodes are separated by 0.
     /// </remarks>
     [ProtoMember(10, Name = "keys_vals", Options = MemberSerializationOptions.Packed)]
-    public IList<int> KeysVals
+    public List<uint> KeysVals
     {
         get { return _keysVals; }
         set { _keysVals = value; }

@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PbfLite" />
     <PackageReference Include="protobuf-net" />
+    <PackageReference Include="PbfLite" />
   </ItemGroup>
 
   <ItemGroup>

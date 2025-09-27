@@ -11,6 +11,7 @@ public class StringTable
 {
 
     private List<byte[]> _s = new List<byte[]>();
+    private List<string>? _stringList = null;
 
     /// <summary>
     /// Gets or sets collection of strings serialized as byte array.
@@ -37,7 +38,17 @@ public class StringTable
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            return Encoding.UTF8.GetString(Storage[index], 0, Storage[index].Length);
+            if (_stringList == null)
+            {
+                _stringList = new List<string>(Storage.Count);
+                foreach (var item in Storage)
+                {
+                    _stringList.Add(Encoding.UTF8.GetString(item, 0, item.Length));
+                }
+            }
+
+            return _stringList[index];
+            //return Encoding.UTF8.GetString(Storage[index], 0, Storage[index].Length);
         }
         set
         {

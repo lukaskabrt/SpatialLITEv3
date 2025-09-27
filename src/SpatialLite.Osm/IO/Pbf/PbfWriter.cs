@@ -416,8 +416,8 @@ public class PbfWriter : IOsmWriter
 
             foreach (var tag in node.Tags)
             {
-                result.KeysVals.Add((int)_nodesBuffer.GetStringIndex(tag.Key));
-                result.KeysVals.Add((int)_nodesBuffer.GetStringIndex(tag.Value));
+                result.KeysVals.Add(_nodesBuffer.GetStringIndex(tag.Key));
+                result.KeysVals.Add(_nodesBuffer.GetStringIndex(tag.Value));
             }
 
             result.KeysVals.Add(0);
@@ -505,7 +505,7 @@ public class PbfWriter : IOsmWriter
                 toAdd.MemberIds.Add(member.MemberId - lastRef);
                 lastRef = member.MemberId;
 
-                toAdd.RolesIndexes.Add((int)_relationBuffer.GetStringIndex(member.Role ?? string.Empty));
+                toAdd.RolesIndexes.Add(_relationBuffer.GetStringIndex(member.Role ?? string.Empty));
                 PbfRelationMemberType memberType = 0;
                 switch (member.MemberType)
                 {

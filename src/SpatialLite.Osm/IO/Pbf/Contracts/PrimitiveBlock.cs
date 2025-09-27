@@ -16,13 +16,13 @@ internal class PrimitiveBlock
     /// Gets or sets StringTable with all strings used in the block.
     /// </summary>
     [ProtoMember(1, IsRequired = true, Name = "stringtable")]
-    public required StringTable StringTable { get; set; }
+    public StringTable StringTable { get; set; } = new StringTable();
 
     /// <summary>
     /// Gets or sets PrimitiveGroup object with OSM entities.
     /// </summary>
     [ProtoMember(2, Name = "primitivegroup")]
-    public required List<PrimitiveGroup> PrimitiveGroup { get; set; }
+    public List<PrimitiveGroup> PrimitiveGroup { get; set; } = new List<PrimitiveGroup>();
 
     /// <summary>
     /// Gets or sets granularity of the position data. Default value is 100.

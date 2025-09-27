@@ -9,9 +9,9 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 internal class PbfRelation
 {
 
-    private IList<long> _memberIds;
-    private IList<int> _rolesIndexes;
-    private IList<PbfRelationMemberType> _types;
+    private List<long> _memberIds;
+    private List<uint> _rolesIndexes;
+    private List<PbfRelationMemberType> _types;
 
     /// <summary>
     /// Initializes a new instance of the PbfRelation class with internal fields initialized to default capacity.
@@ -19,7 +19,7 @@ internal class PbfRelation
     public PbfRelation()
     {
         _memberIds = new List<long>();
-        _rolesIndexes = new List<int>();
+        _rolesIndexes = new List<uint>();
         _types = new List<PbfRelationMemberType>();
     }
 
@@ -30,7 +30,7 @@ internal class PbfRelation
     public PbfRelation(int capacity)
     {
         _memberIds = new List<long>(capacity);
-        _rolesIndexes = new List<int>(capacity);
+        _rolesIndexes = new List<uint>(capacity);
         _types = new List<PbfRelationMemberType>(capacity);
     }
 
@@ -50,19 +50,19 @@ internal class PbfRelation
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
     [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Keys { get; set; }
+    public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
     [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Values { get; set; }
+    public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets IDs of the relation members. This property is delta encoded.
     /// </summary>
     [ProtoMember(9, Name = "memids", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<long> MemberIds
+    public List<long> MemberIds
     {
         get { return _memberIds; }
         set { _memberIds = value; }
@@ -72,7 +72,7 @@ internal class PbfRelation
     /// Gets or sets index of the role in string table for appropriate members.
     /// </summary>
     [ProtoMember(8, Name = "roles_sid", Options = MemberSerializationOptions.Packed)]
-    public IList<int> RolesIndexes
+    public List<uint> RolesIndexes
     {
         get { return _rolesIndexes; }
         set { _rolesIndexes = value; }
@@ -82,7 +82,7 @@ internal class PbfRelation
     /// Gets or sets type of the relation members.
     /// </summary>
     [ProtoMember(10, Name = "types", Options = MemberSerializationOptions.Packed)]
-    public IList<PbfRelationMemberType> Types
+    public List<PbfRelationMemberType> Types
     {
         get { return _types; }
         set { _types = value; }

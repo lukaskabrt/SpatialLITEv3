@@ -9,7 +9,7 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 internal class PbfWay
 {
 
-    private IList<long> _refs;
+    private List<long> _refs;
 
     /// <summary>
     /// Initializes a new instance of the PbfWay class with internal fields initialized to default capacity.
@@ -38,13 +38,13 @@ internal class PbfWay
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
     [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Keys { get; set; }
+    public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
     [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Values { get; set; }
+    public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets entity metadata.
@@ -56,7 +56,7 @@ internal class PbfWay
     /// Gets or sets IDs of nodes referenced by the way. This property is delta encoded.
     /// </summary>
     [ProtoMember(8, Name = "refs", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<long> Refs
+    public List<long> Refs
     {
         get { return _refs; }
         set { _refs = value; }

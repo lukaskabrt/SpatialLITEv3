@@ -193,6 +193,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
         return -1;
     }
 
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
     private static void ValidateTag(string key, string value)
     {
         if (string.IsNullOrEmpty(key))
@@ -200,7 +201,7 @@ public class TagsCollection : IDictionary<string, string>, IReadOnlyDictionary<s
             throw new ArgumentException("Key cannot be null or empty.", nameof(key));
         }
 
-        if (string.IsNullOrEmpty(value))
+        if (value is null)
         {
             throw new ArgumentException("Value cannot be null or empty.", nameof(value));
         }
