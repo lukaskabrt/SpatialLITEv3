@@ -13,7 +13,7 @@ internal class Program
         var waysCount = 0;
         var relationsCount = 0;
 
-        using var reader = new PbfReader("C:\\OSM\\valhalla\\cz.pbf", new Osm.IO.OsmReaderSettings { ReadMetadata = false });
+        using var reader = new PbfReader("C:\\OSM\\valhalla\\cz.osm.pbf", new Osm.IO.OsmReaderSettings { ReadMetadata = false });
         IOsmEntity? entity;
         while ((entity = reader.Read()) != null)
         {
