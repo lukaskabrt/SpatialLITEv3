@@ -203,7 +203,7 @@ public class PbfReader : IOsmReader
         var buffer = ArrayPool<byte>.Shared.Rent(header.DataSize);
         _input.ReadExactly(buffer, 0, header.DataSize);
 
-        var pbf = PbfBlock.Create(buffer.AsSpan(0, header.DataSize));
+        var pbf = PbfBlockReader.Create(buffer.AsSpan(0, header.DataSize));
         var blob = DeserializeBlob(pbf);
 
         byte[] blobContent;
@@ -229,7 +229,7 @@ public class PbfReader : IOsmReader
                 throw new InvalidDataException("Invalid OSMData block");
             }
 
-            return DeserializePrimitiveBlock(PbfBlock.Create(blobContent));
+            return DeserializePrimitiveBlock(PbfBlockReader.Create(blobContent));
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {
@@ -240,7 +240,7 @@ public class PbfReader : IOsmReader
 
             try
             {
-                return DeserializeOsmHeader(PbfBlock.Create(blobContent));
+                return DeserializeOsmHeader(PbfBlockReader.Create(blobContent));
             }
             catch (ProtoException ex)
             {
@@ -260,7 +260,7 @@ public class PbfReader : IOsmReader
         return memoryStream.ToArray();
     }
 
-    private Blob DeserializeBlob(PbfBlock pbf)
+    private Blob DeserializeBlob(PbfBlockReader pbf)
     {
         var result = new Blob();
 
@@ -289,7 +289,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private OsmHeader DeserializeOsmHeader(PbfBlock pbf)
+    private OsmHeader DeserializeOsmHeader(PbfBlockReader pbf)
     {
         var result = new OsmHeader();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -298,7 +298,7 @@ public class PbfReader : IOsmReader
             switch (fieldNumber)
             {
                 case 1:
-                    result.BBox = DeserializeBBox(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.BBox = DeserializeBBox(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 case 4:
                     result.RequiredFeatures.Add(pbf.ReadString());
@@ -323,7 +323,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private HeaderBBox DeserializeBBox(PbfBlock pbf)
+    private HeaderBBox DeserializeBBox(PbfBlockReader pbf)
     {
         var result = new HeaderBBox();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -332,16 +332,16 @@ public class PbfReader : IOsmReader
             switch (fieldNumber)
             {
                 case 1:
-                    result.Left = PbfBlock.Zag(pbf.ReadULongint());
+                    result.Left = pbf.ReadSignedLong();
                     break;
                 case 2:
-                    result.Right = PbfBlock.Zag(pbf.ReadULongint());
+                    result.Right = pbf.ReadSignedLong();
                     break;
                 case 3:
-                    result.Top = PbfBlock.Zag(pbf.ReadULongint());
+                    result.Top = pbf.ReadSignedLong();
                     break;
                 case 4:
-                    result.Bottom = PbfBlock.Zag(pbf.ReadULongint());
+                    result.Bottom = pbf.ReadSignedLong();
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -354,7 +354,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private StringTable DeserializeStringTable(PbfBlock pbf)
+    private StringTable DeserializeStringTable(PbfBlockReader pbf)
     {
         var result = new StringTable();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -377,7 +377,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PrimitiveBlock DeserializePrimitiveBlock(PbfBlock pbf)
+    private PrimitiveBlock DeserializePrimitiveBlock(PbfBlockReader pbf)
     {
         var result = new PrimitiveBlock();
 
@@ -387,11 +387,11 @@ public class PbfReader : IOsmReader
             switch (fieldNumber)
             {
                 case 1:
-                    result.StringTable = DeserializeStringTable(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.StringTable = DeserializeStringTable(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 case 2:
                 {
-                    result.PrimitiveGroup.Add(DeserializePrimitiveGroup(PbfBlock.Create(pbf.ReadLengthPrefixedBytes())));
+                    result.PrimitiveGroup.Add(DeserializePrimitiveGroup(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
                 }
 
                 break;
@@ -739,7 +739,7 @@ public class PbfReader : IOsmReader
         }
     }
 
-    private PrimitiveGroup DeserializePrimitiveGroup(PbfBlock pbf)
+    private PrimitiveGroup DeserializePrimitiveGroup(PbfBlockReader pbf)
     {
         var result = new PrimitiveGroup();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -749,23 +749,23 @@ public class PbfReader : IOsmReader
             {
                 case 1:
                     result.Nodes ??= [];
-                    result.Nodes.Add(DeserializePbfNode(PbfBlock.Create(pbf.ReadLengthPrefixedBytes())));
+                    result.Nodes.Add(DeserializePbfNode(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
                     break;
                 case 2:
-                    result.DenseNodes = DeserializePbfDenseNodes(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.DenseNodes = DeserializePbfDenseNodes(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 case 3:
                     result.Ways ??= [];
-                    result.Ways.Add(DeserializePbfWay(PbfBlock.Create(pbf.ReadLengthPrefixedBytes())));
+                    result.Ways.Add(DeserializePbfWay(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
                     break;
                 case 4:
                     result.Relations ??= [];
-                    result.Relations.Add(DeserializePbfRelation(PbfBlock.Create(pbf.ReadLengthPrefixedBytes())));
+                    result.Relations.Add(DeserializePbfRelation(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
                     break;
                 case 5:
                     result.Changesets ??= [];
 
-                    result.Changesets.Add(DeserializePbfChangeset(PbfBlock.Create(pbf.ReadLengthPrefixedBytes())));
+                    result.Changesets.Add(DeserializePbfChangeset(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -778,7 +778,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfNode DeserializePbfNode(PbfBlock pbf)
+    private PbfNode DeserializePbfNode(PbfBlockReader pbf)
     {
         var result = new PbfNode();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -797,16 +797,14 @@ public class PbfReader : IOsmReader
                     break;
                 case 2:
                     result.Keys ??= [];
-                    ReadUintList(ref pbf, wireType, result.Keys);
-
+                    pbf.ReadUIntCollection(wireType, result.Keys);
                     break;
                 case 3:
                     result.Values ??= [];
-                    ReadUintList(ref pbf, wireType, result.Values);
-
+                    pbf.ReadUIntCollection(wireType, result.Values);
                     break;
                 case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -819,126 +817,25 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private void ReadUintList(ref PbfBlock pbf, PbfLite.WireType wireType, List<uint> list)
+    private void ReadRelationMemberTypeList(ref PbfBlockReader pbf, PbfLite.WireType wireType, List<PbfRelationMemberType> list)
     {
         if (wireType == PbfLite.WireType.String)
         {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadUint());
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadUint());
-        }
-    }
-
-    private void ReadLongList(ref PbfBlock pbf, PbfLite.WireType wireType, List<long> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadSignedLong());
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadSignedLong());
-        }
-    }
-
-    private void ReadRelationMemberTypeList(ref PbfBlock pbf, PbfLite.WireType wireType, List<PbfRelationMemberType> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
+            uint byteLength = pbf.ReadVarInt32();
             var endPosition = pbf.Position + byteLength;
             while (pbf.Position < endPosition)
             {
                 list.Add((PbfRelationMemberType)pbf.ReadUint());
             }
         }
-        else if (wireType == PbfLite.WireType.Variant)
+        else if (wireType == PbfLite.WireType.VarInt)
         {
             list.Add((PbfRelationMemberType)pbf.ReadUint());
         }
     }
 
-    private void ReadIntList(ref PbfBlock pbf, PbfLite.WireType wireType, List<int> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadInt());
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadInt());
-        }
-    }
 
-    private void ReadBoolList(ref PbfBlock pbf, PbfLite.WireType wireType, List<bool> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadInt() != 0);
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadInt() != 0);
-        }
-    }
-
-    private void ReadSignedLongList(ref PbfBlock pbf, PbfLite.WireType wireType, List<long> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadSignedLong());
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadSignedLong());
-        }
-    }
-
-    private void ReadSignedIntList(ref PbfBlock pbf, PbfLite.WireType wireType, List<int> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarint32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add(pbf.ReadSignedInt());
-            }
-        }
-        else if (wireType == PbfLite.WireType.Variant)
-        {
-            list.Add(pbf.ReadSignedInt());
-        }
-    }
-
-    private PbfDenseNodes DeserializePbfDenseNodes(PbfBlock pbf)
+    private PbfDenseNodes DeserializePbfDenseNodes(PbfBlockReader pbf)
     {
         var result = new PbfDenseNodes();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -947,19 +844,19 @@ public class PbfReader : IOsmReader
             switch (fieldNumber)
             {
                 case 1:
-                    ReadLongList(ref pbf, wireType, result.Id);
+                    pbf.ReadSignedLongCollection(wireType, result.Id);
                     break;
                 case 8:
-                    ReadLongList(ref pbf, wireType, result.Latitude);
+                    pbf.ReadSignedLongCollection(wireType, result.Latitude);
                     break;
                 case 9:
-                    ReadLongList(ref pbf, wireType, result.Longitude);
+                    pbf.ReadSignedLongCollection(wireType, result.Longitude);
                     break;
                 case 10:
-                    ReadUintList(ref pbf, wireType, result.KeysVals);
+                    pbf.ReadUIntCollection(wireType, result.KeysVals);
                     break;
                 case 5:
-                    result.DenseInfo = DeserializePbfDenseMetadata(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.DenseInfo = DeserializePbfDenseMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -972,7 +869,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfWay DeserializePbfWay(PbfBlock pbf)
+    private PbfWay DeserializePbfWay(PbfBlockReader pbf)
     {
         var result = new PbfWay();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -985,17 +882,17 @@ public class PbfReader : IOsmReader
                     break;
                 case 2:
                     result.Keys ??= [];
-                    ReadUintList(ref pbf, wireType, result.Keys);
+                    pbf.ReadUIntCollection(wireType, result.Keys);
                     break;
                 case 3:
                     result.Values ??= [];
-                    ReadUintList(ref pbf, wireType, result.Values);
+                    pbf.ReadUIntCollection(wireType, result.Values);
                     break;
                 case 8:
-                    ReadLongList(ref pbf, wireType, result.Refs);
+                    pbf.ReadSignedLongCollection(wireType, result.Refs);
                     break;
                 case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -1008,7 +905,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfRelation DeserializePbfRelation(PbfBlock pbf)
+    private PbfRelation DeserializePbfRelation(PbfBlockReader pbf)
     {
         var result = new PbfRelation();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -1021,23 +918,23 @@ public class PbfReader : IOsmReader
                     break;
                 case 2:
                     result.Keys ??= [];
-                    ReadUintList(ref pbf, wireType, result.Keys);
+                    pbf.ReadUIntCollection(wireType, result.Keys);
                     break;
                 case 3:
                     result.Values ??= [];
-                    ReadUintList(ref pbf, wireType, result.Values);
+                    pbf.ReadUIntCollection(wireType, result.Values);
                     break;
                 case 8:
-                    ReadUintList(ref pbf, wireType, result.RolesIndexes);
+                    pbf.ReadUIntCollection(wireType, result.RolesIndexes);
                     break;
                 case 9:
-                    ReadLongList(ref pbf, wireType, result.MemberIds);
+                    pbf.ReadSignedLongCollection(wireType, result.MemberIds);
                     break;
                 case 10:
                     ReadRelationMemberTypeList(ref pbf, wireType, result.Types);
                     break;
                 case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlock.Create(pbf.ReadLengthPrefixedBytes()));
+                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
                     break;
                 default:
                     pbf.SkipField(wireType);
@@ -1050,7 +947,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfChangeset DeserializePbfChangeset(PbfBlock pbf)
+    private PbfChangeset DeserializePbfChangeset(PbfBlockReader pbf)
     {
         var result = new PbfChangeset();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -1072,7 +969,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfMetadata DeserializePbfMetadata(PbfBlock pbf)
+    private PbfMetadata DeserializePbfMetadata(PbfBlockReader pbf)
     {
         var result = new PbfMetadata();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -1106,7 +1003,7 @@ public class PbfReader : IOsmReader
         return result;
     }
 
-    private PbfDenseMetadata DeserializePbfDenseMetadata(PbfBlock pbf)
+    private PbfDenseMetadata DeserializePbfDenseMetadata(PbfBlockReader pbf)
     {
         var result = new PbfDenseMetadata();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -1115,22 +1012,22 @@ public class PbfReader : IOsmReader
             switch (fieldNumber)
             {
                 case 1: // version - not ZigZag encoded
-                    ReadIntList(ref pbf, wireType, (List<int>)result.Version);
+                    pbf.ReadIntCollection(wireType, result.Version);
                     break;
                 case 2: // timestamp - ZigZag encoded
-                    ReadSignedLongList(ref pbf, wireType, (List<long>)result.Timestamp);
+                    pbf.ReadSignedLongCollection(wireType, result.Timestamp);
                     break;
                 case 3: // changeset - ZigZag encoded
-                    ReadSignedLongList(ref pbf, wireType, (List<long>)result.Changeset);
+                    pbf.ReadSignedLongCollection(wireType, result.Changeset);
                     break;
                 case 4: // uid - ZigZag encoded
-                    ReadSignedIntList(ref pbf, wireType, (List<int>)result.UserId);
+                    pbf.ReadSignedIntCollection(wireType, result.UserId);
                     break;
                 case 5: // user_sid - ZigZag encoded
-                    ReadSignedIntList(ref pbf, wireType, (List<int>)result.UserNameIndex);
+                    pbf.ReadSignedIntCollection(wireType, result.UserNameIndex);
                     break;
                 case 6: // visible - not ZigZag encoded
-                    ReadBoolList(ref pbf, wireType, (List<bool>)result.Visible);
+                    pbf.ReadBooleanCollection(wireType, result.Visible);
                     break;
                 default:
                     pbf.SkipField(wireType);

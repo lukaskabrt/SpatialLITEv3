@@ -8,12 +8,12 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 [ProtoContract(Name = "DenseInfo")]
 internal class PbfDenseMetadata
 {
-    private IList<long> _changeset = new List<long>();
-    private IList<long> _timestamp = new List<long>();
-    private IList<int> _userId = new List<int>();
-    private IList<int> _userNameIndex = new List<int>();
-    private IList<int> _version = new List<int>();
-    private IList<bool> _visible = new List<bool>();
+    private List<long> _changeset = new List<long>();
+    private List<long> _timestamp = new List<long>();
+    private List<int> _userId = new List<int>();
+    private List<int> _userNameIndex = new List<int>();
+    private List<int> _version = new List<int>();
+    private List<bool> _visible = new List<bool>();
 
     /// <summary>
     /// Initializes a new instance of the DenseInfo class with internal fields initialized to default capacity.
@@ -46,7 +46,7 @@ internal class PbfDenseMetadata
     /// Gets or sets changeset id for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
     [ProtoMember(3, Name = "changeset", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<long> Changeset
+    public List<long> Changeset
     {
         get { return _changeset; }
         set { _changeset = value; }
@@ -59,7 +59,7 @@ internal class PbfDenseMetadata
     /// DateTime LastChange = _unixEpoch.AddMilliseconds(timestamp * block.DateGranularity).
     /// </example>
     [ProtoMember(2, Name = "timestamp", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<long> Timestamp
+    public List<long> Timestamp
     {
         get { return _timestamp; }
         set { _timestamp = value; }
@@ -69,7 +69,7 @@ internal class PbfDenseMetadata
     /// Gets or sets UserId for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
     [ProtoMember(4, Name = "uid", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<int> UserId
+    public List<int> UserId
     {
         get { return _userId; }
         set { _userId = value; }
@@ -79,7 +79,7 @@ internal class PbfDenseMetadata
     /// Gets or sets index of the UserName in StringTable for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
     [ProtoMember(5, Name = "user_sid", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<int> UserNameIndex
+    public List<int> UserNameIndex
     {
         get { return _userNameIndex; }
         set { _userNameIndex = value; }
@@ -89,7 +89,7 @@ internal class PbfDenseMetadata
     /// Gets or sets version of the corresponding node in DenseNodes.
     /// </summary>
     [ProtoMember(1, Name = "version", Options = MemberSerializationOptions.Packed)]
-    public IList<int> Version
+    public List<int> Version
     {
         get { return _version; }
         set { _version = value; }
@@ -99,7 +99,7 @@ internal class PbfDenseMetadata
     /// Gets or sets visible attribute for corresponding node in DenseNodes.
     /// </summary>
     [ProtoMember(6, Name = "visible", Options = MemberSerializationOptions.Packed)]
-    public IList<bool> Visible
+    public List<bool> Visible
     {
         get { return _visible; }
         set { _visible = value; }
