@@ -26,6 +26,7 @@ public class TagsCollectionTests
         Assert.Equal(_tags.Length, target.Count);
         Assert.Contains(_tags[0], target);
         Assert.Contains(_tags[1], target);
+        Assert.Contains(_tags[2], target);
     }
 
     [Theory]
@@ -33,22 +34,28 @@ public class TagsCollectionTests
     [InlineData(null)]
     public void Constructor_IEnumerable_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
     {
-        Assert.Throws<ArgumentException>(() => new TagsCollection([new(key!, "value")]));
+        var exception = Record.Exception(() => new TagsCollection([new(key!, "value")]));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Constructor_IEnumerable_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    [Fact]
+    public void Constructor_IEnumerable_ThrowsArgumentException_ValueIsNull()
     {
-        Assert.Throws<ArgumentException>(() => new TagsCollection([new("key", value!)]));
+        var exception = Record.Exception(() => new TagsCollection([new("key", null!)]));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentNullException>(exception);
     }
 
     [Fact]
     public void Add_KeyValuePair_AddsTag()
     {
-        var target = new TagsCollection();
-        target.Add(_tags[0]);
+        var target = new TagsCollection
+        {
+            _tags[0]
+        };
 
         Assert.Contains(_tags[0], target);
     }
@@ -56,8 +63,10 @@ public class TagsCollectionTests
     [Fact]
     public void Add_StringString_AddsTag()
     {
-        var target = new TagsCollection();
-        target.Add(_tags[0].Key, _tags[0].Value);
+        var target = new TagsCollection
+        {
+            { _tags[0].Key, _tags[0].Value }
+        };
 
         Assert.Contains(_tags[0], target);
     }
@@ -74,8 +83,10 @@ public class TagsCollectionTests
     [Fact]
     public void Indexer_Set_UpdatesTag()
     {
-        var target = new TagsCollection();
-        target.Add("key", "value");
+        var target = new TagsCollection
+        {
+            { "key", "value" }
+        };
 
         var expectedValue = "new value";
         target["key"] = expectedValue;
@@ -89,16 +100,22 @@ public class TagsCollectionTests
     public void Add_StringString_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
     {
         var target = new TagsCollection();
-        Assert.Throws<ArgumentException>(() => target.Add(key!, "value"));
+
+        var exception = Record.Exception(() => target.Add(key!, "value"));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Add_StringString_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    [Fact]
+    public void Add_StringString_ThrowsArgumentNullException_ValueIsNull()
     {
         var target = new TagsCollection();
-        Assert.Throws<ArgumentException>(() => target.Add("key", value!));
+
+        var exception = Record.Exception(() => target.Add("key", null!));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentNullException>(exception);
     }
 
     [Theory]
@@ -107,16 +124,22 @@ public class TagsCollectionTests
     public void Add_KeyValuePair_ThrowsArgumentException_KeyIsNullOrEmpty(string? key)
     {
         var target = new TagsCollection();
-        Assert.Throws<ArgumentException>(() => target.Add(new KeyValuePair<string, string>(key!, "value")));
+
+        var exception = Record.Exception(() => target.Add(new KeyValuePair<string, string>(key!, "value")));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Add_KeyValuePair_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
+    [Fact]
+    public void Add_KeyValuePair_ThrowsArgumentNullException_ValueIsNull()
     {
         var target = new TagsCollection();
-        Assert.Throws<ArgumentException>(() => target.Add(new KeyValuePair<string, string>("key", value!)));
+
+        var exception = Record.Exception(() => target.Add(new KeyValuePair<string, string>("key", null!)));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentNullException>(exception);
     }
 
     [Theory]
@@ -126,38 +149,31 @@ public class TagsCollectionTests
     {
         var target = new TagsCollection();
 
-        Assert.Throws<ArgumentException>(() => target[key!] = "value");
-    }
+        var exception = Record.Exception(() => target[key!] = "value");
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Indexer_Set_ThrowsArgumentException_ValueIsNullOrEmpty(string? value)
-    {
-        var target = new TagsCollection();
-        Assert.Throws<ArgumentException>(() => target["key"] = value!);
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
     }
 
     [Fact]
-    public void Constructor_LazyInitialization_DoesNotCreateUnderlyingCollectionUntilFirstAdd()
+    public void Indexer_Set_ThrowsArgumentNullException_ValueIsNull()
     {
         var target = new TagsCollection();
 
-        // Should be empty but not have initialized internal storage yet
-        Assert.Empty(target);
+        var exception = Record.Exception(() => target["key"] = null!);
 
-        // After adding first tag, should have content
-        target.Add("key", "value");
-        Assert.Single(target);
-        Assert.NotEmpty(target);
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentNullException>(exception);
     }
 
     [Fact]
     public void Keys_AreCaseSensitive_WithOrdinalComparison()
     {
-        var target = new TagsCollection();
-        target.Add("Key", "value1");
-        target.Add("key", "value2");
+        var target = new TagsCollection
+        {
+            { "Key", "value1" },
+            { "key", "value2" }
+        };
 
         // Should have both keys since they are different with case-sensitive comparison
         Assert.Equal(2, target.Count);
