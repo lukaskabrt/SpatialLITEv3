@@ -1,11 +1,9 @@
-﻿//using PbfLite;
-using PbfLite;
-using ProtoBuf;
+﻿using PbfLite;
 using SpatialLite.Contracts;
 using SpatialLite.Osm.IO.Pbf.Contracts;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.IO.Compression;
-//using System.Buffers;
 
 namespace SpatialLite.Osm.IO.Pbf;
 
@@ -14,24 +12,6 @@ namespace SpatialLite.Osm.IO.Pbf;
 /// </summary>
 public class PbfReader : IOsmReader
 {
-    static PbfReader()
-    {
-        Serializer.PrepareSerializer<Blob>();
-        Serializer.PrepareSerializer<BlobHeader>();
-        Serializer.PrepareSerializer<HeaderBBox>();
-        Serializer.PrepareSerializer<OsmHeader>();
-        Serializer.PrepareSerializer<PbfDenseMetadata>();
-        Serializer.PrepareSerializer<PbfDenseNodes>();
-        Serializer.PrepareSerializer<PbfChangeset>();
-        Serializer.PrepareSerializer<PbfMetadata>();
-        Serializer.PrepareSerializer<PbfNode>();
-        Serializer.PrepareSerializer<PbfRelation>();
-        Serializer.PrepareSerializer<PbfWay>();
-        Serializer.PrepareSerializer<PrimitiveBlock>();
-        Serializer.PrepareSerializer<PrimitiveGroup>();
-        Serializer.PrepareSerializer<StringTable>();
-    }
-
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
     /// </summary>
@@ -62,26 +42,19 @@ public class PbfReader : IOsmReader
         BlobHeader? blobHeader;
         while ((blobHeader = ReadBlobHeader()) != null)
         {
-            try
+            if (blobHeader.Type == "OSMHeader")
             {
-                if (blobHeader.Type == "OSMHeader")
-                {
-                    var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
-                    ProcessOsmHeader(osmHeader);
-                    return;
-                }
-                else if (blobHeader.Type == "OSMData")
-                {
-                    throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
-                }
-                else
-                {
-                    _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
-                }
+                var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
+                ProcessOsmHeader(osmHeader);
+                return;
             }
-            catch (ProtoException ex)
+            else if (blobHeader.Type == "OSMData")
             {
-                throw new InvalidDataException("Input stream contains unsupported data", ex);
+                throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
+            }
+            else
+            {
+                _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
             }
         }
 
@@ -103,26 +76,19 @@ public class PbfReader : IOsmReader
         BlobHeader? blobHeader;
         while ((blobHeader = ReadBlobHeader()) != null)
         {
-            try
+            if (blobHeader.Type == "OSMHeader")
             {
-                if (blobHeader.Type == "OSMHeader")
-                {
-                    var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
-                    ProcessOsmHeader(osmHeader);
-                    return;
-                }
-                else if (blobHeader.Type == "OSMData")
-                {
-                    throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
-                }
-                else
-                {
-                    _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
-                }
+                var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
+                ProcessOsmHeader(osmHeader);
+                return;
             }
-            catch (ProtoException ex)
+            else if (blobHeader.Type == "OSMData")
             {
-                throw new InvalidDataException("Input stream contains unsupported data", ex);
+                throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
+            }
+            else
+            {
+                _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
             }
         }
 
@@ -187,12 +153,26 @@ public class PbfReader : IOsmReader
     {
         if (_input.Position < _input.Length)
         {
-            return Serializer.DeserializeWithLengthPrefix<BlobHeader>(_input, PrefixStyle.Fixed32BigEndian);
+            var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
+            _input.ReadExactly(lengthBuffer, 0, 4);
+
+            var headerLength = BinaryPrimitives.ReadInt32BigEndian(lengthBuffer.AsSpan(0, 4));
+
+            var buffer = ArrayPool<byte>.Shared.Rent(headerLength);
+            _input.ReadExactly(buffer, 0, headerLength);
+
+            var pbf = PbfBlockReader.Create(buffer.AsSpan(0, headerLength));
+            var header = BlobHeader.Deserialize(pbf);
+
+            ArrayPool<byte>.Shared.Return(lengthBuffer);
+            ArrayPool<byte>.Shared.Return(buffer);
+
+            return header;
         }
 
         return null;
     }
-
+    
     /// <summary>
     /// Read blob and deserializes its content.
     /// </summary>
@@ -204,7 +184,7 @@ public class PbfReader : IOsmReader
         _input.ReadExactly(buffer, 0, header.DataSize);
 
         var pbf = PbfBlockReader.Create(buffer.AsSpan(0, header.DataSize));
-        var blob = DeserializeBlob(pbf);
+        var blob = Blob.Deserialize(pbf);
 
         byte[] blobContent;
         if (blob.Raw != null)
@@ -229,7 +209,7 @@ public class PbfReader : IOsmReader
                 throw new InvalidDataException("Invalid OSMData block");
             }
 
-            return DeserializePrimitiveBlock(PbfBlockReader.Create(blobContent));
+            return PrimitiveBlock.Deserialize(PbfBlockReader.Create(blobContent));
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {
@@ -238,14 +218,7 @@ public class PbfReader : IOsmReader
                 throw new InvalidDataException("Invalid OSMHeader block");
             }
 
-            try
-            {
-                return DeserializeOsmHeader(PbfBlockReader.Create(blobContent));
-            }
-            catch (ProtoException ex)
-            {
-                throw new InvalidDataException("Invalid OSMData block", ex);
-            }
+            return OsmHeader.Deserialize(PbfBlockReader.Create(blobContent));
         }
         else
         {
@@ -259,188 +232,6 @@ public class PbfReader : IOsmReader
         blobContentStream.CopyTo(memoryStream);
         return memoryStream.ToArray();
     }
-
-    private Blob DeserializeBlob(PbfBlockReader pbf)
-    {
-        var result = new Blob();
-
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.Raw = pbf.ReadLengthPrefixedBytes().ToArray();
-                    break;
-                case 2:
-                    result.RawSize = pbf.ReadInt();
-                    break;
-                case 3:
-                    result.ZlibData = pbf.ReadLengthPrefixedBytes().ToArray();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private OsmHeader DeserializeOsmHeader(PbfBlockReader pbf)
-    {
-        var result = new OsmHeader();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.BBox = DeserializeBBox(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                case 4:
-                    result.RequiredFeatures.Add(pbf.ReadString());
-                    break;
-                case 5:
-                    result.OptionalFeatures.Add(pbf.ReadString());
-                    break;
-                case 16:
-                    result.Source = pbf.ReadString();
-                    break;
-                case 17:
-                    result.WritingProgram = pbf.ReadString();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private HeaderBBox DeserializeBBox(PbfBlockReader pbf)
-    {
-        var result = new HeaderBBox();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.Left = pbf.ReadSignedLong();
-                    break;
-                case 2:
-                    result.Right = pbf.ReadSignedLong();
-                    break;
-                case 3:
-                    result.Top = pbf.ReadSignedLong();
-                    break;
-                case 4:
-                    result.Bottom = pbf.ReadSignedLong();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private StringTable DeserializeStringTable(PbfBlockReader pbf)
-    {
-        var result = new StringTable();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.Storage.Add(pbf.ReadLengthPrefixedBytes().ToArray());
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-
-        }
-
-        return result;
-    }
-
-    private PrimitiveBlock DeserializePrimitiveBlock(PbfBlockReader pbf)
-    {
-        var result = new PrimitiveBlock();
-
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.StringTable = DeserializeStringTable(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                case 2:
-                {
-                    result.PrimitiveGroup.Add(DeserializePrimitiveGroup(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                }
-
-                break;
-                case 16:
-                    result.Granularity = pbf.ReadInt();
-                    break;
-                case 18:
-                    result.DateGranularity = pbf.ReadInt();
-                    break;
-                case 19:
-                    result.LatOffset = pbf.ReadLong();
-                    break;
-                case 20:
-                    result.LonOffset = pbf.ReadLong();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Gets or sets Bottom boundary of the BBox.
-    /// </summary>
-    [ProtoMember(4, Name = "bottom", IsRequired = true, DataFormat = DataFormat.ZigZag)]
-    public long Bottom { get; set; }
-
-    /// <summary>
-    /// Gets or sets Left boundary of the BBox.
-    /// </summary>
-    [ProtoMember(1, Name = "left", IsRequired = true, DataFormat = DataFormat.ZigZag)]
-    public long Left { get; set; }
-
-    /// <summary>
-    /// Gets or sets Right boundary of the BBox.
-    /// </summary>
-    [ProtoMember(2, Name = "right", IsRequired = true, DataFormat = DataFormat.ZigZag)]
-    public long Right { get; set; }
-
-    /// <summary>
-    /// Gets or sets Top boundary of the BBox.
-    /// </summary>
-    [ProtoMember(3, Name = "top", IsRequired = true, DataFormat = DataFormat.ZigZag)]
-    public long Top { get; set; }
 
     /// <summary>
     /// Checks OsmHeader required features and if any of required features isn't supported, NotSupportedException is thrown.
@@ -737,306 +528,5 @@ public class PbfReader : IOsmReader
 
             _disposed = true;
         }
-    }
-
-    private PrimitiveGroup DeserializePrimitiveGroup(PbfBlockReader pbf)
-    {
-        var result = new PrimitiveGroup();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.Nodes ??= [];
-                    result.Nodes.Add(DeserializePbfNode(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                    break;
-                case 2:
-                    result.DenseNodes = DeserializePbfDenseNodes(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                case 3:
-                    result.Ways ??= [];
-                    result.Ways.Add(DeserializePbfWay(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                    break;
-                case 4:
-                    result.Relations ??= [];
-                    result.Relations.Add(DeserializePbfRelation(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                    break;
-                case 5:
-                    result.Changesets ??= [];
-
-                    result.Changesets.Add(DeserializePbfChangeset(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfNode DeserializePbfNode(PbfBlockReader pbf)
-    {
-        var result = new PbfNode();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.ID = pbf.ReadSignedLong();
-                    break;
-                case 8:
-                    result.Latitude = pbf.ReadSignedLong();
-                    break;
-                case 9:
-                    result.Longitude = pbf.ReadSignedLong();
-                    break;
-                case 2:
-                    result.Keys ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Keys);
-                    break;
-                case 3:
-                    result.Values ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Values);
-                    break;
-                case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private void ReadRelationMemberTypeList(ref PbfBlockReader pbf, PbfLite.WireType wireType, List<PbfRelationMemberType> list)
-    {
-        if (wireType == PbfLite.WireType.String)
-        {
-            uint byteLength = pbf.ReadVarInt32();
-            var endPosition = pbf.Position + byteLength;
-            while (pbf.Position < endPosition)
-            {
-                list.Add((PbfRelationMemberType)pbf.ReadUint());
-            }
-        }
-        else if (wireType == PbfLite.WireType.VarInt)
-        {
-            list.Add((PbfRelationMemberType)pbf.ReadUint());
-        }
-    }
-
-
-    private PbfDenseNodes DeserializePbfDenseNodes(PbfBlockReader pbf)
-    {
-        var result = new PbfDenseNodes();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    pbf.ReadSignedLongCollection(wireType, result.Id);
-                    break;
-                case 8:
-                    pbf.ReadSignedLongCollection(wireType, result.Latitude);
-                    break;
-                case 9:
-                    pbf.ReadSignedLongCollection(wireType, result.Longitude);
-                    break;
-                case 10:
-                    pbf.ReadUIntCollection(wireType, result.KeysVals);
-                    break;
-                case 5:
-                    result.DenseInfo = DeserializePbfDenseMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfWay DeserializePbfWay(PbfBlockReader pbf)
-    {
-        var result = new PbfWay();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.ID = pbf.ReadLong();
-                    break;
-                case 2:
-                    result.Keys ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Keys);
-                    break;
-                case 3:
-                    result.Values ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Values);
-                    break;
-                case 8:
-                    pbf.ReadSignedLongCollection(wireType, result.Refs);
-                    break;
-                case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfRelation DeserializePbfRelation(PbfBlockReader pbf)
-    {
-        var result = new PbfRelation();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.ID = pbf.ReadLong();
-                    break;
-                case 2:
-                    result.Keys ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Keys);
-                    break;
-                case 3:
-                    result.Values ??= [];
-                    pbf.ReadUIntCollection(wireType, result.Values);
-                    break;
-                case 8:
-                    pbf.ReadUIntCollection(wireType, result.RolesIndexes);
-                    break;
-                case 9:
-                    pbf.ReadSignedLongCollection(wireType, result.MemberIds);
-                    break;
-                case 10:
-                    ReadRelationMemberTypeList(ref pbf, wireType, result.Types);
-                    break;
-                case 4:
-                    result.Metadata = DeserializePbfMetadata(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfChangeset DeserializePbfChangeset(PbfBlockReader pbf)
-    {
-        var result = new PbfChangeset();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.ID = pbf.ReadLong();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfMetadata DeserializePbfMetadata(PbfBlockReader pbf)
-    {
-        var result = new PbfMetadata();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1:
-                    result.Version = pbf.ReadInt();
-                    break;
-                case 2:
-                    result.Timestamp = pbf.ReadLong();
-                    break;
-                case 3:
-                    result.Changeset = pbf.ReadLong();
-                    break;
-                case 4:
-                    result.UserID = pbf.ReadInt();
-                    break;
-                case 5:
-                    result.UserNameIndex = pbf.ReadInt();
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
-    }
-
-    private PbfDenseMetadata DeserializePbfDenseMetadata(PbfBlockReader pbf)
-    {
-        var result = new PbfDenseMetadata();
-        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        while (fieldNumber != 0)
-        {
-            switch (fieldNumber)
-            {
-                case 1: // version - not ZigZag encoded
-                    pbf.ReadIntCollection(wireType, result.Version);
-                    break;
-                case 2: // timestamp - ZigZag encoded
-                    pbf.ReadSignedLongCollection(wireType, result.Timestamp);
-                    break;
-                case 3: // changeset - ZigZag encoded
-                    pbf.ReadSignedLongCollection(wireType, result.Changeset);
-                    break;
-                case 4: // uid - ZigZag encoded
-                    pbf.ReadSignedIntCollection(wireType, result.UserId);
-                    break;
-                case 5: // user_sid - ZigZag encoded
-                    pbf.ReadSignedIntCollection(wireType, result.UserNameIndex);
-                    break;
-                case 6: // visible - not ZigZag encoded
-                    pbf.ReadBooleanCollection(wireType, result.Visible);
-                    break;
-                default:
-                    pbf.SkipField(wireType);
-                    break;
-            }
-
-            (fieldNumber, wireType) = pbf.ReadFieldHeader();
-        }
-
-        return result;
     }
 }

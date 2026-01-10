@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -103,5 +104,42 @@ internal class PbfDenseMetadata
     {
         get { return _visible; }
         set { _visible = value; }
+    }
+
+    public static PbfDenseMetadata Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfDenseMetadata();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1: // version - not ZigZag encoded
+                    pbf.ReadIntCollection(wireType, result.Version);
+                    break;
+                case 2: // timestamp - ZigZag encoded
+                    pbf.ReadSignedLongCollection(wireType, result.Timestamp);
+                    break;
+                case 3: // changeset - ZigZag encoded
+                    pbf.ReadSignedLongCollection(wireType, result.Changeset);
+                    break;
+                case 4: // uid - ZigZag encoded
+                    pbf.ReadSignedIntCollection(wireType, result.UserId);
+                    break;
+                case 5: // user_sid - ZigZag encoded
+                    pbf.ReadSignedIntCollection(wireType, result.UserNameIndex);
+                    break;
+                case 6: // visible - not ZigZag encoded
+                    pbf.ReadBooleanCollection(wireType, result.Visible);
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
     }
 }

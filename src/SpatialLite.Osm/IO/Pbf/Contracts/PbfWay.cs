@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -60,5 +61,42 @@ internal class PbfWay
     {
         get { return _refs; }
         set { _refs = value; }
+    }
+
+
+    public static PbfWay Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfWay();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.ID = pbf.ReadLong();
+                    break;
+                case 2:
+                    result.Keys ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Keys);
+                    break;
+                case 3:
+                    result.Values ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Values);
+                    break;
+                case 8:
+                    pbf.ReadSignedLongCollection(wireType, result.Refs);
+                    break;
+                case 4:
+                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
     }
 }

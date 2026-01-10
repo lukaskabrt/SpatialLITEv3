@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -48,4 +49,38 @@ internal class OsmHeader
     /// </summary>
     [ProtoMember(0x10, Name = "writingprogram", IsRequired = false)]
     public string? WritingProgram { get; set; }
+
+    public static OsmHeader Deserialize(PbfBlockReader pbf)
+    {
+        var result = new OsmHeader();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.BBox = HeaderBBox.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                case 4:
+                    result.RequiredFeatures.Add(pbf.ReadString());
+                    break;
+                case 5:
+                    result.OptionalFeatures.Add(pbf.ReadString());
+                    break;
+                case 16:
+                    result.Source = pbf.ReadString();
+                    break;
+                case 17:
+                    result.WritingProgram = pbf.ReadString();
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
+    }
 }

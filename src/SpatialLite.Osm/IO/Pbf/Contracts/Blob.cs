@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -26,4 +27,33 @@ internal class Blob
     /// </summary>
     [ProtoMember(3, IsRequired = false, Name = "zlib_data")]
     public byte[]? ZlibData { get; set; }
+
+    public static Blob Deserialize(PbfBlockReader pbf)
+    {
+        var result = new Blob();
+
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.Raw = pbf.ReadLengthPrefixedBytes().ToArray();
+                    break;
+                case 2:
+                    result.RawSize = pbf.ReadInt();
+                    break;
+                case 3:
+                    result.ZlibData = pbf.ReadLengthPrefixedBytes().ToArray();
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
+    }
 }

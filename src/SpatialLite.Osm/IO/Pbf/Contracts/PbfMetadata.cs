@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -38,4 +39,38 @@ internal class PbfMetadata
     /// </summary>
     [ProtoMember(1, Name = "version", IsRequired = false)]
     public int? Version { get; set; }
+
+    public static PbfMetadata Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfMetadata();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.Version = pbf.ReadInt();
+                    break;
+                case 2:
+                    result.Timestamp = pbf.ReadLong();
+                    break;
+                case 3:
+                    result.Changeset = pbf.ReadLong();
+                    break;
+                case 4:
+                    result.UserID = pbf.ReadInt();
+                    break;
+                case 5:
+                    result.UserNameIndex = pbf.ReadInt();
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
+    }
 }

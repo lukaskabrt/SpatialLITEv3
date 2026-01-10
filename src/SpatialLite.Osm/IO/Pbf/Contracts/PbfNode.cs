@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -43,4 +44,43 @@ internal class PbfNode
     /// </summary>
     [ProtoMember(9, IsRequired = true, Name = "lon", DataFormat = DataFormat.ZigZag)]
     public long Longitude { get; set; }
+
+    public static PbfNode Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfNode();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.ID = pbf.ReadSignedLong();
+                    break;
+                case 8:
+                    result.Latitude = pbf.ReadSignedLong();
+                    break;
+                case 9:
+                    result.Longitude = pbf.ReadSignedLong();
+                    break;
+                case 2:
+                    result.Keys ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Keys);
+                    break;
+                case 3:
+                    result.Values ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Values);
+                    break;
+                case 4:
+                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
+    }
 }

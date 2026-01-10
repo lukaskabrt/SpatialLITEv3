@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 using System.Text;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
@@ -77,5 +78,28 @@ public class StringTable
         {
             this[(int)index] = value;
         }
+    }
+
+    public static StringTable Deserialize(PbfBlockReader pbf)
+    {
+        var result = new StringTable();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.Storage.Add(pbf.ReadLengthPrefixedBytes().ToArray());
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+
+        }
+
+        return result;
     }
 }

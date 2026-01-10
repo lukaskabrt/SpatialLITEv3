@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -89,5 +90,39 @@ internal class PbfDenseNodes
     {
         get { return _keysVals; }
         set { _keysVals = value; }
+    }
+
+    public static PbfDenseNodes Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfDenseNodes();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    pbf.ReadSignedLongCollection(wireType, result.Id);
+                    break;
+                case 8:
+                    pbf.ReadSignedLongCollection(wireType, result.Latitude);
+                    break;
+                case 9:
+                    pbf.ReadSignedLongCollection(wireType, result.Longitude);
+                    break;
+                case 10:
+                    pbf.ReadUIntCollection(wireType, result.KeysVals);
+                    break;
+                case 5:
+                    result.DenseInfo = PbfDenseMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
     }
 }

@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -29,4 +30,36 @@ internal class BlobHeader
     /// </summary>
     [ProtoMember(3, IsRequired = true, Name = "datasize")]
     public int DataSize { get; set; }
+
+    public static BlobHeader Deserialize(PbfBlockReader pbf)
+    {
+        string? type = null;
+        int? dataSize = null;
+
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    type = pbf.ReadString();
+                    break;
+                case 3:
+                    dataSize = pbf.ReadInt();
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        if (type == null)
+        {
+            throw new InvalidDataException("Invalid BlobHeader - missing 'type' field.");
+        }
+
+        return new BlobHeader { Type = type, DataSize = dataSize ?? 0 };
+    }
 }

@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -86,5 +87,64 @@ internal class PbfRelation
     {
         get { return _types; }
         set { _types = value; }
+    }
+
+    public static PbfRelation Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PbfRelation();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.ID = pbf.ReadLong();
+                    break;
+                case 2:
+                    result.Keys ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Keys);
+                    break;
+                case 3:
+                    result.Values ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Values);
+                    break;
+                case 8:
+                    pbf.ReadUIntCollection(wireType, result.RolesIndexes);
+                    break;
+                case 9:
+                    pbf.ReadSignedLongCollection(wireType, result.MemberIds);
+                    break;
+                case 10:
+                    ReadRelationMemberTypeList(ref pbf, wireType, result.Types);
+                    break;
+                case 4:
+                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
+    }
+
+    private static void ReadRelationMemberTypeList(ref PbfBlockReader pbf, PbfLite.WireType wireType, List<PbfRelationMemberType> list)
+    {
+        if (wireType == PbfLite.WireType.String)
+        {
+            uint byteLength = pbf.ReadVarInt32();
+            var endPosition = pbf.Position + byteLength;
+            while (pbf.Position < endPosition)
+            {
+                list.Add((PbfRelationMemberType)pbf.ReadUint());
+            }
+        }
+        else if (wireType == PbfLite.WireType.VarInt)
+        {
+            list.Add((PbfRelationMemberType)pbf.ReadUint());
+        }
     }
 }

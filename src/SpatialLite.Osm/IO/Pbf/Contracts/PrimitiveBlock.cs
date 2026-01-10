@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
+using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -54,5 +55,46 @@ internal class PrimitiveBlock
     {
         get { return _date_granularity; }
         set { _date_granularity = value; }
+    }
+
+    public static PrimitiveBlock Deserialize(PbfBlockReader pbf)
+    {
+        var result = new PrimitiveBlock();
+
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.StringTable = StringTable.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    break;
+                case 2:
+                {
+                    result.PrimitiveGroup.Add(Contracts.PrimitiveGroup.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
+                }
+
+                break;
+                case 16:
+                    result.Granularity = pbf.ReadInt();
+                    break;
+                case 18:
+                    result.DateGranularity = pbf.ReadInt();
+                    break;
+                case 19:
+                    result.LatOffset = pbf.ReadLong();
+                    break;
+                case 20:
+                    result.LonOffset = pbf.ReadLong();
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
     }
 }
