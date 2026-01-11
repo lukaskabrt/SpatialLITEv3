@@ -9,24 +9,24 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 [ProtoContract(Name = "DenseInfo")]
 internal class PbfDenseMetadata
 {
-    private List<long> _changeset = new List<long>();
-    private List<long> _timestamp = new List<long>();
-    private List<int> _userId = new List<int>();
-    private List<int> _userNameIndex = new List<int>();
-    private List<int> _version = new List<int>();
-    private List<bool> _visible = new List<bool>();
+    private List<long> _changeset;
+    private List<long> _timestamp;
+    private List<int> _userId;
+    private List<int> _userNameIndex;
+    private List<int> _version;
+    private List<bool> _visible;
 
     /// <summary>
     /// Initializes a new instance of the DenseInfo class with internal fields initialized to default capacity.
     /// </summary>
     public PbfDenseMetadata()
     {
-        _changeset = new List<long>();
-        _timestamp = new List<long>();
-        _userId = new List<int>();
-        _userNameIndex = new List<int>();
-        _version = new List<int>();
-        _visible = new List<bool>();
+        _changeset = [];
+        _timestamp = [];
+        _userId = [];
+        _userNameIndex = [];
+        _version = [];
+        _visible = [];
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ internal class PbfDenseMetadata
         set { _visible = value; }
     }
 
-    public static PbfDenseMetadata Deserialize(PbfBlockReader pbf)
+    public static PbfDenseMetadata Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfDenseMetadata();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();

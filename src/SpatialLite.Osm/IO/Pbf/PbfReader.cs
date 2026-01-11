@@ -162,7 +162,7 @@ public class PbfReader : IOsmReader
             _input.ReadExactly(buffer, 0, headerLength);
 
             var pbf = PbfBlockReader.Create(buffer.AsSpan(0, headerLength));
-            var header = BlobHeader.Deserialize(pbf);
+            var header = BlobHeader.Deserialize(ref pbf);
 
             ArrayPool<byte>.Shared.Return(lengthBuffer);
             ArrayPool<byte>.Shared.Return(buffer);
@@ -172,7 +172,7 @@ public class PbfReader : IOsmReader
 
         return null;
     }
-    
+
     /// <summary>
     /// Read blob and deserializes its content.
     /// </summary>
@@ -184,7 +184,7 @@ public class PbfReader : IOsmReader
         _input.ReadExactly(buffer, 0, header.DataSize);
 
         var pbf = PbfBlockReader.Create(buffer.AsSpan(0, header.DataSize));
-        var blob = Blob.Deserialize(pbf);
+        var blob = Blob.Deserialize(ref pbf);
 
         byte[] blobContent;
         if (blob.Raw != null)
@@ -209,7 +209,8 @@ public class PbfReader : IOsmReader
                 throw new InvalidDataException("Invalid OSMData block");
             }
 
-            return PrimitiveBlock.Deserialize(PbfBlockReader.Create(blobContent));
+            var blobContentPbf = PbfBlockReader.Create(blobContent);
+            return PrimitiveBlock.Deserialize(ref blobContentPbf);
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {

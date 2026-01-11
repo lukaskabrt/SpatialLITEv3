@@ -31,7 +31,7 @@ internal class BlobHeader
     [ProtoMember(3, IsRequired = true, Name = "datasize")]
     public int DataSize { get; set; }
 
-    public static BlobHeader Deserialize(PbfBlockReader pbf)
+    public static BlobHeader Deserialize(ref PbfBlockReader pbf)
     {
         string? type = null;
         int? dataSize = null;

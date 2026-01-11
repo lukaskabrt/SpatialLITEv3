@@ -19,10 +19,10 @@ internal class PbfDenseNodes
     /// </summary>
     public PbfDenseNodes()
     {
-        _id = new List<long>();
-        _latitude = new List<long>();
-        _longitude = new List<long>();
-        _keysVals = new List<uint>();
+        _id = [];
+        _latitude = [];
+        _longitude = [];
+        _keysVals = [];
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ internal class PbfDenseNodes
         set { _keysVals = value; }
     }
 
-    public static PbfDenseNodes Deserialize(PbfBlockReader pbf)
+    public static PbfDenseNodes Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfDenseNodes();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -113,7 +113,8 @@ internal class PbfDenseNodes
                     pbf.ReadUIntCollection(wireType, result.KeysVals);
                     break;
                 case 5:
-                    result.DenseInfo = PbfDenseMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var metadataPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.DenseInfo = PbfDenseMetadata.Deserialize(ref metadataPbf);
                     break;
                 default:
                     pbf.SkipField(wireType);

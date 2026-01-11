@@ -59,7 +59,8 @@ internal class OsmHeader
             switch (fieldNumber)
             {
                 case 1:
-                    result.BBox = HeaderBBox.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var headerPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.BBox = HeaderBBox.Deserialize(ref headerPbf);
                     break;
                 case 4:
                     result.RequiredFeatures.Add(pbf.ReadString());

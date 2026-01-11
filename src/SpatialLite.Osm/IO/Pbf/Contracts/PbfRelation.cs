@@ -89,7 +89,7 @@ internal class PbfRelation
         set { _types = value; }
     }
 
-    public static PbfRelation Deserialize(PbfBlockReader pbf)
+    public static PbfRelation Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfRelation();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -118,7 +118,8 @@ internal class PbfRelation
                     ReadRelationMemberTypeList(ref pbf, wireType, result.Types);
                     break;
                 case 4:
-                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var metadataPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Metadata = PbfMetadata.Deserialize(ref metadataPbf);
                     break;
                 default:
                     pbf.SkipField(wireType);

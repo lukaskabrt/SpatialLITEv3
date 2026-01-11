@@ -34,7 +34,7 @@ internal class HeaderBBox
     [ProtoMember(3, Name = "top", IsRequired = true, DataFormat = DataFormat.ZigZag)]
     public long Top { get; set; }
 
-    public static HeaderBBox Deserialize(PbfBlockReader pbf)
+    public static HeaderBBox Deserialize(ref PbfBlockReader pbf)
     {
         var result = new HeaderBBox();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();

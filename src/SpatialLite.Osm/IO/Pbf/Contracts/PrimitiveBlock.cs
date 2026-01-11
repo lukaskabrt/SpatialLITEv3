@@ -57,7 +57,7 @@ internal class PrimitiveBlock
         set { _date_granularity = value; }
     }
 
-    public static PrimitiveBlock Deserialize(PbfBlockReader pbf)
+    public static PrimitiveBlock Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PrimitiveBlock();
 
@@ -67,14 +67,13 @@ internal class PrimitiveBlock
             switch (fieldNumber)
             {
                 case 1:
-                    result.StringTable = StringTable.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var stringTablePbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.StringTable = StringTable.Deserialize(ref stringTablePbf);
                     break;
                 case 2:
-                {
-                    result.PrimitiveGroup.Add(Contracts.PrimitiveGroup.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
-                }
-
-                break;
+                    var primitiveGroupPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.PrimitiveGroup.Add(Contracts.PrimitiveGroup.Deserialize(ref primitiveGroupPbf));
+                    break;
                 case 16:
                     result.Granularity = pbf.ReadInt();
                     break;

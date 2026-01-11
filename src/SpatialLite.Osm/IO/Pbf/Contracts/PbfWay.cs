@@ -63,8 +63,7 @@ internal class PbfWay
         set { _refs = value; }
     }
 
-
-    public static PbfWay Deserialize(PbfBlockReader pbf)
+    public static PbfWay Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfWay();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -87,7 +86,8 @@ internal class PbfWay
                     pbf.ReadSignedLongCollection(wireType, result.Refs);
                     break;
                 case 4:
-                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var metadataPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Metadata = PbfMetadata.Deserialize(ref metadataPbf);
                     break;
                 default:
                     pbf.SkipField(wireType);

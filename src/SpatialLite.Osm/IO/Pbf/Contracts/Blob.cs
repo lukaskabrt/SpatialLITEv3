@@ -28,7 +28,7 @@ internal class Blob
     [ProtoMember(3, IsRequired = false, Name = "zlib_data")]
     public byte[]? ZlibData { get; set; }
 
-    public static Blob Deserialize(PbfBlockReader pbf)
+    public static Blob Deserialize(ref PbfBlockReader pbf)
     {
         var result = new Blob();
 

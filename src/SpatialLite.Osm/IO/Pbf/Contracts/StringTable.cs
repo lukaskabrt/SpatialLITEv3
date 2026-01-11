@@ -80,7 +80,7 @@ public class StringTable
         }
     }
 
-    public static StringTable Deserialize(PbfBlockReader pbf)
+    public static StringTable Deserialize(ref PbfBlockReader pbf)
     {
         var result = new StringTable();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();

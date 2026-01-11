@@ -40,7 +40,7 @@ internal class PrimitiveGroup
     [ProtoMember(5, Name = "changesets")]
     public List<PbfChangeset>? Changesets { get; set; }
 
-    public static PrimitiveGroup Deserialize(PbfBlockReader pbf)
+    public static PrimitiveGroup Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PrimitiveGroup();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -50,23 +50,31 @@ internal class PrimitiveGroup
             {
                 case 1:
                     result.Nodes ??= [];
-                    result.Nodes.Add(PbfNode.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
+
+                    var nodePbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Nodes.Add(PbfNode.Deserialize(ref nodePbf));
                     break;
                 case 2:
-                    result.DenseNodes = PbfDenseNodes.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var denseNodesPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.DenseNodes = PbfDenseNodes.Deserialize(ref denseNodesPbf);
                     break;
                 case 3:
                     result.Ways ??= [];
-                    result.Ways.Add(PbfWay.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
+
+                    var wayPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Ways.Add(PbfWay.Deserialize(ref wayPbf));
                     break;
                 case 4:
                     result.Relations ??= [];
-                    result.Relations.Add(PbfRelation.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
+
+                    var relationPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Relations.Add(PbfRelation.Deserialize(ref relationPbf));
                     break;
                 case 5:
                     result.Changesets ??= [];
 
-                    result.Changesets.Add(PbfChangeset.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes())));
+                    var changesetsPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Changesets.Add(PbfChangeset.Deserialize(ref changesetsPbf));
                     break;
                 default:
                     pbf.SkipField(wireType);

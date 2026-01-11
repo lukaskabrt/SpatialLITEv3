@@ -45,7 +45,7 @@ internal class PbfNode
     [ProtoMember(9, IsRequired = true, Name = "lon", DataFormat = DataFormat.ZigZag)]
     public long Longitude { get; set; }
 
-    public static PbfNode Deserialize(PbfBlockReader pbf)
+    public static PbfNode Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfNode();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
@@ -71,7 +71,8 @@ internal class PbfNode
                     pbf.ReadUIntCollection(wireType, result.Values);
                     break;
                 case 4:
-                    result.Metadata = PbfMetadata.Deserialize(PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes()));
+                    var metadataPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Metadata = PbfMetadata.Deserialize(ref metadataPbf);
                     break;
                 default:
                     pbf.SkipField(wireType);

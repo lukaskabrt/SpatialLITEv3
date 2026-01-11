@@ -16,7 +16,7 @@ public class PbfChangeset
     [ProtoMember(1, IsRequired = true, Name = "id")]
     public long ID { get; set; }
 
-    public static PbfChangeset Deserialize(PbfBlockReader pbf)
+    public static PbfChangeset Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfChangeset();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();

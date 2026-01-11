@@ -9,7 +9,6 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 [ProtoContract(Name = "Info")]
 internal class PbfMetadata
 {
-
     /// <summary>
     /// Gets or sets changeset ID.
     /// </summary>
@@ -40,7 +39,7 @@ internal class PbfMetadata
     [ProtoMember(1, Name = "version", IsRequired = false)]
     public int? Version { get; set; }
 
-    public static PbfMetadata Deserialize(PbfBlockReader pbf)
+    public static PbfMetadata Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfMetadata();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();
