@@ -1,12 +1,10 @@
 ﻿using PbfLite;
-using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for Ways.
 /// </summary>
-[ProtoContract(Name = "Way")]
 internal class PbfWay
 {
 
@@ -32,31 +30,26 @@ internal class PbfWay
     /// <summary>
     /// Gets or sets ID of the way.
     /// </summary>
-    [ProtoMember(1, Name = "id", IsRequired = true)]
     public long ID { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
-    [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
-    [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets entity metadata.
     /// </summary>
-    [ProtoMember(4, Name = "info", IsRequired = false)]
     public PbfMetadata? Metadata { get; set; }
 
     /// <summary>
     /// Gets or sets IDs of nodes referenced by the way. This property is delta encoded.
     /// </summary>
-    [ProtoMember(8, Name = "refs", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<long> Refs
     {
         get { return _refs; }
@@ -98,5 +91,37 @@ internal class PbfWay
         }
 
         return result;
+    }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
+        pbf.WriteLong(ID);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Keys.ToArray());
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Values.ToArray());
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+
+        if (Refs.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, PbfLite.WireType.String);
+            pbf.WriteSignedLongCollection(Refs.ToArray());
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using PbfLite;
-using ProtoBuf;
 using System.Text;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
@@ -7,7 +6,6 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 /// <summary>
 /// Stores all strings for Primitive block.
 /// </summary>
-[ProtoContract(Name = "StringTable")]
 public class StringTable
 {
 
@@ -17,7 +15,6 @@ public class StringTable
     /// <summary>
     /// Gets or sets collection of strings serialized as byte array.
     /// </summary>
-    [ProtoMember(1, Name = "s", DataFormat = DataFormat.Default)]
     public List<byte[]> Storage
     {
         get { return _s; }
@@ -29,7 +26,6 @@ public class StringTable
     /// </summary>
     /// <param name="index">The index of the string.</param>
     /// <returns>string at specified position.</returns>
-    [ProtoIgnore]
     public string this[int index]
     {
         get
@@ -67,7 +63,6 @@ public class StringTable
     /// </summary>
     /// <param name="index">The index of the string.</param>
     /// <returns>string at specified position.</returns>
-    [ProtoIgnore]
     public string this[uint index]
     {
         get
@@ -101,5 +96,14 @@ public class StringTable
         }
 
         return result;
+    }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        foreach (var bytes in Storage)
+        {
+            pbf.WriteFieldHeader(1, PbfLite.WireType.String);
+            pbf.WriteLengthPrefixedBytes(bytes);
+        }
     }
 }

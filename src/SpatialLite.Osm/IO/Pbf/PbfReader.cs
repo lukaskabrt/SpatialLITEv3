@@ -219,7 +219,8 @@ public class PbfReader : IOsmReader
                 throw new InvalidDataException("Invalid OSMHeader block");
             }
 
-            return OsmHeader.Deserialize(PbfBlockReader.Create(blobContent));
+            var blobContentPbf = PbfBlockReader.Create(blobContent);
+            return OsmHeader.Deserialize(ref blobContentPbf);
         }
         else
         {

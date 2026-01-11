@@ -1,56 +1,75 @@
 ﻿using PbfLite;
-using ProtoBuf;
+using System.Buffers;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents header message of the PBF file.
 /// </summary>
-[ProtoContract(Name = "HeaderBlock")]
 internal class OsmHeader
 {
-    private IList<string> _optionalFeatures = new List<string>();
-    private IList<string> _requiredFeatures = new List<string>();
-
     /// <summary>
     /// Gets or sets bounding box of the data in the file
     /// </summary>
-    [ProtoMember(1, Name = "bbox", IsRequired = false)]
     public HeaderBBox? BBox { get; set; }
 
     /// <summary>
     /// Gets or sets collection of optional features that parser could take advantage of
     /// </summary>
-    [ProtoMember(5, Name = "optional_features")]
-    public IList<string> OptionalFeatures
-    {
-        get { return _optionalFeatures; }
-        set { _optionalFeatures = value; }
-    }
+    public List<string> OptionalFeatures { get; set; } = [];
 
     /// <summary>
     /// Gets or sets collection of required features that parser must support to process the file
     /// </summary>
-    [ProtoMember(4, Name = "required_features")]
-    public IList<string> RequiredFeatures
-    {
-        get { return _requiredFeatures; }
-        set { _requiredFeatures = value; }
-    }
+    public List<string> RequiredFeatures { get; set; } = [];
 
     /// <summary>
     /// Gets or sets source of the data
     /// </summary>
-    [ProtoMember(0x11, Name = "source", IsRequired = false)]
     public string? Source { get; set; }
 
     /// <summary>
     /// Gets or sets identification of writing program
     /// </summary>
-    [ProtoMember(0x10, Name = "writingprogram", IsRequired = false)]
     public string? WritingProgram { get; set; }
 
-    public static OsmHeader Deserialize(PbfBlockReader pbf)
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        if (BBox != null)
+        {
+            pbf.WriteFieldHeader(1, WireType.String);
+
+            var bboxBlock = pbf.StartLengthPrefixedBlock(32);
+            BBox.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(bboxBlock);
+        }
+
+        foreach (var feature in RequiredFeatures)
+        {
+            pbf.WriteFieldHeader(4, WireType.String);
+            pbf.WriteString(feature);
+        }
+
+        foreach (var feature in OptionalFeatures)
+        {
+            pbf.WriteFieldHeader(5, WireType.String);
+            pbf.WriteString(feature);
+        }
+
+        if (Source != null)
+        {
+            pbf.WriteFieldHeader(16, WireType.String);
+            pbf.WriteString(Source);
+        }
+
+        if (WritingProgram != null)
+        {
+            pbf.WriteFieldHeader(17, WireType.String);
+            pbf.WriteString(WritingProgram);
+        }
+    }
+
+    public static OsmHeader Deserialize(ref PbfBlockReader pbf)
     {
         var result = new OsmHeader();
         var (fieldNumber, wireType) = pbf.ReadFieldHeader();

@@ -1,48 +1,40 @@
 ﻿using PbfLite;
-using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for nodes.
 /// </summary>
-[ProtoContract(Name = "Node")]
 internal class PbfNode
 {
     /// <summary>
     /// Gets or sets ID of the node.
     /// </summary>
-    [ProtoMember(1, IsRequired = true, Name = "id", DataFormat = DataFormat.ZigZag)]
     public long ID { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
-    [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
-    [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets entity metadata.
     /// </summary>
-    [ProtoMember(4, IsRequired = false, Name = "info")]
     public PbfMetadata? Metadata { get; set; }
 
     /// <summary>
     /// Gets or sets Latitude of the node as number of granularity steps from LatOffset.
     /// </summary>
-    [ProtoMember(8, IsRequired = true, Name = "lat", DataFormat = DataFormat.ZigZag)]
     public long Latitude { get; set; }
 
     /// <summary>
     /// Gets or sets Longitude of the node as number of granularity steps from LonOffset.
     /// </summary>
-    [ProtoMember(9, IsRequired = true, Name = "lon", DataFormat = DataFormat.ZigZag)]
     public long Longitude { get; set; }
 
     public static PbfNode Deserialize(ref PbfBlockReader pbf)
@@ -83,5 +75,37 @@ internal class PbfNode
         }
 
         return result;
+    }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
+        pbf.WriteSignedLong(ID);
+
+        pbf.WriteFieldHeader(8, PbfLite.WireType.VarInt);
+        pbf.WriteSignedLong(Latitude);
+
+        pbf.WriteFieldHeader(9, PbfLite.WireType.VarInt);
+        pbf.WriteSignedLong(Longitude);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Keys.ToArray());
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Values.ToArray());
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
     }
 }

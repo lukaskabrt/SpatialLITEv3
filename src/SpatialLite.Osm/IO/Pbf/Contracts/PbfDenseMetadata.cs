@@ -1,12 +1,11 @@
 ﻿using PbfLite;
-using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
+
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for metadata in dense format.
 /// </summary>
-[ProtoContract(Name = "DenseInfo")]
 internal class PbfDenseMetadata
 {
     private List<long> _changeset;
@@ -46,7 +45,6 @@ internal class PbfDenseMetadata
     /// <summary>
     /// Gets or sets changeset id for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    [ProtoMember(3, Name = "changeset", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<long> Changeset
     {
         get { return _changeset; }
@@ -59,7 +57,6 @@ internal class PbfDenseMetadata
     /// <example>
     /// DateTime LastChange = _unixEpoch.AddMilliseconds(timestamp * block.DateGranularity).
     /// </example>
-    [ProtoMember(2, Name = "timestamp", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<long> Timestamp
     {
         get { return _timestamp; }
@@ -69,7 +66,6 @@ internal class PbfDenseMetadata
     /// <summary>
     /// Gets or sets UserId for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    [ProtoMember(4, Name = "uid", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<int> UserId
     {
         get { return _userId; }
@@ -79,7 +75,6 @@ internal class PbfDenseMetadata
     /// <summary>
     /// Gets or sets index of the UserName in StringTable for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    [ProtoMember(5, Name = "user_sid", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<int> UserNameIndex
     {
         get { return _userNameIndex; }
@@ -89,7 +84,6 @@ internal class PbfDenseMetadata
     /// <summary>
     /// Gets or sets version of the corresponding node in DenseNodes.
     /// </summary>
-    [ProtoMember(1, Name = "version", Options = MemberSerializationOptions.Packed)]
     public List<int> Version
     {
         get { return _version; }
@@ -99,7 +93,6 @@ internal class PbfDenseMetadata
     /// <summary>
     /// Gets or sets visible attribute for corresponding node in DenseNodes.
     /// </summary>
-    [ProtoMember(6, Name = "visible", Options = MemberSerializationOptions.Packed)]
     public List<bool> Visible
     {
         get { return _visible; }
@@ -141,5 +134,44 @@ internal class PbfDenseMetadata
         }
 
         return result;
+    }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        if (Version.Count > 0)
+        {
+            pbf.WriteFieldHeader(1, PbfLite.WireType.String);
+            pbf.WriteIntCollection(Version.ToArray());
+        }
+
+        if (Timestamp.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
+            pbf.WriteSignedLongCollection(Timestamp.ToArray());
+        }
+
+        if (Changeset.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
+            pbf.WriteSignedLongCollection(Changeset.ToArray());
+        }
+
+        if (UserId.Count > 0)
+        {
+            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
+            pbf.WriteSignedIntCollection(UserId.ToArray());
+        }
+
+        if (UserNameIndex.Count > 0)
+        {
+            pbf.WriteFieldHeader(5, PbfLite.WireType.String);
+            pbf.WriteSignedIntCollection(UserNameIndex.ToArray());
+        }
+
+        if (Visible.Count > 0)
+        {
+            pbf.WriteFieldHeader(6, PbfLite.WireType.String);
+            pbf.WriteBooleanCollection(Visible.ToArray());
+        }
     }
 }

@@ -1,38 +1,46 @@
 ﻿using PbfLite;
-using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents rectangular envelope of data.
 /// </summary>
-[ProtoContract(Name = "HeaderBBox")]
 internal class HeaderBBox
 {
-
     /// <summary>
     /// Gets or sets Bottom boundary of the BBox.
     /// </summary>
-    [ProtoMember(4, Name = "bottom", IsRequired = true, DataFormat = DataFormat.ZigZag)]
     public long Bottom { get; set; }
 
     /// <summary>
     /// Gets or sets Left boundary of the BBox.
     /// </summary>
-    [ProtoMember(1, Name = "left", IsRequired = true, DataFormat = DataFormat.ZigZag)]
     public long Left { get; set; }
 
     /// <summary>
     /// Gets or sets Right boundary of the BBox.
     /// </summary>
-    [ProtoMember(2, Name = "right", IsRequired = true, DataFormat = DataFormat.ZigZag)]
     public long Right { get; set; }
 
     /// <summary>
     /// Gets or sets Top boundary of the BBox.
     /// </summary>
-    [ProtoMember(3, Name = "top", IsRequired = true, DataFormat = DataFormat.ZigZag)]
     public long Top { get; set; }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteSignedLong(Left);
+
+        pbf.WriteFieldHeader(2, WireType.VarInt);
+        pbf.WriteSignedLong(Right);
+
+        pbf.WriteFieldHeader(3, WireType.VarInt);
+        pbf.WriteSignedLong(Top);
+
+        pbf.WriteFieldHeader(4, WireType.VarInt);
+        pbf.WriteSignedLong(Bottom);
+    }
 
     public static HeaderBBox Deserialize(ref PbfBlockReader pbf)
     {

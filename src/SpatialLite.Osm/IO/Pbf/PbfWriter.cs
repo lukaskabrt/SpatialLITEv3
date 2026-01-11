@@ -1,5 +1,7 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
 using SpatialLite.Osm.IO.Pbf.Contracts;
+using System.Buffers;
+using System.Buffers.Binary;
 
 namespace SpatialLite.Osm.IO.Pbf;
 
@@ -8,24 +10,6 @@ namespace SpatialLite.Osm.IO.Pbf;
 /// </summary>
 public class PbfWriter : IOsmWriter
 {
-    static PbfWriter()
-    {
-        Serializer.PrepareSerializer<Blob>();
-        Serializer.PrepareSerializer<BlobHeader>();
-        Serializer.PrepareSerializer<HeaderBBox>();
-        Serializer.PrepareSerializer<OsmHeader>();
-        Serializer.PrepareSerializer<PbfDenseMetadata>();
-        Serializer.PrepareSerializer<PbfDenseNodes>();
-        Serializer.PrepareSerializer<PbfChangeset>();
-        Serializer.PrepareSerializer<PbfMetadata>();
-        Serializer.PrepareSerializer<PbfNode>();
-        Serializer.PrepareSerializer<PbfRelation>();
-        Serializer.PrepareSerializer<PbfWay>();
-        Serializer.PrepareSerializer<PrimitiveBlock>();
-        Serializer.PrepareSerializer<PrimitiveGroup>();
-        Serializer.PrepareSerializer<StringTable>();
-    }
-
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
     /// </summary>
@@ -159,13 +143,13 @@ public class PbfWriter : IOsmWriter
             return;
         }
 
-        var primitiveBlockStream = new MemoryStream();
-        Serializer.Serialize<PrimitiveBlock>(primitiveBlockStream, primitiveBlock);
+        var buffer = ArrayPool<byte>.Shared.Rent(MaxDataBlockSize);
+        var pbfWriter = PbfBlockWriter.Create(buffer);
 
-        //byte[] buffer = new byte[primitiveBlockStream.Length];
-        //Array.Copy(primitiveBlockStream.GetBuffer(), buffer, primitiveBlockStream.Length);
+        primitiveBlock.Serialize(ref pbfWriter);
+        WriteBlob("OSMData", pbfWriter.Block);
 
-        WriteBlob("OSMData", primitiveBlockStream.ToArray());
+        ArrayPool<byte>.Shared.Return(buffer);
     }
 
     /// <summary>
@@ -186,15 +170,13 @@ public class PbfWriter : IOsmWriter
             header.OptionalFeatures.Add("Has_Metadata");
         }
 
-        using (var stream = new MemoryStream())
-        {
-            Serializer.Serialize<OsmHeader>(stream, header);
+        var buffer = ArrayPool<byte>.Shared.Rent(8192);
+        var pbfWriter = PbfBlockWriter.Create(buffer);
 
-            //byte[] buffer = new byte[stream.Length];
-            //Array.Copy(stream.GetBuffer(), buffer, stream.Length);
+        header.Serialize(ref pbfWriter);
+        WriteBlob("OSMHeader", pbfWriter.Block);
 
-            WriteBlob("OSMHeader", stream.ToArray());
-        }
+        ArrayPool<byte>.Shared.Return(buffer);
     }
 
     /// <summary>
@@ -202,36 +184,48 @@ public class PbfWriter : IOsmWriter
     /// </summary>
     /// <param name="blobType">The type of the blob.</param>
     /// <param name="blobContent">The pbf serialized content of the blob.</param>
-    private void WriteBlob(string blobType, byte[] blobContent)
+    private void WriteBlob(string blobType, ReadOnlySpan<byte> blobContent)
     {
-        var blob = new Blob();
+        // Allocate enough buffer for blob fields and minimal overhead.
+        var blobBuffer = ArrayPool<byte>.Shared.Rent(blobContent.Length + 64);
+        var blobPbfWriter = PbfBlockWriter.Create(blobBuffer);
+
         if (Settings.Compression == CompressionMode.None)
         {
-            blob.Raw = blobContent;
+            blobPbfWriter.WriteFieldHeader(1, PbfLite.WireType.String);
+            blobPbfWriter.WriteLengthPrefixedBytes(blobContent);
         }
         else if (Settings.Compression == CompressionMode.ZlibDeflate)
         {
-            var stream = new MemoryStream();
-            using (var deflateStream = new System.IO.Compression.ZLibStream(stream, System.IO.Compression.CompressionMode.Compress, true))
-            {
-                deflateStream.Write(blobContent, 0, blobContent.Length);
-            }
+            using var compressedStream = new MemoryStream();
+            using var zlib = new System.IO.Compression.ZLibStream(compressedStream, System.IO.Compression.CompressionMode.Compress, leaveOpen: true);
 
-            blob.RawSize = blobContent.Length;
-            blob.ZlibData = stream.ToArray();
+            zlib.Write(blobContent);
+
+            blobPbfWriter.WriteFieldHeader(2, PbfLite.WireType.VarInt);
+            blobPbfWriter.WriteInt(blobContent.Length);
+
+            blobPbfWriter.WriteFieldHeader(3, PbfLite.WireType.String);
+            blobPbfWriter.WriteLengthPrefixedBytes(compressedStream.ToArray());
         }
 
-        var blobStream = new MemoryStream();
-        Serializer.Serialize<Blob>(blobStream, blob);
+        Span<byte> headerBuffer = stackalloc byte[128];
+        var headerPbfWriter = PbfBlockWriter.Create(headerBuffer);
 
-        var header = new BlobHeader
-        {
-            Type = blobType,
-            DataSize = (int)blobStream.Length
-        };
-        Serializer.SerializeWithLengthPrefix(_output, header, PrefixStyle.Fixed32BigEndian);
+        headerPbfWriter.WriteFieldHeader(1, PbfLite.WireType.String);
+        headerPbfWriter.WriteString(blobType);
 
-        blobStream.WriteTo(_output);
+        headerPbfWriter.WriteFieldHeader(3, PbfLite.WireType.VarInt);
+        headerPbfWriter.WriteInt(blobPbfWriter.Block.Length);
+
+        Span<byte> headerLengthBuffer = stackalloc byte[4];
+        BinaryPrimitives.WriteInt32BigEndian(headerLengthBuffer, headerPbfWriter.Block.Length);
+
+        _output.Write(headerLengthBuffer);
+        _output.Write(headerPbfWriter.Block);
+        _output.Write(blobPbfWriter.Block);
+
+        ArrayPool<byte>.Shared.Return(blobBuffer);
     }
 
     /// <summary>

@@ -1,12 +1,10 @@
 ﻿using PbfLite;
-using ProtoBuf;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for relations.
 /// </summary>
-[ProtoContract(Name = "Relation")]
 internal class PbfRelation
 {
 
@@ -38,31 +36,26 @@ internal class PbfRelation
     /// <summary>
     /// Gets or sets ID of the relation.
     /// </summary>
-    [ProtoMember(1, Name = "id", IsRequired = true)]
     public long ID { get; set; }
 
     /// <summary>
     /// Gets or sets relation metadata.
     /// </summary>
-    [ProtoMember(4, Name = "info", IsRequired = false)]
     public PbfMetadata? Metadata { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
-    [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
-    [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
     public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets IDs of the relation members. This property is delta encoded.
     /// </summary>
-    [ProtoMember(9, Name = "memids", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
     public List<long> MemberIds
     {
         get { return _memberIds; }
@@ -72,7 +65,6 @@ internal class PbfRelation
     /// <summary>
     /// Gets or sets index of the role in string table for appropriate members.
     /// </summary>
-    [ProtoMember(8, Name = "roles_sid", Options = MemberSerializationOptions.Packed)]
     public List<uint> RolesIndexes
     {
         get { return _rolesIndexes; }
@@ -82,7 +74,6 @@ internal class PbfRelation
     /// <summary>
     /// Gets or sets type of the relation members.
     /// </summary>
-    [ProtoMember(10, Name = "types", Options = MemberSerializationOptions.Packed)]
     public List<PbfRelationMemberType> Types
     {
         get { return _types; }
@@ -146,6 +137,56 @@ internal class PbfRelation
         else if (wireType == PbfLite.WireType.VarInt)
         {
             list.Add((PbfRelationMemberType)pbf.ReadUint());
+        }
+    }
+
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
+        pbf.WriteLong(ID);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Keys.ToArray());
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(Values.ToArray());
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+
+        if (RolesIndexes.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, PbfLite.WireType.String);
+            pbf.WriteUIntCollection(RolesIndexes.ToArray());
+        }
+
+        if (MemberIds.Count > 0)
+        {
+            pbf.WriteFieldHeader(9, PbfLite.WireType.String);
+            pbf.WriteSignedLongCollection(MemberIds.ToArray());
+        }
+
+        if (Types.Count > 0)
+        {
+            pbf.WriteFieldHeader(10, PbfLite.WireType.String);
+            var typesBlock = pbf.StartLengthPrefixedBlock(Types.Count);
+            foreach (var type in Types)
+            {
+                pbf.WriteUint((uint)type);
+            }
+
+            pbf.FinalizeLengthPrefixedBlock(typesBlock);
         }
     }
 }
