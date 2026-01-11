@@ -37,6 +37,48 @@ internal class PbfNode
     /// </summary>
     public long Longitude { get; set; }
 
+
+    /// <summary>
+    /// Serializes the node to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteSignedLong(ID);
+
+        pbf.WriteFieldHeader(8, WireType.VarInt);
+        pbf.WriteSignedLong(Latitude);
+
+        pbf.WriteFieldHeader(9, WireType.VarInt);
+        pbf.WriteSignedLong(Longitude);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, WireType.String);
+            pbf.WriteUIntCollection(Keys);
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, WireType.String);
+            pbf.WriteUIntCollection(Values);
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+    }
+
+    /// <summary>
+    /// Deserializes a node from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfNode instance containing the deserialized node data.</returns>
     public static PbfNode Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfNode();
@@ -75,37 +117,5 @@ internal class PbfNode
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
-        pbf.WriteSignedLong(ID);
-
-        pbf.WriteFieldHeader(8, PbfLite.WireType.VarInt);
-        pbf.WriteSignedLong(Latitude);
-
-        pbf.WriteFieldHeader(9, PbfLite.WireType.VarInt);
-        pbf.WriteSignedLong(Longitude);
-
-        if (Keys != null && Keys.Count > 0)
-        {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Keys.ToArray());
-        }
-
-        if (Values != null && Values.Count > 0)
-        {
-            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Values.ToArray());
-        }
-
-        if (Metadata != null)
-        {
-            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
-            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
-            Metadata.Serialize(ref pbf);
-            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
-        }
     }
 }

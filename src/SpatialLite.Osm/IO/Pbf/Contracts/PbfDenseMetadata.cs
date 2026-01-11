@@ -2,30 +2,22 @@
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
-
 /// <summary>
 /// Represents data transfer object used by PBF serializer for metadata in dense format.
 /// </summary>
 internal class PbfDenseMetadata
 {
-    private List<long> _changeset;
-    private List<long> _timestamp;
-    private List<int> _userId;
-    private List<int> _userNameIndex;
-    private List<int> _version;
-    private List<bool> _visible;
-
     /// <summary>
     /// Initializes a new instance of the DenseInfo class with internal fields initialized to default capacity.
     /// </summary>
     public PbfDenseMetadata()
     {
-        _changeset = [];
-        _timestamp = [];
-        _userId = [];
-        _userNameIndex = [];
-        _version = [];
-        _visible = [];
+        Changeset = [];
+        Timestamp = [];
+        UserId = [];
+        UserNameIndex = [];
+        Version = [];
+        Visible = [];
     }
 
     /// <summary>
@@ -34,22 +26,18 @@ internal class PbfDenseMetadata
     /// <param name="capacity">The desired capacity of internal fields.</param>
     public PbfDenseMetadata(int capacity)
     {
-        _changeset = new List<long>(capacity);
-        _timestamp = new List<long>(capacity);
-        _userId = new List<int>(capacity);
-        _userNameIndex = new List<int>(capacity);
-        _version = new List<int>(capacity);
-        _visible = new List<bool>(capacity);
+        Changeset = new List<long>(capacity);
+        Timestamp = new List<long>(capacity);
+        UserId = new List<int>(capacity);
+        UserNameIndex = new List<int>(capacity);
+        Version = new List<int>(capacity);
+        Visible = new List<bool>(capacity);
     }
 
     /// <summary>
     /// Gets or sets changeset id for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    public List<long> Changeset
-    {
-        get { return _changeset; }
-        set { _changeset = value; }
-    }
+    public List<long> Changeset { get; set; }
 
     /// <summary>
     /// Gets or sets timestamp as number of DateGranularity from UNIX 1970 epoch for the corresponding node in DenseNodes. Property is delta encoded.
@@ -57,48 +45,33 @@ internal class PbfDenseMetadata
     /// <example>
     /// DateTime LastChange = _unixEpoch.AddMilliseconds(timestamp * block.DateGranularity).
     /// </example>
-    public List<long> Timestamp
-    {
-        get { return _timestamp; }
-        set { _timestamp = value; }
-    }
+    public List<long> Timestamp { get; set; }
 
     /// <summary>
     /// Gets or sets UserId for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    public List<int> UserId
-    {
-        get { return _userId; }
-        set { _userId = value; }
-    }
+    public List<int> UserId { get; set; }
 
     /// <summary>
     /// Gets or sets index of the UserName in StringTable for corresponding node in DenseNodes. Property is delta encoded.
     /// </summary>
-    public List<int> UserNameIndex
-    {
-        get { return _userNameIndex; }
-        set { _userNameIndex = value; }
-    }
+    public List<int> UserNameIndex { get; set; }
 
     /// <summary>
     /// Gets or sets version of the corresponding node in DenseNodes.
     /// </summary>
-    public List<int> Version
-    {
-        get { return _version; }
-        set { _version = value; }
-    }
+    public List<int> Version { get; set; }
 
     /// <summary>
     /// Gets or sets visible attribute for corresponding node in DenseNodes.
     /// </summary>
-    public List<bool> Visible
-    {
-        get { return _visible; }
-        set { _visible = value; }
-    }
+    public List<bool> Visible { get; set; }
 
+    /// <summary>
+    /// Deserializes dense metadata from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfDenseMetadata instance containing the deserialized metadata.</returns>
     public static PbfDenseMetadata Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfDenseMetadata();
@@ -136,42 +109,46 @@ internal class PbfDenseMetadata
         return result;
     }
 
+    /// <summary>
+    /// Serializes the dense metadata to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
     public void Serialize(ref PbfBlockWriter pbf)
     {
         if (Version.Count > 0)
         {
-            pbf.WriteFieldHeader(1, PbfLite.WireType.String);
-            pbf.WriteIntCollection(Version.ToArray());
+            pbf.WriteFieldHeader(1, WireType.String);
+            pbf.WriteIntCollection(Version);
         }
 
         if (Timestamp.Count > 0)
         {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Timestamp.ToArray());
+            pbf.WriteFieldHeader(2, WireType.String);
+            pbf.WriteSignedLongCollection(Timestamp);
         }
 
         if (Changeset.Count > 0)
         {
-            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Changeset.ToArray());
+            pbf.WriteFieldHeader(3, WireType.String);
+            pbf.WriteSignedLongCollection(Changeset);
         }
 
         if (UserId.Count > 0)
         {
-            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
-            pbf.WriteSignedIntCollection(UserId.ToArray());
+            pbf.WriteFieldHeader(4, WireType.String);
+            pbf.WriteSignedIntCollection(UserId);
         }
 
         if (UserNameIndex.Count > 0)
         {
-            pbf.WriteFieldHeader(5, PbfLite.WireType.String);
-            pbf.WriteSignedIntCollection(UserNameIndex.ToArray());
+            pbf.WriteFieldHeader(5, WireType.String);
+            pbf.WriteSignedIntCollection(UserNameIndex);
         }
 
         if (Visible.Count > 0)
         {
-            pbf.WriteFieldHeader(6, PbfLite.WireType.String);
-            pbf.WriteBooleanCollection(Visible.ToArray());
+            pbf.WriteFieldHeader(6, WireType.String);
+            pbf.WriteBooleanCollection(Visible);
         }
     }
 }

@@ -25,6 +25,11 @@ internal class BlobHeader
     /// </summary>
     public int DataSize { get; set; }
 
+    /// <summary>
+    /// Deserializes a blob header from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new BlobHeader instance containing the deserialized header data.</returns>
     public static BlobHeader Deserialize(ref PbfBlockReader pbf)
     {
         string? type = null;

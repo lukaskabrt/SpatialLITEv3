@@ -30,10 +30,7 @@ public class StringTable
     {
         get
         {
-            if (index >= Storage.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Storage.Count);
 
             if (_stringList == null)
             {
@@ -45,14 +42,10 @@ public class StringTable
             }
 
             return _stringList[index];
-            //return Encoding.UTF8.GetString(Storage[index], 0, Storage[index].Length);
         }
         set
         {
-            if (index >= Storage.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Storage.Count);
 
             Storage[index] = Encoding.UTF8.GetBytes(value);
         }
@@ -75,6 +68,24 @@ public class StringTable
         }
     }
 
+    /// <summary>
+    /// Serializes the string table to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        foreach (var bytes in Storage)
+        {
+            pbf.WriteFieldHeader(1, WireType.String);
+            pbf.WriteLengthPrefixedBytes(bytes);
+        }
+    }
+
+    /// <summary>
+    /// Deserializes a string table from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new StringTable instance containing the deserialized strings.</returns>
     public static StringTable Deserialize(ref PbfBlockReader pbf)
     {
         var result = new StringTable();
@@ -96,14 +107,5 @@ public class StringTable
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        foreach (var bytes in Storage)
-        {
-            pbf.WriteFieldHeader(1, PbfLite.WireType.String);
-            pbf.WriteLengthPrefixedBytes(bytes);
-        }
     }
 }

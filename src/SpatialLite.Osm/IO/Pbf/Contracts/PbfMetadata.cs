@@ -32,6 +32,48 @@ internal class PbfMetadata
     /// </summary>
     public int? Version { get; set; }
 
+    /// <summary>
+    /// Serializes the metadata to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        if (Version.HasValue)
+        {
+            pbf.WriteFieldHeader(1, WireType.VarInt);
+            pbf.WriteInt(Version.Value);
+        }
+
+        if (Timestamp.HasValue)
+        {
+            pbf.WriteFieldHeader(2, WireType.VarInt);
+            pbf.WriteLong(Timestamp.Value);
+        }
+
+        if (Changeset.HasValue)
+        {
+            pbf.WriteFieldHeader(3, WireType.VarInt);
+            pbf.WriteLong(Changeset.Value);
+        }
+
+        if (UserID.HasValue)
+        {
+            pbf.WriteFieldHeader(4, WireType.VarInt);
+            pbf.WriteInt(UserID.Value);
+        }
+
+        if (UserNameIndex.HasValue)
+        {
+            pbf.WriteFieldHeader(5, WireType.VarInt);
+            pbf.WriteInt(UserNameIndex.Value);
+        }
+    }
+
+    /// <summary>
+    /// Deserializes metadata from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfMetadata instance containing the deserialized metadata.</returns>
     public static PbfMetadata Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfMetadata();
@@ -64,38 +106,5 @@ internal class PbfMetadata
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        if (Version.HasValue)
-        {
-            pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
-            pbf.WriteInt(Version.Value);
-        }
-
-        if (Timestamp.HasValue)
-        {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.VarInt);
-            pbf.WriteLong(Timestamp.Value);
-        }
-
-        if (Changeset.HasValue)
-        {
-            pbf.WriteFieldHeader(3, PbfLite.WireType.VarInt);
-            pbf.WriteLong(Changeset.Value);
-        }
-
-        if (UserID.HasValue)
-        {
-            pbf.WriteFieldHeader(4, PbfLite.WireType.VarInt);
-            pbf.WriteInt(UserID.Value);
-        }
-
-        if (UserNameIndex.HasValue)
-        {
-            pbf.WriteFieldHeader(5, PbfLite.WireType.VarInt);
-            pbf.WriteInt(UserNameIndex.Value);
-        }
     }
 }

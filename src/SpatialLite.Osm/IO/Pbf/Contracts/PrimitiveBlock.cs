@@ -7,10 +7,6 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 /// </summary>
 internal class PrimitiveBlock
 {
-
-    private int _granularity = 100;
-    private int _date_granularity = 1000;
-
     /// <summary>
     /// Gets or sets StringTable with all strings used in the block.
     /// </summary>
@@ -19,16 +15,12 @@ internal class PrimitiveBlock
     /// <summary>
     /// Gets or sets PrimitiveGroup object with OSM entities.
     /// </summary>
-    public List<PrimitiveGroup> PrimitiveGroup { get; set; } = new List<PrimitiveGroup>();
+    public List<PrimitiveGroup> PrimitiveGroup { get; set; } = [];
 
     /// <summary>
     /// Gets or sets granularity of the position data. Default value is 100.
     /// </summary>
-    public int Granularity
-    {
-        get { return _granularity; }
-        set { _granularity = value; }
-    }
+    public int Granularity { get; set; } = 100;
 
     /// <summary>
     /// Gets or sets latitude offset.
@@ -43,12 +35,53 @@ internal class PrimitiveBlock
     /// <summary>
     /// Gets or sets granularity of the DateTime data. Default value is 1000.
     /// </summary>
-    public int DateGranularity
+    public int DateGranularity { get; set; } = 1000;
+
+    /// <summary>
+    /// Serializes the primitive block to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
     {
-        get { return _date_granularity; }
-        set { _date_granularity = value; }
+        pbf.WriteFieldHeader(1, WireType.String);
+
+        var stringTableBlock = pbf.StartLengthPrefixedBlock(1024);
+        StringTable.Serialize(ref pbf);
+        pbf.FinalizeLengthPrefixedBlock(stringTableBlock);
+
+        foreach (var primitiveGroup in PrimitiveGroup)
+        {
+            pbf.WriteFieldHeader(2, WireType.String);
+
+            var primitiveGroupBlock = pbf.StartLengthPrefixedBlock(1024);
+            primitiveGroup.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(primitiveGroupBlock);
+        }
+
+        pbf.WriteFieldHeader(16, WireType.VarInt);
+        pbf.WriteInt(Granularity);
+
+        pbf.WriteFieldHeader(18, WireType.VarInt);
+        pbf.WriteInt(DateGranularity);
+
+        if (LatOffset != 0)
+        {
+            pbf.WriteFieldHeader(19, WireType.VarInt);
+            pbf.WriteLong(LatOffset);
+        }
+
+        if (LonOffset != 0)
+        {
+            pbf.WriteFieldHeader(20, WireType.VarInt);
+            pbf.WriteLong(LonOffset);
+        }
     }
 
+    /// <summary>
+    /// Deserializes a primitive block from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PrimitiveBlock instance containing the deserialized block data.</returns>
     public static PrimitiveBlock Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PrimitiveBlock();
@@ -87,41 +120,5 @@ internal class PrimitiveBlock
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        pbf.WriteFieldHeader(1, PbfLite.WireType.String);
-
-        var stringTableBlock = pbf.StartLengthPrefixedBlock(1024);
-        StringTable.Serialize(ref pbf);
-        pbf.FinalizeLengthPrefixedBlock(stringTableBlock);
-
-        foreach (var primitiveGroup in PrimitiveGroup)
-        {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
-
-            var primitiveGroupBlock = pbf.StartLengthPrefixedBlock(1024);
-            primitiveGroup.Serialize(ref pbf);
-            pbf.FinalizeLengthPrefixedBlock(primitiveGroupBlock);
-        }
-
-        pbf.WriteFieldHeader(16, PbfLite.WireType.VarInt);
-        pbf.WriteInt(Granularity);
-
-        pbf.WriteFieldHeader(18, PbfLite.WireType.VarInt);
-        pbf.WriteInt(DateGranularity);
-
-        if (LatOffset != 0)
-        {
-            pbf.WriteFieldHeader(19, PbfLite.WireType.VarInt);
-            pbf.WriteLong(LatOffset);
-        }
-
-        if (LonOffset != 0)
-        {
-            pbf.WriteFieldHeader(20, PbfLite.WireType.VarInt);
-            pbf.WriteLong(LonOffset);
-        }
     }
 }

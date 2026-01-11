@@ -27,6 +27,10 @@ internal class HeaderBBox
     /// </summary>
     public long Top { get; set; }
 
+    /// <summary>
+    /// Serializes the bounding box to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
     public void Serialize(ref PbfBlockWriter pbf)
     {
         pbf.WriteFieldHeader(1, WireType.VarInt);
@@ -42,6 +46,11 @@ internal class HeaderBBox
         pbf.WriteSignedLong(Bottom);
     }
 
+    /// <summary>
+    /// Deserializes a bounding box from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new HeaderBBox instance containing the deserialized bounding box data.</returns>
     public static HeaderBBox Deserialize(ref PbfBlockReader pbf)
     {
         var result = new HeaderBBox();

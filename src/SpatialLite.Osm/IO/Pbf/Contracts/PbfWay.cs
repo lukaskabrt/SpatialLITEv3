@@ -7,26 +7,6 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 /// </summary>
 internal class PbfWay
 {
-
-    private List<long> _refs;
-
-    /// <summary>
-    /// Initializes a new instance of the PbfWay class with internal fields initialized to default capacity.
-    /// </summary>
-    public PbfWay()
-    {
-        _refs = new List<long>();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the PbfWay class with internal fields initialized to specified capacity.
-    /// </summary>
-    /// <param name="capacity">The desired capacity of internal fields.</param>
-    public PbfWay(int capacity)
-    {
-        _refs = new List<long>(capacity);
-    }
-
     /// <summary>
     /// Gets or sets ID of the way.
     /// </summary>
@@ -50,12 +30,49 @@ internal class PbfWay
     /// <summary>
     /// Gets or sets IDs of nodes referenced by the way. This property is delta encoded.
     /// </summary>
-    public List<long> Refs
+    public List<long> Refs { get; set; } = [];
+
+    /// <summary>
+    /// Serializes the way to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
     {
-        get { return _refs; }
-        set { _refs = value; }
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteLong(ID);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, WireType.String);
+            pbf.WriteUIntCollection(Keys);
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, WireType.String);
+            pbf.WriteUIntCollection(Values);
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+
+        if (Refs.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, WireType.String);
+            pbf.WriteSignedLongCollection(Refs);
+        }
     }
 
+    /// <summary>
+    /// Deserializes a way from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfWay instance containing the deserialized way data.</returns>
     public static PbfWay Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfWay();
@@ -91,37 +108,5 @@ internal class PbfWay
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
-        pbf.WriteLong(ID);
-
-        if (Keys != null && Keys.Count > 0)
-        {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Keys.ToArray());
-        }
-
-        if (Values != null && Values.Count > 0)
-        {
-            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Values.ToArray());
-        }
-
-        if (Metadata != null)
-        {
-            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
-            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
-            Metadata.Serialize(ref pbf);
-            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
-        }
-
-        if (Refs.Count > 0)
-        {
-            pbf.WriteFieldHeader(8, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Refs.ToArray());
-        }
     }
 }

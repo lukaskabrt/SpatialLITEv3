@@ -22,6 +22,11 @@ internal class Blob
     /// </summary>
     public byte[]? ZlibData { get; set; }
 
+    /// <summary>
+    /// Deserializes a blob from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new Blob instance containing the deserialized blob data.</returns>
     public static Blob Deserialize(ref PbfBlockReader pbf)
     {
         var result = new Blob();

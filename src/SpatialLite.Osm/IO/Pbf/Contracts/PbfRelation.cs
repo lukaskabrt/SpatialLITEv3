@@ -7,32 +7,6 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 /// </summary>
 internal class PbfRelation
 {
-
-    private List<long> _memberIds;
-    private List<uint> _rolesIndexes;
-    private List<PbfRelationMemberType> _types;
-
-    /// <summary>
-    /// Initializes a new instance of the PbfRelation class with internal fields initialized to default capacity.
-    /// </summary>
-    public PbfRelation()
-    {
-        _memberIds = new List<long>();
-        _rolesIndexes = new List<uint>();
-        _types = new List<PbfRelationMemberType>();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the PbfRelation class with internal fields initialized to specified capacity.
-    /// </summary>
-    /// <param name="capacity">The desired capacity of internal fields.</param>
-    public PbfRelation(int capacity)
-    {
-        _memberIds = new List<long>(capacity);
-        _rolesIndexes = new List<uint>(capacity);
-        _types = new List<PbfRelationMemberType>(capacity);
-    }
-
     /// <summary>
     /// Gets or sets ID of the relation.
     /// </summary>
@@ -56,30 +30,76 @@ internal class PbfRelation
     /// <summary>
     /// Gets or sets IDs of the relation members. This property is delta encoded.
     /// </summary>
-    public List<long> MemberIds
-    {
-        get { return _memberIds; }
-        set { _memberIds = value; }
-    }
+    public List<long> MemberIds { get; set; } = [];
 
     /// <summary>
     /// Gets or sets index of the role in string table for appropriate members.
     /// </summary>
-    public List<uint> RolesIndexes
-    {
-        get { return _rolesIndexes; }
-        set { _rolesIndexes = value; }
-    }
+    public List<uint> RolesIndexes { get; set; } = [];
 
     /// <summary>
     /// Gets or sets type of the relation members.
     /// </summary>
-    public List<PbfRelationMemberType> Types
+    public List<PbfRelationMemberType> Types { get; set; } = [];
+    /// <summary>
+    /// Serializes the relation to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
     {
-        get { return _types; }
-        set { _types = value; }
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteLong(ID);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, WireType.String);
+            pbf.WriteUIntCollection(Keys);
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, WireType.String);
+            pbf.WriteUIntCollection(Values);
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+
+        if (RolesIndexes.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, WireType.String);
+            pbf.WriteUIntCollection(RolesIndexes);
+        }
+
+        if (MemberIds.Count > 0)
+        {
+            pbf.WriteFieldHeader(9, WireType.String);
+            pbf.WriteSignedLongCollection(MemberIds);
+        }
+
+        if (Types.Count > 0)
+        {
+            pbf.WriteFieldHeader(10, WireType.String);
+            var typesBlock = pbf.StartLengthPrefixedBlock(Types.Count);
+            foreach (var type in Types)
+            {
+                pbf.WriteUint((uint)type);
+            }
+
+            pbf.FinalizeLengthPrefixedBlock(typesBlock);
+        }
     }
 
+    /// <summary>
+    /// Deserializes a relation from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfRelation instance containing the deserialized relation data.</returns>
     public static PbfRelation Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfRelation();
@@ -125,7 +145,7 @@ internal class PbfRelation
 
     private static void ReadRelationMemberTypeList(ref PbfBlockReader pbf, PbfLite.WireType wireType, List<PbfRelationMemberType> list)
     {
-        if (wireType == PbfLite.WireType.String)
+        if (wireType == WireType.String)
         {
             uint byteLength = pbf.ReadVarInt32();
             var endPosition = pbf.Position + byteLength;
@@ -134,59 +154,9 @@ internal class PbfRelation
                 list.Add((PbfRelationMemberType)pbf.ReadUint());
             }
         }
-        else if (wireType == PbfLite.WireType.VarInt)
+        else if (wireType == WireType.VarInt)
         {
             list.Add((PbfRelationMemberType)pbf.ReadUint());
-        }
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
-        pbf.WriteLong(ID);
-
-        if (Keys != null && Keys.Count > 0)
-        {
-            pbf.WriteFieldHeader(2, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Keys.ToArray());
-        }
-
-        if (Values != null && Values.Count > 0)
-        {
-            pbf.WriteFieldHeader(3, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(Values.ToArray());
-        }
-
-        if (Metadata != null)
-        {
-            pbf.WriteFieldHeader(4, PbfLite.WireType.String);
-            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
-            Metadata.Serialize(ref pbf);
-            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
-        }
-
-        if (RolesIndexes.Count > 0)
-        {
-            pbf.WriteFieldHeader(8, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(RolesIndexes.ToArray());
-        }
-
-        if (MemberIds.Count > 0)
-        {
-            pbf.WriteFieldHeader(9, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(MemberIds.ToArray());
-        }
-
-        if (Types.Count > 0)
-        {
-            pbf.WriteFieldHeader(10, PbfLite.WireType.String);
-            var typesBlock = pbf.StartLengthPrefixedBlock(Types.Count);
-            foreach (var type in Types)
-            {
-                pbf.WriteUint((uint)type);
-            }
-
-            pbf.FinalizeLengthPrefixedBlock(typesBlock);
         }
     }
 }

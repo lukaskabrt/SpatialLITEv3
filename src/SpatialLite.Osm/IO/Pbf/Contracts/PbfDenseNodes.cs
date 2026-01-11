@@ -7,20 +7,15 @@ namespace SpatialLite.Osm.IO.Pbf.Contracts;
 /// </summary>
 internal class PbfDenseNodes
 {
-    private List<long> _id;
-    private List<long> _latitude;
-    private List<long> _longitude;
-    private List<uint> _keysVals;
-
     /// <summary>
     /// Initializes a new instance of the DenseNodes class with internal fields initialized to default capacity.
     /// </summary>
     public PbfDenseNodes()
     {
-        _id = [];
-        _latitude = [];
-        _longitude = [];
-        _keysVals = [];
+        Id = new List<long>();
+        Latitude = new List<long>();
+        Longitude = new List<long>();
+        KeysVals = new List<uint>();
     }
 
     /// <summary>
@@ -29,20 +24,16 @@ internal class PbfDenseNodes
     /// <param name="capacity">The desired capacity of internal fields.</param>
     public PbfDenseNodes(int capacity)
     {
-        _id = new List<long>(capacity);
-        _latitude = new List<long>(capacity);
-        _longitude = new List<long>(capacity);
-        _keysVals = new List<uint>(capacity);
+        Id = new List<long>(capacity);
+        Latitude = new List<long>(capacity);
+        Longitude = new List<long>(capacity);
+        KeysVals = new List<uint>(capacity);
     }
 
     /// <summary>
     /// Gets or sets ids of the nodes. This property is delta encoded.
     /// </summary>
-    public List<long> Id
-    {
-        get { return _id; }
-        set { _id = value; }
-    }
+    public List<long> Id { get; set; }
 
     /// <summary>
     /// Gets or sets latitudes of the nodes as number of granularity steps from the LatOffset. This property is delta encoded.
@@ -50,11 +41,7 @@ internal class PbfDenseNodes
     /// <example>
     /// double nodeLat = 1E-09 * (block.LatOffset + (block.Granularity * Latitude));
     /// </example>
-    public List<long> Latitude
-    {
-        get { return _latitude; }
-        set { _latitude = value; }
-    }
+    public List<long> Latitude { get; set; }
 
     /// <summary>
     /// Gets or sets longitude of the nodes as number of granularity steps from the LonOffset. This property is delta encoded.
@@ -62,11 +49,7 @@ internal class PbfDenseNodes
     /// <example>
     /// double nodeLon = 1E-09 * (block.LonOffset + (block.Granularity * Longitude));
     /// </example>
-    public List<long> Longitude
-    {
-        get { return _longitude; }
-        set { _longitude = value; }
-    }
+    public List<long> Longitude { get; set; }
 
     /// <summary>
     /// Gets or sets entities metadata encoded in the DenseInfo object
@@ -79,12 +62,52 @@ internal class PbfDenseNodes
     /// <remarks>
     /// Tags are saved as (KeyIndex, ValueIndex) pairs. Tags for consecutive nodes are separated by 0.
     /// </remarks>
-    public List<uint> KeysVals
+    public List<uint> KeysVals { get; set; }
+
+    /// <summary>
+    /// Serializes the dense nodes to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
     {
-        get { return _keysVals; }
-        set { _keysVals = value; }
+        if (Id.Count > 0)
+        {
+            pbf.WriteFieldHeader(1, WireType.String);
+            pbf.WriteSignedLongCollection(Id);
+        }
+
+        if (Latitude.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, WireType.String);
+            pbf.WriteSignedLongCollection(Latitude);
+        }
+
+        if (Longitude.Count > 0)
+        {
+            pbf.WriteFieldHeader(9, WireType.String);
+            pbf.WriteSignedLongCollection(Longitude);
+        }
+
+        if (DenseInfo != null)
+        {
+            pbf.WriteFieldHeader(5, WireType.String);
+            var denseInfoBlock = pbf.StartLengthPrefixedBlock(512);
+            DenseInfo.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(denseInfoBlock);
+        }
+
+        if (KeysVals.Count > 0)
+        {
+            pbf.WriteFieldHeader(10, WireType.String);
+            pbf.WriteUIntCollection(KeysVals);
+        }
     }
 
+    /// <summary>
+    /// Deserializes dense nodes from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfDenseNodes instance containing the deserialized nodes.</returns>
     public static PbfDenseNodes Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfDenseNodes();
@@ -118,40 +141,5 @@ internal class PbfDenseNodes
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        if (Id.Count > 0)
-        {
-            pbf.WriteFieldHeader(1, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Id.ToArray());
-        }
-
-        if (Latitude.Count > 0)
-        {
-            pbf.WriteFieldHeader(8, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Latitude.ToArray());
-        }
-
-        if (Longitude.Count > 0)
-        {
-            pbf.WriteFieldHeader(9, PbfLite.WireType.String);
-            pbf.WriteSignedLongCollection(Longitude.ToArray());
-        }
-
-        if (DenseInfo != null)
-        {
-            pbf.WriteFieldHeader(5, PbfLite.WireType.String);
-            var denseInfoBlock = pbf.StartLengthPrefixedBlock(512);
-            DenseInfo.Serialize(ref pbf);
-            pbf.FinalizeLengthPrefixedBlock(denseInfoBlock);
-        }
-
-        if (KeysVals.Count > 0)
-        {
-            pbf.WriteFieldHeader(10, PbfLite.WireType.String);
-            pbf.WriteUIntCollection(KeysVals.ToArray());
-        }
     }
 }

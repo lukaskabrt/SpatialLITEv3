@@ -13,6 +13,21 @@ public class PbfChangeset
     /// </summary>
     public long ID { get; set; }
 
+    /// <summary>
+    /// Serializes the changeset to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
+    {
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteLong(ID);
+    }
+
+    /// <summary>
+    /// Deserializes a changeset from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfChangeset instance containing the deserialized changeset data.</returns>
     public static PbfChangeset Deserialize(ref PbfBlockReader pbf)
     {
         var result = new PbfChangeset();
@@ -33,11 +48,5 @@ public class PbfChangeset
         }
 
         return result;
-    }
-
-    public void Serialize(ref PbfBlockWriter pbf)
-    {
-        pbf.WriteFieldHeader(1, PbfLite.WireType.VarInt);
-        pbf.WriteLong(ID);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using PbfLite;
-using System.Buffers;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
@@ -33,6 +32,10 @@ internal class OsmHeader
     /// </summary>
     public string? WritingProgram { get; set; }
 
+    /// <summary>
+    /// Serializes the OSM header to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
     public void Serialize(ref PbfBlockWriter pbf)
     {
         if (BBox != null)
@@ -69,6 +72,11 @@ internal class OsmHeader
         }
     }
 
+    /// <summary>
+    /// Deserializes an OSM header from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new OsmHeader instance containing the deserialized header data.</returns>
     public static OsmHeader Deserialize(ref PbfBlockReader pbf)
     {
         var result = new OsmHeader();

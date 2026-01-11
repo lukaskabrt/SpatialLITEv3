@@ -192,7 +192,7 @@ public class PbfWriter : IOsmWriter
 
         if (Settings.Compression == CompressionMode.None)
         {
-            blobPbfWriter.WriteFieldHeader(1, PbfLite.WireType.String);
+            blobPbfWriter.WriteFieldHeader(1, WireType.String);
             blobPbfWriter.WriteLengthPrefixedBytes(blobContent);
         }
         else if (Settings.Compression == CompressionMode.ZlibDeflate)
@@ -202,20 +202,20 @@ public class PbfWriter : IOsmWriter
 
             zlib.Write(blobContent);
 
-            blobPbfWriter.WriteFieldHeader(2, PbfLite.WireType.VarInt);
+            blobPbfWriter.WriteFieldHeader(2, WireType.VarInt);
             blobPbfWriter.WriteInt(blobContent.Length);
 
-            blobPbfWriter.WriteFieldHeader(3, PbfLite.WireType.String);
+            blobPbfWriter.WriteFieldHeader(3, WireType.String);
             blobPbfWriter.WriteLengthPrefixedBytes(compressedStream.ToArray());
         }
 
         Span<byte> headerBuffer = stackalloc byte[128];
         var headerPbfWriter = PbfBlockWriter.Create(headerBuffer);
 
-        headerPbfWriter.WriteFieldHeader(1, PbfLite.WireType.String);
+        headerPbfWriter.WriteFieldHeader(1, WireType.String);
         headerPbfWriter.WriteString(blobType);
 
-        headerPbfWriter.WriteFieldHeader(3, PbfLite.WireType.VarInt);
+        headerPbfWriter.WriteFieldHeader(3, WireType.VarInt);
         headerPbfWriter.WriteInt(blobPbfWriter.Block.Length);
 
         Span<byte> headerLengthBuffer = stackalloc byte[4];
