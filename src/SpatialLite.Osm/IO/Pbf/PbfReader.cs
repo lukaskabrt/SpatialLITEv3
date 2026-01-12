@@ -204,7 +204,7 @@ public class PbfReader : IOsmReader
 
         if (header.Type.Equals("OSMData", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize > MaxDataBlockSize) || (blob.RawSize.HasValue == false && blobContent.Length > MaxDataBlockSize))
+            if ((blob.RawSize > MaxDataBlockSize) || (!blob.RawSize.HasValue && blobContent.Length > MaxDataBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMData block");
             }
@@ -214,7 +214,7 @@ public class PbfReader : IOsmReader
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize.HasValue && blob.RawSize > MaxHeaderBlockSize) || (blob.RawSize.HasValue == false && blobContent.Length > MaxHeaderBlockSize))
+            if ((blob.RawSize > MaxHeaderBlockSize) || (!blob.RawSize.HasValue && blobContent.Length > MaxHeaderBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMHeader block");
             }

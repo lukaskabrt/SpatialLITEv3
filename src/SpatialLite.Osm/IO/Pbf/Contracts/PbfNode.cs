@@ -37,7 +37,6 @@ internal class PbfNode
     /// </summary>
     public long Longitude { get; set; }
 
-
     /// <summary>
     /// Serializes the node to a PBF block writer.
     /// </summary>
