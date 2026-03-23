@@ -17,11 +17,12 @@ dotnet test src/SpatialLite.sln --filter "FullyQualifiedName~WkbReaderTests.Read
 # Run tests in a single project
 dotnet test src/Tests/SpatialLite.UnitTests
 
-# Lint / format check (CI enforces this)
+# Lint / format check (CI enforces this). Locally, install dotnet-format as a global tool first:
+#   dotnet tool install -g dotnet-format
 dotnet format src/SpatialLite.sln --verify-no-changes
 ```
 
-Integration tests (`SpatialLite.IntegrationTests`) require `osmium-tool` installed on the system.
+Integration tests (`SpatialLite.IntegrationTests`) use `osmium-tool`. On Linux, a system `osmium` binary must be installed and available on `PATH`; on Windows, the project uses the bundled `Tools/Osmium/Windows/osmium.exe` by default.
 
 ## Architecture
 
@@ -31,21 +32,21 @@ SpatialLite is a .NET 8.0 library for spatial data processing, distributed as mu
 
 ```
 SpatialLite.Contracts  ← Core interfaces and value types (IGeometry, IPoint, Coordinate, Envelope)
-        ↑
+        ↑                          ↑
 SpatialLite.Core       ← Geometry implementations (Point, LineString, Polygon, Multi*) + WKT/WKB I/O
         ↑
 SpatialLite.Gpx        ← GPX format reader/writer
-SpatialLite.Osm        ← OpenStreetMap XML and PBF format readers/writers (uses protobuf-net)
+SpatialLite.Osm        ← OpenStreetMap XML and PBF format readers/writers (depends on SpatialLite.Contracts + protobuf-net)
 ```
 
 **Contracts vs. implementation separation:** Interfaces and value types live in `SpatialLite.Contracts`. Concrete geometry classes and I/O live in the other projects. Readers/writers accept and return interface types (`IGeometry`, `IPoint`, etc.).
 
-**Reader/writer pattern** — all I/O classes follow this structure:
+**Reader/writer pattern** — I/O classes generally follow this structure:
 - Two constructor overloads: `Stream` (caller manages lifecycle) and `string path` (class owns the `FileStream`)
-- Static `Parse`/`Write` methods for one-shot operations
 - Instance `Read`/`Write` methods for streaming through a file
-- `IDisposable` with the full pattern (protected `Dispose(bool)` + finalizer)
-- Optional `Settings` class for configuration (e.g., `GpxWriterSettings`, `OsmReaderSettings`)
+- Many provide static `Parse`/`Write` helpers for one-shot operations, but this is not required for all formats
+- `IDisposable` implemented with a private `Dispose(bool disposing)` helper and no finalizer, unless unmanaged resources require the full pattern
+- Some formats have an optional `Settings` class for configuration (e.g., `GpxWriterSettings`, `OsmReaderSettings`)
 
 ## Code Style
 
@@ -56,7 +57,7 @@ Follow `.editorconfig` — it is comprehensive and enforced as warnings at build
 - Always use braces on control flow
 - Prefer pattern matching over `is`/`as` with null checks
 - Private fields: `_camelCase`; private constants: `PascalCase`; private static readonly: `PascalCase`
-- CRLF line endings, UTF-8, 4-space indent, max 160 character lines
+- Use CRLF line endings, UTF-8 encoding, 4-space indent, and keep lines under 160 characters; configure your editor accordingly (not all of these are enforced by `.editorconfig`)
 - `using` directives outside namespace
 - Nullable enabled, implicit usings enabled, warnings treated as errors
 
