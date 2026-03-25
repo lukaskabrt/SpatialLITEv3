@@ -1,6 +1,9 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
 using SpatialLite.Contracts;
 using SpatialLite.Osm.IO.Pbf.Contracts;
+using System.Buffers;
+using System.Buffers.Binary;
+using System.IO.Compression;
 
 namespace SpatialLite.Osm.IO.Pbf;
 
@@ -9,24 +12,6 @@ namespace SpatialLite.Osm.IO.Pbf;
 /// </summary>
 public class PbfReader : IOsmReader
 {
-    static PbfReader()
-    {
-        Serializer.PrepareSerializer<Blob>();
-        Serializer.PrepareSerializer<BlobHeader>();
-        Serializer.PrepareSerializer<HeaderBBox>();
-        Serializer.PrepareSerializer<OsmHeader>();
-        Serializer.PrepareSerializer<PbfDenseMetadata>();
-        Serializer.PrepareSerializer<PbfDenseNodes>();
-        Serializer.PrepareSerializer<PbfChangeset>();
-        Serializer.PrepareSerializer<PbfMetadata>();
-        Serializer.PrepareSerializer<PbfNode>();
-        Serializer.PrepareSerializer<PbfRelation>();
-        Serializer.PrepareSerializer<PbfWay>();
-        Serializer.PrepareSerializer<PrimitiveBlock>();
-        Serializer.PrepareSerializer<PrimitiveGroup>();
-        Serializer.PrepareSerializer<StringTable>();
-    }
-
     /// <summary>
     /// Defines maximal allowed size of uncompressed OsmData block. Larger blocks are considered invalid.
     /// </summary>
@@ -57,26 +42,19 @@ public class PbfReader : IOsmReader
         BlobHeader? blobHeader;
         while ((blobHeader = ReadBlobHeader()) != null)
         {
-            try
+            if (blobHeader.Type == "OSMHeader")
             {
-                if (blobHeader.Type == "OSMHeader")
-                {
-                    var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
-                    ProcessOsmHeader(osmHeader);
-                    return;
-                }
-                else if (blobHeader.Type == "OSMData")
-                {
-                    throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
-                }
-                else
-                {
-                    _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
-                }
+                var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
+                ProcessOsmHeader(osmHeader);
+                return;
             }
-            catch (ProtoException ex)
+            else if (blobHeader.Type == "OSMData")
             {
-                throw new InvalidDataException("Input stream contains unsupported data", ex);
+                throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
+            }
+            else
+            {
+                _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
             }
         }
 
@@ -98,26 +76,19 @@ public class PbfReader : IOsmReader
         BlobHeader? blobHeader;
         while ((blobHeader = ReadBlobHeader()) != null)
         {
-            try
+            if (blobHeader.Type == "OSMHeader")
             {
-                if (blobHeader.Type == "OSMHeader")
-                {
-                    var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
-                    ProcessOsmHeader(osmHeader);
-                    return;
-                }
-                else if (blobHeader.Type == "OSMData")
-                {
-                    throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
-                }
-                else
-                {
-                    _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
-                }
+                var osmHeader = (OsmHeader?)ReadBlob(blobHeader);
+                ProcessOsmHeader(osmHeader);
+                return;
             }
-            catch (ProtoException ex)
+            else if (blobHeader.Type == "OSMData")
             {
-                throw new InvalidDataException("Input stream contains unsupported data", ex);
+                throw new InvalidDataException("Input stream doesn't contain an 'OSMHeader' block before 'OSMData' block.");
+            }
+            else
+            {
+                _input.Seek(blobHeader.DataSize, SeekOrigin.Current);
             }
         }
 
@@ -182,7 +153,21 @@ public class PbfReader : IOsmReader
     {
         if (_input.Position < _input.Length)
         {
-            return Serializer.DeserializeWithLengthPrefix<BlobHeader>(_input, PrefixStyle.Fixed32BigEndian);
+            var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
+            _input.ReadExactly(lengthBuffer, 0, 4);
+
+            var headerLength = BinaryPrimitives.ReadInt32BigEndian(lengthBuffer.AsSpan(0, 4));
+
+            var buffer = ArrayPool<byte>.Shared.Rent(headerLength);
+            _input.ReadExactly(buffer, 0, headerLength);
+
+            var pbf = PbfBlockReader.Create(buffer.AsSpan(0, headerLength));
+            var header = BlobHeader.Deserialize(ref pbf);
+
+            ArrayPool<byte>.Shared.Return(lengthBuffer);
+            ArrayPool<byte>.Shared.Return(buffer);
+
+            return header;
         }
 
         return null;
@@ -195,17 +180,22 @@ public class PbfReader : IOsmReader
     /// <returns>Deserialized content of the read blob or null if blob contains unknown data.</returns>
     private object? ReadBlob(BlobHeader header)
     {
-        var blob = Serializer.Deserialize<Blob>(_input, length: header.DataSize);
+        var buffer = ArrayPool<byte>.Shared.Rent(header.DataSize);
+        _input.ReadExactly(buffer, 0, header.DataSize);
 
-        Stream blobContentStream;
+        var pbf = PbfBlockReader.Create(buffer.AsSpan(0, header.DataSize));
+        var blob = Blob.Deserialize(ref pbf);
+
+        byte[] blobContent;
         if (blob.Raw != null)
         {
-            blobContentStream = new MemoryStream(blob.Raw);
+            blobContent = blob.Raw;
         }
         else if (blob.ZlibData != null)
         {
-            var deflateStreamData = new MemoryStream(blob.ZlibData);
-            blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+            using var deflateStreamData = new MemoryStream(blob.ZlibData);
+            using var blobContentStream = new System.IO.Compression.ZLibStream(deflateStreamData, System.IO.Compression.CompressionMode.Decompress);
+            blobContent = ReadAllBytes(blobContentStream);
         }
         else
         {
@@ -214,33 +204,35 @@ public class PbfReader : IOsmReader
 
         if (header.Type.Equals("OSMData", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize.HasValue && blob.RawSize > MaxDataBlockSize) || (blob.RawSize.HasValue == false && blobContentStream.Length > MaxDataBlockSize))
+            if ((blob.RawSize > MaxDataBlockSize) || (!blob.RawSize.HasValue && blobContent.Length > MaxDataBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMData block");
             }
 
-            return Serializer.Deserialize<PrimitiveBlock>(blobContentStream);
+            var blobContentPbf = PbfBlockReader.Create(blobContent);
+            return PrimitiveBlock.Deserialize(ref blobContentPbf);
         }
         else if (header.Type.Equals("OSMHeader", StringComparison.OrdinalIgnoreCase))
         {
-            if ((blob.RawSize.HasValue && blob.RawSize > MaxHeaderBlockSize) || (blob.RawSize.HasValue == false && blobContentStream.Length > MaxHeaderBlockSize))
+            if ((blob.RawSize > MaxHeaderBlockSize) || (!blob.RawSize.HasValue && blobContent.Length > MaxHeaderBlockSize))
             {
                 throw new InvalidDataException("Invalid OSMHeader block");
             }
 
-            try
-            {
-                return Serializer.Deserialize<OsmHeader>(blobContentStream);
-            }
-            catch (ProtoException ex)
-            {
-                throw new InvalidDataException("Invalid OSMData block", ex);
-            }
+            var blobContentPbf = PbfBlockReader.Create(blobContent);
+            return OsmHeader.Deserialize(ref blobContentPbf);
         }
         else
         {
             return null;
         }
+    }
+
+    private byte[] ReadAllBytes(ZLibStream blobContentStream)
+    {
+        using var memoryStream = new MemoryStream();
+        blobContentStream.CopyTo(memoryStream);
+        return memoryStream.ToArray();
     }
 
     /// <summary>
@@ -259,7 +251,7 @@ public class PbfReader : IOsmReader
         {
             if (supportedFeatures.Contains(required) == false)
             {
-                throw new NotSupportedException(string.Format(System.Globalization.CultureInfo.InvariantCulture, "Processing specified PBF file requires '{0}' feature which isn't supported by PbfReader.", required));
+                throw new InvalidDataException(string.Format(System.Globalization.CultureInfo.InvariantCulture, "Processing specified PBF file requires '{0}' feature which isn't supported by PbfReader.", required));
             }
         }
     }

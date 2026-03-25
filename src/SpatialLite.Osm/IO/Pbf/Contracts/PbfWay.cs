@@ -1,64 +1,112 @@
-﻿using ProtoBuf;
+﻿using PbfLite;
 
 namespace SpatialLite.Osm.IO.Pbf.Contracts;
 
 /// <summary>
 /// Represents data transfer object used by PBF serializer for Ways.
 /// </summary>
-[ProtoContract(Name = "Way")]
 internal class PbfWay
 {
-
-    private IList<long> _refs;
-
-    /// <summary>
-    /// Initializes a new instance of the PbfWay class with internal fields initialized to default capacity.
-    /// </summary>
-    public PbfWay()
-    {
-        _refs = new List<long>();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the PbfWay class with internal fields initialized to specified capacity.
-    /// </summary>
-    /// <param name="capacity">The desired capacity of internal fields.</param>
-    public PbfWay(int capacity)
-    {
-        _refs = new List<long>(capacity);
-    }
-
     /// <summary>
     /// Gets or sets ID of the way.
     /// </summary>
-    [ProtoMember(1, Name = "id", IsRequired = true)]
     public long ID { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's keys in string table.
     /// </summary>
-    [ProtoMember(2, Name = "keys", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Keys { get; set; }
+    public List<uint>? Keys { get; set; }
 
     /// <summary>
     /// Gets or sets indexes of tag's values in string table.
     /// </summary>
-    [ProtoMember(3, Name = "vals", Options = MemberSerializationOptions.Packed)]
-    public IList<uint>? Values { get; set; }
+    public List<uint>? Values { get; set; }
 
     /// <summary>
     /// Gets or sets entity metadata.
     /// </summary>
-    [ProtoMember(4, Name = "info", IsRequired = false)]
     public PbfMetadata? Metadata { get; set; }
 
     /// <summary>
     /// Gets or sets IDs of nodes referenced by the way. This property is delta encoded.
     /// </summary>
-    [ProtoMember(8, Name = "refs", Options = MemberSerializationOptions.Packed, DataFormat = DataFormat.ZigZag)]
-    public IList<long> Refs
+    public List<long> Refs { get; set; } = [];
+
+    /// <summary>
+    /// Serializes the way to a PBF block writer.
+    /// </summary>
+    /// <param name="pbf">The PBF block writer to serialize to.</param>
+    public void Serialize(ref PbfBlockWriter pbf)
     {
-        get { return _refs; }
-        set { _refs = value; }
+        pbf.WriteFieldHeader(1, WireType.VarInt);
+        pbf.WriteLong(ID);
+
+        if (Keys != null && Keys.Count > 0)
+        {
+            pbf.WriteFieldHeader(2, WireType.String);
+            pbf.WriteUIntCollection(Keys);
+        }
+
+        if (Values != null && Values.Count > 0)
+        {
+            pbf.WriteFieldHeader(3, WireType.String);
+            pbf.WriteUIntCollection(Values);
+        }
+
+        if (Metadata != null)
+        {
+            pbf.WriteFieldHeader(4, WireType.String);
+            var metadataBlock = pbf.StartLengthPrefixedBlock(64);
+            Metadata.Serialize(ref pbf);
+            pbf.FinalizeLengthPrefixedBlock(metadataBlock);
+        }
+
+        if (Refs.Count > 0)
+        {
+            pbf.WriteFieldHeader(8, WireType.String);
+            pbf.WriteSignedLongCollection(Refs);
+        }
+    }
+
+    /// <summary>
+    /// Deserializes a way from a PBF block reader.
+    /// </summary>
+    /// <param name="pbf">The PBF block reader to deserialize from.</param>
+    /// <returns>A new PbfWay instance containing the deserialized way data.</returns>
+    public static PbfWay Deserialize(ref PbfBlockReader pbf)
+    {
+        var result = new PbfWay();
+        var (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        while (fieldNumber != 0)
+        {
+            switch (fieldNumber)
+            {
+                case 1:
+                    result.ID = pbf.ReadLong();
+                    break;
+                case 2:
+                    result.Keys ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Keys);
+                    break;
+                case 3:
+                    result.Values ??= [];
+                    pbf.ReadUIntCollection(wireType, result.Values);
+                    break;
+                case 8:
+                    pbf.ReadSignedLongCollection(wireType, result.Refs);
+                    break;
+                case 4:
+                    var metadataPbf = PbfBlockReader.Create(pbf.ReadLengthPrefixedBytes());
+                    result.Metadata = PbfMetadata.Deserialize(ref metadataPbf);
+                    break;
+                default:
+                    pbf.SkipField(wireType);
+                    break;
+            }
+
+            (fieldNumber, wireType) = pbf.ReadFieldHeader();
+        }
+
+        return result;
     }
 }

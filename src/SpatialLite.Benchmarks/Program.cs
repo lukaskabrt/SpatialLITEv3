@@ -9,10 +9,10 @@ using SpatialLite.Benchmarks.Osm.IO;
 #pragma warning restore IDE0005
 
 //BenchmarkRunner.Run<EnvelopeBenchmarks>();
-BenchmarkRunner.Run<EuclideanDistanceCalculatorBenchmarks>();
+//BenchmarkRunner.Run<EuclideanDistanceCalculatorBenchmarks>();
 //BenchmarkRunner.Run<WktReaderBenchmarks>();
 //BenchmarkRunner.Run<WktWriterBenchmarks>();
 //BenchmarkRunner.Run<OsmXmlReaderBenchmarks>();
 //BenchmarkRunner.Run<OsmXmlWriterBenchmarks>();
-//BenchmarkRunner.Run<PbfReaderBenchmarks>();
+BenchmarkRunner.Run<PbfReaderBenchmarks>();
 //BenchmarkRunner.Run<PbfWriterBenchmarks>();
